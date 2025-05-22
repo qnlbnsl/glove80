@@ -1,11 +1,14 @@
 manifest:
   remotes:
     - name: moergo-sc
-      url-base: https://github.com/moergo-sc
+    #   url-base: https://github.com/moergo-sc
+    # - name: rgb-leds
+      url-base: https://github.com/darknao
   projects:
     - name: zmk
       remote: moergo-sc
-      revision: main
+      revision: rgb-layer-25.04 #main
       import: app/west.yml
+
   self:
     path: config
