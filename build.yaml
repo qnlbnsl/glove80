@@ -5,3 +5,7 @@
 # the `include` property, e.g:
 #
 board: [ "glove80_lh", "glove80_rh" ]
+
+include:
+  - board: seeeduino_xiao_ble
+    shield: glove80_dongle prospector_adapter
