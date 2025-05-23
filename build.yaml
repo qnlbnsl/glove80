@@ -9,7 +9,10 @@
 include:
   - board: seeeduino_xiao_ble
     shield: glove80_dongle prospector_adapter
+    cmake-args: -DCONFIG_EXPERIMENTAL_RGB_LAYER=n
 
   - board: glove80_lh
+    cmake-args: -DCONFIG_EXPERIMENTAL_RGB_LAYER=y
 
   - board: glove80_rh
+    cmake-args: -DCONFIG_EXPERIMENTAL_RGB_LAYER=y

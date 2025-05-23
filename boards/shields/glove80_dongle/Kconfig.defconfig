@@ -23,6 +23,4 @@ config BT_MAX_CONN
 config BT_MAX_PAIRED
     default 6
 
-config CONFIG_EXPERIMENTAL_RGB_LAYER
-    default n
 endif
