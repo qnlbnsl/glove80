@@ -33,8 +33,5 @@
         >;
     };
 
-    underglow-layer {
-        compatible  = "zmk,underglow-layer";
-        pixel-lookup;
-    };
+
 };
