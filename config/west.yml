@@ -12,7 +12,7 @@ manifest:
   projects:
     - name: zmk
       remote: moergo-sc
-      revision: rgb-layer-24.12 #main
+      revision: main #rgb-layer-24.12
       import: app/west.yml
 
     - name: prospector-zmk-module                 # <--- and these
