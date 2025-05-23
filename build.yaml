@@ -8,4 +8,4 @@ board: [ "glove80_lh", "glove80_rh" ]
 
 include:
   - board: seeeduino_xiao_ble
-    shield: prospector_adapter
+    shield: glove80_dongle prospector_adapter
