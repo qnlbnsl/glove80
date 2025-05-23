@@ -36,11 +36,5 @@
     underglow-layer {
         compatible = "zmk,underglow-layer";
         pixel-lookup = <>;
-
-        // Add a minimal layer definition to satisfy the RGB layer system
-        BaseLayer {
-            bindings = <>;
-            layer-id = <0>;
-        };
     };
 };
