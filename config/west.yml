@@ -9,7 +9,7 @@ manifest:
 
   projects:
     - name: zmk
-      remote: darknao
+      remote: qnlbnsl
       revision: rgb-layer-24.12 #main
       import: app/west.yml
 
