@@ -1,0 +1,360 @@
+/* Automatically generated keymap */
+/ {
+	keymap {
+		compatible = "zmk,keymap";
+		
+		
+		layer_QWERTY {
+			bindings = <
+			&kp UP                      &kp DOWN                         &kp A                         &kp B                         &kp C                                                                                                                                                                                   &kp D                          &kp E                          &kp F                          &kp LEFT                     &kp RIGHT
+			&kp EQUAL                        &kp N1                        &kp N2                        &kp N3                        &kp N4  &kp N5                                                                                                                                           &kp N6                         &kp N7                         &kp N8                         &kp N9                            &kp N0                     &kp MINUS
+			&kp TAB                         &kp Q                         &kp W                         &kp E                         &kp R   &kp T                                                                                                                                            &kp Y                          &kp U                          &kp I                          &kp O                             &kp P                      &kp BSLH
+			&kp CAPS  &LeftPinky (A, LAYER_QWERTY)  &LeftRingy (S, LAYER_QWERTY)  &LeftMiddy (D, LAYER_QWERTY)  &LeftIndex (F, LAYER_QWERTY)   &kp G                                                                                                                                            &kp H  &RightIndex (J, LAYER_QWERTY)  &RightMiddy (K, LAYER_QWERTY)  &RightRingy (L, LAYER_QWERTY)  &RightPinky (SEMI, LAYER_QWERTY)                       &kp SQT
+			&sticky_key_modtap LSFT LSFT                         &kp Z                         &kp X                         &kp C                         &kp V   &kp B      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER   &kp N                          &kp M                      &kp COMMA                        &kp DOT                          &kp FSLH  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                     &kp GRAVE                      &kp LBKT                      &kp RBKT      &stumb LAYER_Typing LSFT          &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE               &stumb LAYER_Typing RSFT                   &parang_left                  &parang_right                          &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Enthium {
+			bindings = <
+			&kp HOME                        &kp END                          &kp A                          &kp B                          &kp C                                                                                                                                                                                     &kp D                           &kp E                           &kp F                        &kp LEFT                     &kp RIGHT
+			&kp PG_UP                         &kp N1                         &kp N2                         &kp N3                         &kp N4     &kp N5                                                                                                                                         &kp N6                          &kp N7                          &kp N8                          &kp N9                          &kp N0                        &kp UP
+			&kp PG_DN                          &kp B                          &kp Y                          &kp O                          &kp U   &kp SEMI                                                                                                                                          &kp X                           &kp L                           &kp D                           &kp W                           &kp V                      &kp DOWN
+			&kp Z  &LeftPinky (C, LAYER_Enthium)  &LeftRingy (I, LAYER_Enthium)  &LeftMiddy (E, LAYER_Enthium)  &LeftIndex (A, LAYER_Enthium)  &kp COMMA                                                                                                                                          &kp K  &RightIndex (H, LAYER_Enthium)  &RightMiddy (T, LAYER_Enthium)  &RightRingy (N, LAYER_Enthium)  &RightPinky (S, LAYER_Enthium)                         &kp Q
+			&sticky_key_modtap LSFT LSFT                        &kp SQT                      &kp MINUS                      &kp EQUAL                        &kp DOT   &kp FSLH  &thumb LAYER_Function ESC  &thumb LAYER_Emoji INSERT      &lower      &lower     &thumb LAYER_World DELETE  &thumb LAYER_System ENTER   &kp J                           &kp M                           &kp G                           &kp P                           &kp F  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                      &kp GRAVE                       &kp LBKT                       &kp RBKT       &stumb LAYER_Typing LSFT             &thumb LAYER_Cursor SPACE    &thumb LAYER_Number TAB  &caps_word  &caps_word  &thumb LAYER_Mouse BACKSPACE      &space LAYER_Symbol R                &stumb LAYER_Typing RSFT                    &parang_left                   &parang_right                        &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Engrammer {
+			bindings = <
+			&kp UP                         &kp DOWN                            &kp A                            &kp B                            &kp C                                                                                                                                                                                           &kp D                             &kp E                             &kp F                          &kp LEFT                     &kp RIGHT
+			&kp EQUAL                           &kp N1                           &kp N2                           &kp N3                           &kp N4     &kp N5                                                                                                                                             &kp N6                            &kp N7                            &kp N8                            &kp N9                            &kp N0                      &kp BSLH
+			&kp GRAVE                            &kp B                            &kp Y                            &kp O                            &kp U    &kp SQT                                                                                                                                           &kp SEMI                             &kp L                             &kp D                             &kp W                             &kp V                         &kp Z
+			&kp Z  &LeftPinky (C, LAYER_Engrammer)  &LeftRingy (I, LAYER_Engrammer)  &LeftMiddy (E, LAYER_Engrammer)  &LeftIndex (A, LAYER_Engrammer)  &kp COMMA                                                                                                                                            &kp DOT  &RightIndex (H, LAYER_Engrammer)  &RightMiddy (T, LAYER_Engrammer)  &RightRingy (S, LAYER_Engrammer)  &RightPinky (N, LAYER_Engrammer)                         &kp Q
+			&sticky_key_modtap LSFT LSFT                            &kp G                            &kp X                            &kp J                            &kp K  &kp MINUS      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER  &kp FSLH                             &kp R                             &kp M                             &kp F                             &kp P  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                        &kp GRAVE                         &kp LBKT                         &kp RBKT         &stumb LAYER_Typing LSFT             &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE                    &stumb LAYER_Typing RSFT                      &parang_left                     &parang_right                          &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Engram {
+			bindings = <
+			&kp UP                      &kp DOWN                         &kp A                         &kp B                         &kp C                                                                                                                                                                                                 &kp D                          &kp E                          &kp F                       &kp LEFT                     &kp RIGHT
+			&kp LBKT                    &engram_N1                    &engram_N2                    &engram_N3                    &engram_N4     &engram_N5                                                                                                                                              &engram_N6                     &engram_N7                     &engram_N8                     &engram_N9                     &engram_N0                      &kp RBKT
+			&engram_HASH                         &kp B                         &kp Y                         &kp O                         &kp U    &engram_SQT                                                                                                                                             &engram_DQT                          &kp L                          &kp D                          &kp W                          &kp V                         &kp Z
+			&kp Z  &LeftPinky (C, LAYER_Engram)  &LeftRingy (I, LAYER_Engram)  &LeftMiddy (E, LAYER_Engram)  &LeftIndex (A, LAYER_Engram)  &engram_COMMA                                                                                                                                             &engram_DOT  &RightIndex (H, LAYER_Engram)  &RightMiddy (T, LAYER_Engram)  &RightRingy (S, LAYER_Engram)  &RightPinky (N, LAYER_Engram)                         &kp Q
+			&sticky_key_modtap LSFT LSFT                         &kp G                         &kp X                         &kp J                         &kp K      &kp MINUS      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER  &engram_QMARK                          &kp R                          &kp M                          &kp F                          &kp P  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                    &engram_AT                      &kp LBKT                      &kp RBKT      &stumb LAYER_Typing LSFT                 &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE                      &stumb LAYER_Typing RSFT                   &parang_left                  &parang_right                   &engram_FSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Dvorak {
+			bindings = <
+			&kp UP                      &kp DOWN                         &kp A                         &kp B                         &kp C                                                                                                                                                                                   &kp D                          &kp E                          &kp F                       &kp LEFT                     &kp RIGHT
+			&kp EQUAL                        &kp N1                        &kp N2                        &kp N3                        &kp N4  &kp N5                                                                                                                                           &kp N6                         &kp N7                         &kp N8                         &kp N9                         &kp N0                      &kp BSLH
+			&kp TAB                       &kp SQT                     &kp COMMA                       &kp DOT                         &kp P   &kp Y                                                                                                                                            &kp F                          &kp G                          &kp C                          &kp R                          &kp L                     &kp SLASH
+			&kp CAPS  &LeftPinky (A, LAYER_Dvorak)  &LeftRingy (O, LAYER_Dvorak)  &LeftMiddy (E, LAYER_Dvorak)  &LeftIndex (U, LAYER_Dvorak)   &kp I                                                                                                                                            &kp D  &RightIndex (H, LAYER_Dvorak)  &RightMiddy (T, LAYER_Dvorak)  &RightRingy (N, LAYER_Dvorak)  &RightPinky (S, LAYER_Dvorak)                     &kp MINUS
+			&sticky_key_modtap LSFT LSFT                      &kp SEMI                         &kp Q                         &kp J                         &kp K   &kp X      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER   &kp B                          &kp M                          &kp W                          &kp V                          &kp Z  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                     &kp GRAVE                      &kp LBKT                      &kp RBKT      &stumb LAYER_Typing LSFT          &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE               &stumb LAYER_Typing RSFT                   &parang_left                  &parang_right                       &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Colemak {
+			bindings = <
+			&kp UP                       &kp DOWN                          &kp A                          &kp B                          &kp C                                                                                                                                                                                    &kp D                           &kp E                           &kp F                        &kp LEFT                     &kp RIGHT
+			&kp EQUAL                         &kp N1                         &kp N2                         &kp N3                         &kp N4  &kp N5                                                                                                                                           &kp N6                          &kp N7                          &kp N8                          &kp N9                          &kp N0                      &kp BSLH
+			&kp GRAVE                          &kp Q                          &kp W                          &kp F                          &kp P   &kp G                                                                                                                                            &kp J                           &kp L                           &kp U                           &kp Y                        &kp SEMI                     &kp MINUS
+			&kp CAPS  &LeftPinky (A, LAYER_Colemak)  &LeftRingy (R, LAYER_Colemak)  &LeftMiddy (S, LAYER_Colemak)  &LeftIndex (T, LAYER_Colemak)   &kp D                                                                                                                                            &kp H  &RightIndex (N, LAYER_Colemak)  &RightMiddy (E, LAYER_Colemak)  &RightRingy (I, LAYER_Colemak)  &RightPinky (O, LAYER_Colemak)                       &kp SQT
+			&sticky_key_modtap LSFT LSFT                          &kp Z                          &kp X                          &kp C                          &kp V   &kp B      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER   &kp K                           &kp M                       &kp COMMA                         &kp DOT                        &kp FSLH  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                      &kp GRAVE                       &kp LBKT                       &kp RBKT       &stumb LAYER_Typing LSFT          &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE                &stumb LAYER_Typing RSFT                    &parang_left                   &parang_right                        &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_ColemakDH {
+			bindings = <
+			&kp UP                         &kp DOWN                            &kp A                            &kp B                            &kp C                                                                                                                                                                                      &kp D                             &kp E                             &kp F                          &kp LEFT                     &kp RIGHT
+			&kp EQUAL                           &kp N1                           &kp N2                           &kp N3                           &kp N4  &kp N5                                                                                                                                           &kp N6                            &kp N7                            &kp N8                            &kp N9                            &kp N0                     &kp MINUS
+			&kp TAB                            &kp Q                            &kp W                            &kp F                            &kp P   &kp B                                                                                                                                            &kp J                             &kp L                             &kp U                             &kp Y                          &kp SEMI                      &kp BSLH
+			&kp CAPS  &LeftPinky (A, LAYER_ColemakDH)  &LeftRingy (R, LAYER_ColemakDH)  &LeftMiddy (S, LAYER_ColemakDH)  &LeftIndex (T, LAYER_ColemakDH)   &kp G                                                                                                                                            &kp M  &RightIndex (N, LAYER_ColemakDH)  &RightMiddy (E, LAYER_ColemakDH)  &RightRingy (I, LAYER_ColemakDH)  &RightPinky (O, LAYER_ColemakDH)                       &kp SQT
+			&sticky_key_modtap LSFT LSFT                            &kp Z                            &kp X                            &kp C                            &kp D   &kp V      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER   &kp K                             &kp H                         &kp COMMA                           &kp DOT                          &kp FSLH  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                        &kp GRAVE                         &kp LBKT                         &kp RBKT         &stumb LAYER_Typing LSFT          &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE                  &stumb LAYER_Typing RSFT                      &parang_left                     &parang_right                          &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Canary {
+			bindings = <
+			&kp UP                      &kp DOWN                         &kp A                         &kp B                         &kp C                                                                                                                                                                                   &kp D                          &kp E                          &kp F                       &kp LEFT                     &kp RIGHT
+			&kp EQUAL                        &kp N1                        &kp N2                        &kp N3                        &kp N4  &kp N5                                                                                                                                           &kp N6                         &kp N7                         &kp N8                         &kp N9                         &kp N0                     &kp MINUS
+			&kp TAB                         &kp W                         &kp L                         &kp Y                         &kp P   &kp B                                                                                                                                            &kp Z                          &kp F                          &kp O                          &kp U                        &kp SQT                      &kp BSLH
+			&kp CAPS  &LeftPinky (C, LAYER_Canary)  &LeftRingy (R, LAYER_Canary)  &LeftMiddy (S, LAYER_Canary)  &LeftIndex (T, LAYER_Canary)   &kp G                                                                                                                                            &kp M  &RightIndex (N, LAYER_Canary)  &RightMiddy (E, LAYER_Canary)  &RightRingy (I, LAYER_Canary)  &RightPinky (A, LAYER_Canary)                      &kp SEMI
+			&sticky_key_modtap LSFT LSFT                         &kp Q                         &kp J                         &kp V                         &kp D   &kp K      &thumb LAYER_Function ESC    &thumb LAYER_Emoji K_APP      &lower      &lower  &thumb LAYER_World INSERT  &thumb LAYER_System ENTER   &kp X                          &kp H                       &kp FSLH                      &kp COMMA                        &kp DOT  &sticky_key_modtap RSFT RSFT
+			&magic LAYER_Magic 0                     &kp GRAVE                      &kp LBKT                      &kp RBKT      &stumb LAYER_Typing LSFT          &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &caps_word  &caps_word     &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE               &stumb LAYER_Typing RSFT                   &parang_left                  &parang_right                       &kp BSLH          &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Typing {
+			bindings = <
+			&trans              &trans              &trans              &trans              &trans                                                                                                                                 &trans               &trans               &trans               &trans  &trans
+			&trans              &trans              &trans              &trans              &trans  &trans                                                                                                    &trans               &trans               &trans               &trans               &trans  &trans
+			&trans              &trans              &trans              &trans              &trans  &trans                                                                                                    &trans               &trans               &trans               &trans               &trans  &trans
+			&trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans                                                                                                    &trans  &kp RIGHT_INDEX_KEY  &kp RIGHT_MIDDY_KEY  &kp RIGHT_RINGY_KEY  &kp RIGHT_PINKY_KEY  &trans
+			&trans              &trans              &trans              &trans              &trans  &trans  &kp KEY_LH_T1  &kp KEY_LH_T2  &tog LAYER_Typing  &tog LAYER_Typing  &kp KEY_RH_T2  &kp KEY_RH_T1  &trans               &trans               &trans               &trans               &trans  &trans
+			&trans              &trans              &trans              &trans               &none          &kp KEY_LH_T4  &kp KEY_LH_T5             &trans             &trans  &kp KEY_RH_T5  &kp KEY_RH_T4                        &none               &trans               &trans               &trans  &trans
+			>;
+		};
+		
+		layer_LeftPinky {
+			bindings = <
+			&left_pinky_tap KEY_LH_C6R1  &left_pinky_tap KEY_LH_C5R1  &left_pinky_tap KEY_LH_C4R1  &left_pinky_tap KEY_LH_C3R1  &left_pinky_tap KEY_LH_C2R1                                                                                                    &trans               &trans               &trans               &trans  &trans
+			&left_pinky_tap KEY_LH_C6R2  &left_pinky_tap KEY_LH_C5R2  &left_pinky_tap KEY_LH_C4R2  &left_pinky_tap KEY_LH_C3R2  &left_pinky_tap KEY_LH_C2R2  &left_pinky_tap KEY_LH_C1R2                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_pinky_tap KEY_LH_C6R3  &left_pinky_tap KEY_LH_C5R3  &left_pinky_tap KEY_LH_C4R3  &left_pinky_tap KEY_LH_C3R3  &left_pinky_tap KEY_LH_C2R3  &left_pinky_tap KEY_LH_C1R3                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_pinky_tap KEY_LH_C6R4                        &none              &LeftPinkyRingy              &LeftPinkyMiddy              &LeftPinkyIndex  &left_pinky_tap KEY_LH_C1R4                                                  &trans  &kp RIGHT_INDEX_KEY  &kp RIGHT_MIDDY_KEY  &kp RIGHT_RINGY_KEY  &kp RIGHT_PINKY_KEY  &trans
+			&trans  &left_pinky_tap KEY_LH_C5R5  &left_pinky_tap KEY_LH_C4R5  &left_pinky_tap KEY_LH_C3R5  &left_pinky_tap KEY_LH_C2R5  &left_pinky_tap KEY_LH_C1R5  &trans  &trans  &trans  &trans  &trans  &trans  &trans               &trans               &trans               &trans               &trans  &trans
+			&trans  &left_pinky_tap KEY_LH_C5R6  &left_pinky_tap KEY_LH_C4R6  &left_pinky_tap KEY_LH_C3R6  &left_pinky_tap KEY_LH_C2R6                               &trans  &trans  &trans  &trans  &trans  &trans                       &trans               &trans               &trans               &trans  &trans
+			>;
+		};
+		
+		layer_LeftRingy {
+			bindings = <
+			&left_ringy_tap KEY_LH_C6R1  &left_ringy_tap KEY_LH_C5R1  &left_ringy_tap KEY_LH_C4R1  &left_ringy_tap KEY_LH_C3R1  &left_ringy_tap KEY_LH_C2R1                                                                                                    &trans               &trans               &trans               &trans  &trans
+			&left_ringy_tap KEY_LH_C6R2  &left_ringy_tap KEY_LH_C5R2  &left_ringy_tap KEY_LH_C4R2  &left_ringy_tap KEY_LH_C3R2  &left_ringy_tap KEY_LH_C2R2  &left_ringy_tap KEY_LH_C1R2                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_ringy_tap KEY_LH_C6R3  &left_ringy_tap KEY_LH_C5R3  &left_ringy_tap KEY_LH_C4R3  &left_ringy_tap KEY_LH_C3R3  &left_ringy_tap KEY_LH_C2R3  &left_ringy_tap KEY_LH_C1R3                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_ringy_tap KEY_LH_C6R4              &LeftRingyPinky                        &none              &LeftRingyMiddy              &LeftRingyIndex  &left_ringy_tap KEY_LH_C1R4                                                  &trans  &kp RIGHT_INDEX_KEY  &kp RIGHT_MIDDY_KEY  &kp RIGHT_RINGY_KEY  &kp RIGHT_PINKY_KEY  &trans
+			&trans  &left_ringy_tap KEY_LH_C5R5  &left_ringy_tap KEY_LH_C4R5  &left_ringy_tap KEY_LH_C3R5  &left_ringy_tap KEY_LH_C2R5  &left_ringy_tap KEY_LH_C1R5  &trans  &trans  &trans  &trans  &trans  &trans  &trans               &trans               &trans               &trans               &trans  &trans
+			&trans  &left_ringy_tap KEY_LH_C5R6  &left_ringy_tap KEY_LH_C4R6  &left_ringy_tap KEY_LH_C3R6  &left_ringy_tap KEY_LH_C2R6                               &trans  &trans  &trans  &trans  &trans  &trans                       &trans               &trans               &trans               &trans  &trans
+			>;
+		};
+		
+		layer_LeftMiddy {
+			bindings = <
+			&left_middy_tap KEY_LH_C6R1  &left_middy_tap KEY_LH_C5R1  &left_middy_tap KEY_LH_C4R1  &left_middy_tap KEY_LH_C3R1  &left_middy_tap KEY_LH_C2R1                                                                                                    &trans               &trans               &trans               &trans  &trans
+			&left_middy_tap KEY_LH_C6R2  &left_middy_tap KEY_LH_C5R2  &left_middy_tap KEY_LH_C4R2  &left_middy_tap KEY_LH_C3R2  &left_middy_tap KEY_LH_C2R2  &left_middy_tap KEY_LH_C1R2                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_middy_tap KEY_LH_C6R3  &left_middy_tap KEY_LH_C5R3  &left_middy_tap KEY_LH_C4R3  &left_middy_tap KEY_LH_C3R3  &left_middy_tap KEY_LH_C2R3  &left_middy_tap KEY_LH_C1R3                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_middy_tap KEY_LH_C6R4              &LeftMiddyPinky              &LeftMiddyRingy                        &none              &LeftMiddyIndex  &left_middy_tap KEY_LH_C1R4                                                  &trans  &kp RIGHT_INDEX_KEY  &kp RIGHT_MIDDY_KEY  &kp RIGHT_RINGY_KEY  &kp RIGHT_PINKY_KEY  &trans
+			&trans  &left_middy_tap KEY_LH_C5R5  &left_middy_tap KEY_LH_C4R5  &left_middy_tap KEY_LH_C3R5  &left_middy_tap KEY_LH_C2R5  &left_middy_tap KEY_LH_C1R5  &trans  &trans  &trans  &trans  &trans  &trans  &trans               &trans               &trans               &trans               &trans  &trans
+			&trans  &left_middy_tap KEY_LH_C5R6  &left_middy_tap KEY_LH_C4R6  &left_middy_tap KEY_LH_C3R6  &left_middy_tap KEY_LH_C2R6                               &trans  &trans  &trans  &trans  &trans  &trans                       &trans               &trans               &trans               &trans  &trans
+			>;
+		};
+		
+		layer_LeftIndex {
+			bindings = <
+			&left_index_tap KEY_LH_C6R1  &left_index_tap KEY_LH_C5R1  &left_index_tap KEY_LH_C4R1  &left_index_tap KEY_LH_C3R1  &left_index_tap KEY_LH_C2R1                                                                                                    &trans               &trans               &trans               &trans  &trans
+			&left_index_tap KEY_LH_C6R2  &left_index_tap KEY_LH_C5R2  &left_index_tap KEY_LH_C4R2  &left_index_tap KEY_LH_C3R2  &left_index_tap KEY_LH_C2R2  &left_index_tap KEY_LH_C1R2                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_index_tap KEY_LH_C6R3  &left_index_tap KEY_LH_C5R3  &left_index_tap KEY_LH_C4R3  &left_index_tap KEY_LH_C3R3  &left_index_tap KEY_LH_C2R3  &left_index_tap KEY_LH_C1R3                                                  &trans               &trans               &trans               &trans               &trans  &trans
+			&left_index_tap KEY_LH_C6R4              &LeftIndexPinky              &LeftIndexRingy              &LeftIndexMiddy                        &none  &left_index_tap KEY_LH_C1R4                                                  &trans  &kp RIGHT_INDEX_KEY  &kp RIGHT_MIDDY_KEY  &kp RIGHT_RINGY_KEY  &kp RIGHT_PINKY_KEY  &trans
+			&trans  &left_index_tap KEY_LH_C5R5  &left_index_tap KEY_LH_C4R5  &left_index_tap KEY_LH_C3R5  &left_index_tap KEY_LH_C2R5  &left_index_tap KEY_LH_C1R5  &trans  &trans  &trans  &trans  &trans  &trans  &trans               &trans               &trans               &trans               &trans  &trans
+			&trans  &left_index_tap KEY_LH_C5R6  &left_index_tap KEY_LH_C4R6  &left_index_tap KEY_LH_C3R6  &left_index_tap KEY_LH_C2R6                               &trans  &trans  &trans  &trans  &trans  &trans                       &trans               &trans               &trans               &trans  &trans
+			>;
+		};
+		
+		layer_RightPinky {
+			bindings = <
+			&trans              &trans              &trans              &trans              &trans                                                                                        &right_pinky_tap KEY_RH_C2R1  &right_pinky_tap KEY_RH_C3R1  &right_pinky_tap KEY_RH_C4R1  &right_pinky_tap KEY_RH_C5R1  &right_pinky_tap KEY_RH_C6R1
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_pinky_tap KEY_RH_C1R2  &right_pinky_tap KEY_RH_C2R2  &right_pinky_tap KEY_RH_C3R2  &right_pinky_tap KEY_RH_C4R2  &right_pinky_tap KEY_RH_C5R2  &right_pinky_tap KEY_RH_C6R2
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_pinky_tap KEY_RH_C1R3  &right_pinky_tap KEY_RH_C2R3  &right_pinky_tap KEY_RH_C3R3  &right_pinky_tap KEY_RH_C4R3  &right_pinky_tap KEY_RH_C5R3  &right_pinky_tap KEY_RH_C6R3
+			&trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans                                                  &right_pinky_tap KEY_RH_C1R4              &RightPinkyIndex              &RightPinkyMiddy              &RightPinkyRingy                         &none  &right_pinky_tap KEY_RH_C6R4
+			&trans              &trans              &trans              &trans              &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_C1R5  &right_pinky_tap KEY_RH_C2R5  &right_pinky_tap KEY_RH_C3R5  &right_pinky_tap KEY_RH_C4R5  &right_pinky_tap KEY_RH_C5R5                        &trans
+			&trans              &trans              &trans              &trans              &trans          &trans  &trans  &trans  &trans  &trans  &trans                                &right_pinky_tap KEY_RH_C2R6  &right_pinky_tap KEY_RH_C3R6  &right_pinky_tap KEY_RH_C4R6  &right_pinky_tap KEY_RH_C5R6                        &trans
+			>;
+		};
+		
+		layer_RightRingy {
+			bindings = <
+			&trans              &trans              &trans              &trans              &trans                                                                                        &right_ringy_tap KEY_RH_C2R1  &right_ringy_tap KEY_RH_C3R1  &right_ringy_tap KEY_RH_C4R1  &right_ringy_tap KEY_RH_C5R1  &right_ringy_tap KEY_RH_C6R1
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_ringy_tap KEY_RH_C1R2  &right_ringy_tap KEY_RH_C2R2  &right_ringy_tap KEY_RH_C3R2  &right_ringy_tap KEY_RH_C4R2  &right_ringy_tap KEY_RH_C5R2  &right_ringy_tap KEY_RH_C6R2
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_ringy_tap KEY_RH_C1R3  &right_ringy_tap KEY_RH_C2R3  &right_ringy_tap KEY_RH_C3R3  &right_ringy_tap KEY_RH_C4R3  &right_ringy_tap KEY_RH_C5R3  &right_ringy_tap KEY_RH_C6R3
+			&trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans                                                  &right_ringy_tap KEY_RH_C1R4              &RightRingyIndex              &RightRingyMiddy                         &none              &RightRingyPinky  &right_ringy_tap KEY_RH_C6R4
+			&trans              &trans              &trans              &trans              &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_C1R5  &right_ringy_tap KEY_RH_C2R5  &right_ringy_tap KEY_RH_C3R5  &right_ringy_tap KEY_RH_C4R5  &right_ringy_tap KEY_RH_C5R5                        &trans
+			&trans              &trans              &trans              &trans              &trans          &trans  &trans  &trans  &trans  &trans  &trans                                &right_ringy_tap KEY_RH_C2R6  &right_ringy_tap KEY_RH_C3R6  &right_ringy_tap KEY_RH_C4R6  &right_ringy_tap KEY_RH_C5R6                        &trans
+			>;
+		};
+		
+		layer_RightMiddy {
+			bindings = <
+			&trans              &trans              &trans              &trans              &trans                                                                                        &right_middy_tap KEY_RH_C2R1  &right_middy_tap KEY_RH_C3R1  &right_middy_tap KEY_RH_C4R1  &right_middy_tap KEY_RH_C5R1  &right_middy_tap KEY_RH_C6R1
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_middy_tap KEY_RH_C1R2  &right_middy_tap KEY_RH_C2R2  &right_middy_tap KEY_RH_C3R2  &right_middy_tap KEY_RH_C4R2  &right_middy_tap KEY_RH_C5R2  &right_middy_tap KEY_RH_C6R2
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_middy_tap KEY_RH_C1R3  &right_middy_tap KEY_RH_C2R3  &right_middy_tap KEY_RH_C3R3  &right_middy_tap KEY_RH_C4R3  &right_middy_tap KEY_RH_C5R3  &right_middy_tap KEY_RH_C6R3
+			&trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans                                                  &right_middy_tap KEY_RH_C1R4              &RightMiddyIndex                         &none              &RightMiddyRingy              &RightMiddyPinky  &right_middy_tap KEY_RH_C6R4
+			&trans              &trans              &trans              &trans              &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_C1R5  &right_middy_tap KEY_RH_C2R5  &right_middy_tap KEY_RH_C3R5  &right_middy_tap KEY_RH_C4R5  &right_middy_tap KEY_RH_C5R5                        &trans
+			&trans              &trans              &trans              &trans              &trans          &trans  &trans  &trans  &trans  &trans  &trans                                &right_middy_tap KEY_RH_C2R6  &right_middy_tap KEY_RH_C3R6  &right_middy_tap KEY_RH_C4R6  &right_middy_tap KEY_RH_C5R6                        &trans
+			>;
+		};
+		
+		layer_RightIndex {
+			bindings = <
+			&trans              &trans              &trans              &trans              &trans                                                                                        &right_index_tap KEY_RH_C2R1  &right_index_tap KEY_RH_C3R1  &right_index_tap KEY_RH_C4R1  &right_index_tap KEY_RH_C5R1  &right_index_tap KEY_RH_C6R1
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_index_tap KEY_RH_C1R2  &right_index_tap KEY_RH_C2R2  &right_index_tap KEY_RH_C3R2  &right_index_tap KEY_RH_C4R2  &right_index_tap KEY_RH_C5R2  &right_index_tap KEY_RH_C6R2
+			&trans              &trans              &trans              &trans              &trans  &trans                                                  &right_index_tap KEY_RH_C1R3  &right_index_tap KEY_RH_C2R3  &right_index_tap KEY_RH_C3R3  &right_index_tap KEY_RH_C4R3  &right_index_tap KEY_RH_C5R3  &right_index_tap KEY_RH_C6R3
+			&trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans                                                  &right_index_tap KEY_RH_C1R4                         &none              &RightIndexMiddy              &RightIndexRingy              &RightIndexPinky  &right_index_tap KEY_RH_C6R4
+			&trans              &trans              &trans              &trans              &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_C1R5  &right_index_tap KEY_RH_C2R5  &right_index_tap KEY_RH_C3R5  &right_index_tap KEY_RH_C4R5  &right_index_tap KEY_RH_C5R5                        &trans
+			&trans              &trans              &trans              &trans              &trans          &trans  &trans  &trans  &trans  &trans  &trans                                &right_index_tap KEY_RH_C2R6  &right_index_tap KEY_RH_C3R6  &right_index_tap KEY_RH_C4R6  &right_index_tap KEY_RH_C5R6                        &trans
+			>;
+		};
+		
+		layer_Cursor {
+			bindings = <
+			&none               &none               &none               &none               &none                                                                                                                             &none           &none           &none      &none        &none
+			&kp ESC             &kp RET           &kp SPACE             &kp TAB             &kp DEL     &kp INS                                                                                                    &kp INS    &kp DEL         &kp TAB       &kp SPACE    &kp RET      &kp ESC
+			&kp _C(K)           &sk LSHFT           &kp _REDO           &kp _UNDO            &kp BSPC    &kp _CUT                                                                                                   &kp _CUT   &kp BSPC       &kp _UNDO       &kp _REDO  &sk LSHFT    &kp _C(K)
+			&kp _C(L)  &kp LEFT_PINKY_MOD  &kp LEFT_RINGY_MOD  &kp LEFT_MIDDY_MOD  &kp LEFT_INDEX_MOD   &kp _COPY                                                                                                  &kp _COPY   &kp LEFT          &kp UP        &kp DOWN  &kp RIGHT    &kp _C(L)
+			&kp _C(J)         &select_all        &select_line        &select_word           &kp _FIND  &kp _PASTE  &mod_tab _A_TAB  &mod_tab _G_TAB  &tog LAYER_Cursor  &select_none  &extend_line  &extend_word  &kp _PASTE   &kp HOME       &kp PG_UP       &kp PG_DN    &kp END    &kp _C(J)
+			&kp _C(H)      &kp _FIND_PREV        &extend_line        &extend_word      &kp _FIND_NEXT                        &none    &mod_tab LCTL            &kp TAB   &select_all  &select_line  &select_word              &kp _FIND  &kp _FIND_PREV  &kp _FIND_NEXT  &kp _C(H)  &kp LG(DOT)
+			>;
+		};
+		
+		layer_Number {
+			bindings = <
+			&none               &none               &none               &none               &none                                                                                                         &none         &none          &none          &none             &none
+			&kp ESC             &kp RET           &kp SPACE             &kp TAB             &kp DEL  &kp INS                                                                                &kp TILDE   &kp CARET      &kp HASH       &kp DLLR       &kp EXCL            &kp AT
+			&kp A           &sk LSHFT           &kp _REDO           &kp _UNDO            &kp BSPC    &kp D                                                                                &kp LS(G)  &kp _KP_N7    &kp _KP_N8     &kp _KP_N9      &kp COLON         &kp PRCNT
+			&kp B  &kp LEFT_PINKY_MOD  &kp LEFT_RINGY_MOD  &kp LEFT_MIDDY_MOD  &kp LEFT_INDEX_MOD    &kp E                                                                                    &kp K  &kp _KP_N4    &kp _KP_N5     &kp _KP_N6  &kp _KP_MINUS      &kp _KP_PLUS
+			&kp C         &select_all        &select_line        &select_word               &kp X    &kp F   &none   &none  &tog LAYER_Number         &kp LT       &kp GT  &kp _KP_EQUAL      &kp J  &kp _KP_N1    &kp _KP_N2     &kp _KP_N3  &kp _KP_SLASH  &kp _KP_ASTERISK
+			&none               &none        &extend_line        &extend_word           &kp UNDER            &none   &none              &none  &kp _KP_COMMA  &kp _KP_DOT     &kp _KP_N0               &kp LBKT  &parang_left  &parang_right       &kp RBKT          &kp PIPE
+			>;
+		};
+		
+		layer_Function {
+			bindings = <
+			&none               &none               &none               &none               &none                                                                                                                  &none         &none         &none          &none           &none
+			&kp ESC             &kp RET           &kp SPACE             &kp TAB             &kp DEL  &kp INS                                                                               &kp C_MEDIA_HOME     &kp C_PLAY    &kp C_PREV    &kp C_NEXT     &kp C_STOP     &kp C_EJECT
+			&none           &sk LSHFT           &kp _REDO           &kp _UNDO            &kp BSPC    &none                                                                                     &kp K_CALC         &kp F7        &kp F8        &kp F9        &kp F10         &kp F13
+			&none  &kp LEFT_PINKY_MOD  &kp LEFT_RINGY_MOD  &kp LEFT_MIDDY_MOD  &kp LEFT_INDEX_MOD    &none                                                                                      &kp K_WWW         &kp F4        &kp F5        &kp F6        &kp F11         &kp F14
+			&none         &select_all        &select_line        &select_word               &none    &none   &none   &none  &tog LAYER_Function    &kp C_PP    &kp C_PREV    &kp C_NEXT    &kp C_AL_FILES         &kp F1        &kp F2        &kp F3        &kp F12         &kp F15
+			&none               &none        &extend_line        &extend_word               &none            &none   &none                &none  &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP                    &kp C_BRI_MAX  &kp C_BRI_UP  &kp C_BRI_DN  &kp C_BRI_MIN  &kp C_BRI_AUTO
+			>;
+		};
+		
+		layer_Emoji {
+			bindings = <
+			&emoji_cloudy     &emoji_mostly_cloudy           &emoji_partly_cloudy        &emoji_mostly_sunny                  &emoji_sunny                                                                                                                                                                                                    &emoji_new_moon      &emoji_moon_crescent         &emoji_moon_quarter         &emoji_moon_gibbous         &emoji_full_moon
+			&emoji_rainbow    &emoji_light_skin_tone  &emoji_medium_light_skin_tone    &emoji_medium_skin_tone  &emoji_medium_dark_skin_tone  &emoji_dark_skin_tone                                                                                                                                                     &emoji_tada                &emoji_heart               &emoji_fire               &emoji_muscle      &emoji_person_climbing          &emoji_lab_coat
+			&emoji_left_arrow              &emoji_bald                &emoji_red_hair          &emoji_curly_hair             &emoji_white_hair     &emoji_right_arrow                                                                                                                                               &emoji_face_laugh           &emoji_face_smile          &emoji_face_eyes            &emoji_face_joke            &emoji_face_fear     &emoji_face_surprise
+			&emoji_female_sign  &emoji_skin_tone_preset                     &emoji_zwj  &emoji_gender_sign_preset      &emoji_hair_style_preset       &emoji_male_sign                                                                                                                                        &emoji_gesture_attention     &emoji_gesture_approval  &emoji_gesture_gratitude      &emoji_gesture_anxiety      &emoji_gesture_despair   &emoji_gesture_curious
+			&emoji_old_woman             &emoji_woman                    &emoji_girl                 &emoji_boy                    &emoji_man         &emoji_old_man              &sk LSHFT                   &none  &tog LAYER_Emoji      &emoji_astronaut         &emoji_rocket      &emoji_moon_stars  &emoji_person_tipping_hand  &emoji_person_gesturing_ok      &emoji_person_bowing  &emoji_person_raising_hand  &emoji_person_gesturing_no  &emoji_person_shrugging
+			&emoji_sunrise_mountains           &emoji_sunrise                    &emoji_baby         &emoji_baby_bottle                         &none                         &emoji_cityscape_dusk  &emoji_cityscape_night  &emoji_cityscape  &emoji_gesture_hands  &emoji_gesture_point  &emoji_gesture_thumbs                                         &emoji_checkoff                &emoji_100              &emoji_warning                    &emoji_x          &emoji_question
+			>;
+		};
+		
+		layer_Symbol {
+			bindings = <
+			&none      &none      &none      &none     &none                                                                                                         &none                &none                &none                &none        &none
+			&kp GRAVE   &kp LBKT   &kp LPAR   &kp RPAR  &kp RBKT    &kp DOT                                                                         &none  &sk RIGHT_INDEX_MOD  &sk RIGHT_MIDDY_MOD  &sk RIGHT_RINGY_MOD  &sk RIGHT_PINKY_MOD        &none
+			&kp EXCL  &kp COMMA   &kp LBRC   &kp RBRC  &kp SEMI  &kp QMARK                                                                     &kp GRAVE             &kp LEFT               &kp UP             &kp DOWN            &kp RIGHT     &kp HOME
+			&kp HASH  &kp CARET  &kp EQUAL  &kp UNDER  &kp DLLR   &kp STAR                                                                       &kp DQT             &kp BSPC              &kp TAB            &kp SPACE              &kp RET      &kp END
+			&kp TILDE     &kp LT   &kp PIPE  &kp MINUS    &kp GT   &kp FSLH   &kp BSLH    &kp DOT  &kp STAR  &tog LAYER_Symbol   &none   &none    &kp SQT              &kp DEL          &kp LS(TAB)         &select_word         &select_line  &select_all
+			&none   &kp AMPS    &kp SQT    &kp DQT  &kp PLUS             &kp PRCNT  &kp COLON    &kp AT              &none   &none   &none                       &kp _UNDO            &kp _REDO         &extend_word         &extend_line        &none
+			>;
+		};
+		
+		layer_Mouse {
+			bindings = <
+			&none                   &none                   &none           &none                    &none                                                                                                             &none                 &none                   &none                    &none     &none
+			&none                   &none                   &none           &none                    &none       &none                                                                         &none     &sk RIGHT_INDEX_MOD   &sk RIGHT_MIDDY_MOD     &sk RIGHT_RINGY_MOD      &sk RIGHT_PINKY_MOD     &none
+			&none                   &none  &msc MOUSE_SCROLL_LEFT    &mmv MOVE_UP  &msc MOUSE_SCROLL_RIGHT    &kp _CUT                                                                      &kp _CUT  &msc MOUSE_SCROLL_LEFT  &msc MOUSE_SCROLL_UP  &msc MOUSE_SCROLL_DOWN  &msc MOUSE_SCROLL_RIGHT     &none
+			&none    &msc MOUSE_SCROLL_UP          &mmv MOVE_LEFT  &mmv MOVE_DOWN          &mmv MOVE_RIGHT   &kp _COPY                                                                     &kp _COPY                  &mo 24                &mo 25                  &mo 23                &kp K_APP     &none
+			&none  &msc MOUSE_SCROLL_DOWN                  &mo 23          &mo 25                   &mo 24  &kp _PASTE  &mkp MCLK  &kp K_APP  &mkp MB5  &tog LAYER_Mouse   &none   &none  &kp _PASTE          &mmv MOVE_LEFT          &mmv MOVE_UP          &mmv MOVE_DOWN          &mmv MOVE_RIGHT     &none
+			&none                   &none                   &none           &none                    &none              &mkp LCLK  &mkp RCLK  &mkp MB4             &none   &none   &none                           &mkp LCLK             &mkp RCLK               &mkp MCLK                 &mkp MB4  &mkp MB5
+			>;
+		};
+		
+		layer_MouseSlow {
+			bindings = <
+			&trans  &trans  &trans  &trans  &trans                                                                  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans
+			>;
+		};
+		
+		layer_MouseFast {
+			bindings = <
+			&trans  &trans  &trans  &trans  &trans                                                                  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans
+			>;
+		};
+		
+		layer_MouseWarp {
+			bindings = <
+			&trans  &trans  &trans  &trans  &trans                                                                  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+			&trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans
+			>;
+		};
+		
+		layer_System {
+			bindings = <
+			&none            &none            &none            &none               &none                                                                                                                        &none                &none                &none                &none            &none
+			&none            &none            &none            &none               &none            &none                                                                                  &none  &sk RIGHT_INDEX_MOD  &sk RIGHT_MIDDY_MOD  &sk RIGHT_RINGY_MOD  &sk RIGHT_PINKY_MOD            &none
+			&none            &none  &rgb_ug RGB_HUD  &rgb_ug RGB_HUI     &rgb_ug RGB_TOG  &kp PAUSE_BREAK                                                                        &kp PAUSE_BREAK            &kp _LOCK           &kp _SLEEP           &kp _POWER      &rgb_ug RGB_SAI  &rgb_ug RGB_SAD
+			&none  &rgb_ug RGB_EFR  &rgb_ug RGB_BRD  &rgb_ug RGB_BRI     &rgb_ug RGB_EFF        &kp PSCRN                                                                              &kp PSCRN      &rgb_ug RGB_TOG      &rgb_ug RGB_EFR      &rgb_ug RGB_EFF      &rgb_ug RGB_HUI  &rgb_ug RGB_HUD
+			&none  &rgb_ug RGB_SPD  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI     &rgb_ug RGB_SPI        &kp K_APP  &kp _LOCK  &kp _SLEEP  &kp _POWER  &tog LAYER_System   &none   &none        &kp K_APP             &kp SLCK           &kp KP_NUM             &kp CAPS      &rgb_ug RGB_SPI  &rgb_ug RGB_SPD
+			&none            &none            &none            &none  &linux_magic_sysrq                    &kp SLCK  &kp KP_NUM    &kp CAPS              &none   &none   &none                                 &none      &rgb_ug RGB_BRI      &rgb_ug RGB_BRD                &none            &none
+			>;
+		};
+		
+		layer_World {
+			bindings = <
+			&none                    &none                  &none                 &none                     &none                                                                                &none      &none      &none      &none   &none
+			&none                    &none                  &none                 &none                     &none   &none                                                             &none      &none      &none      &none      &none   &none
+			&none       &world_degree_sign          &world_y_base         &world_o_base             &world_u_base   &none                                                             &none      &none   &sk LALT   &sk RALT      &none   &none
+			&world_sign_base   &world_consonants_base          &world_i_base         &world_e_base             &world_a_base   &none                                                             &none  &sk LSHFT  &sk LCTRL  &sk RCTRL  &sk RSHFT   &none
+			&world_currency_base  &world_quotes_left_base    &world_exclaim_left  &world_question_left  &world_quotes_right_base   &none   &none   &none   &none  &tog LAYER_World   &none   &none   &none      &none      &none      &none      &none   &none
+			&world_micro_sign      &world_section_sign  &world_paragraph_sign      &world_o_ordinal          &world_a_ordinal           &none   &none   &none             &none   &none   &none              &none      &none      &none      &none   &none
+			>;
+		};
+		
+		layer_Gaming {
+			bindings = <
+			&kp ESC      &kp P   &kp O   &kp N  &kp BSPC                                                                                   &kp F1     &kp F2    &kp F3     &kp F4     &kp F5
+			&kp M     &kp N6  &kp N7  &kp N8    &kp N9  &kp N0                                                                &kp F6     &kp F7     &kp F8    &kp F9    &kp F10    &kp F11
+			&kp I     &kp N1  &kp N2  &kp N3    &kp N4  &kp N5                                                                 &kp Y      &kp U      &kp I     &kp O      &kp P    &kp F12
+			&kp T    &kp TAB   &kp Q   &kp W     &kp E   &kp R                                                                 &kp H      &kp J      &kp K     &kp L   &kp SEMI    &kp SQT
+			&kp G  &kp LSHFT   &kp A   &kp S     &kp D   &kp F  &kp LSHFT   &kp LALT  &kp RET   &kp ESC    &kp UP    &kp RET   &kp N      &kp M  &kp COMMA   &kp DOT   &kp FSLH   &kp BSLH
+			&kp B  &kp LCTRL   &kp Z   &kp X     &kp C          &kp SPACE  &kp LCTRL    &kp V  &kp LEFT  &kp DOWN  &kp RIGHT          &kp MINUS   &kp LBKT  &kp RBKT  &kp EQUAL  &kp GRAVE
+			>;
+		};
+		
+		layer_Factory {
+			bindings = <
+			&kp F1    &kp F2   &kp F3    &kp F4     &kp F5                                                                                  &kp F6     &kp F7    &kp F8    &kp F9    &kp F10
+			&kp EQUAL    &kp N1   &kp N2    &kp N3     &kp N4  &kp N5                                                                  &kp N6  &kp N7     &kp N8    &kp N9    &kp N0  &kp MINUS
+			&kp TAB     &kp Q    &kp W     &kp E      &kp R   &kp T                                                                   &kp Y   &kp U      &kp I     &kp O     &kp P   &kp BSLH
+			&kp ESC     &kp A    &kp S     &kp D      &kp F   &kp G                                                                   &kp H   &kp J      &kp K     &kp L  &kp SEMI    &kp SQT
+			&kp GRAVE     &kp Z    &kp X     &kp C      &kp V   &kp B  &kp LSHFT  &kp LCTRL    &lower  &kp LGUI  &kp RCTRL  &kp RSHFT   &kp N   &kp M  &kp COMMA   &kp DOT  &kp FSLH  &kp PG_UP
+			&magic LAYER_Magic 0  &kp HOME  &kp END  &kp LEFT  &kp RIGHT           &kp BSPC    &kp DEL  &kp LALT  &kp RALT    &kp RET  &kp SPACE          &kp UP   &kp DOWN  &kp LBKT  &kp RBKT  &kp PG_DN
+			>;
+		};
+		
+		layer_Lower {
+			bindings = <
+			&kp C_BRI_DN  &kp C_BRI_UP      &kp C_PREV      &kp C_NEXT           &kp C_PP                                                                                                                                                    &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP            &none       &kp PAUSE_BREAK
+			&kp EQUAL         &none           &none           &none              &none   &kp HOME                                                                                                                        &kp LPAR         &kp KP_NUM  &kp KP_EQUAL  &kp KP_SLASH  &kp KP_MULTIPLY       &kp PRINTSCREEN
+			&kp TAB         &none           &none    &kp UP_ARROW              &none    &kp END                                                                                                                        &kp RPAR          &kp KP_N7     &kp KP_N8     &kp KP_N9     &kp KP_MINUS        &kp SCROLLLOCK
+			&kp ESC         &none  &kp LEFT_ARROW  &kp DOWN_ARROW    &kp RIGHT_ARROW  &kp PG_UP                                                                                                                     &kp PERCENT          &kp KP_N4     &kp KP_N5     &kp KP_N6      &kp KP_PLUS            &kp KP_NUM
+			&kp GRAVE     &kp K_APP           &none         &kp F11            &kp F12  &kp PG_DN  &tog LAYER_Function   &tog LAYER_Emoji   &tog LAYER_Lower   &tog LAYER_Lower  &tog LAYER_World  &tog LAYER_System    &kp COMMA          &kp KP_N1     &kp KP_N2     &kp KP_N3     &kp KP_ENTER              &kp LALT
+			&magic LAYER_Magic 0      &kp CAPS         &kp INS         &kp F11  &tog LAYER_Typing               &tog LAYER_Cursor  &tog LAYER_Number  &tog LAYER_Gaming  &tog LAYER_Gaming  &tog LAYER_Mouse  &tog LAYER_Symbol               &tog LAYER_Typing     &kp KP_N0    &kp KP_DOT     &kp KP_ENTER  &magic LAYER_Magic 0
+			>;
+		};
+		
+		layer_Magic {
+			bindings = <
+			&bt BT_CLR            &none            &none            &none            &none                                                                                  &none   &none   &none   &none  &bt BT_CLR_ALL
+			&to 0            &to 1            &to 2            &to 3            &to 4            &to 5                                                         &to 6   &to 7   &to 8   &to 9  &to 10           &none
+			&none  &rgb_ug RGB_SPI  &rgb_ug RGB_SAI  &rgb_ug RGB_HUI  &rgb_ug RGB_BRI  &rgb_ug RGB_TOG                                                         &none   &none   &none   &none   &none           &none
+			&bootloader  &rgb_ug RGB_SPD  &rgb_ug RGB_SAD  &rgb_ug RGB_HUD  &rgb_ug RGB_BRD  &rgb_ug RGB_EFF                                                         &none   &none   &none   &none   &none     &bootloader
+			&sys_reset            &none            &none            &none            &none            &none   &bt_2   &bt_3       &tog 29   &none   &none   &none   &none   &none   &none   &none   &none      &sys_reset
+			&none            &none            &none            &none            &none                    &bt_0   &bt_1  &out OUT_USB   &none   &none   &none           &none   &none   &none   &none           &none
+			>;
+		};
+		
+	};
+};
