@@ -19,9 +19,12 @@ include:
 
   - board: glove80_lh
     shield: settings_reset
+    cmake-args: -DCONFIG_BT_MAX_PAIRED=0
 
   - board: glove80_rh
     shield: settings_reset
+    cmake-args: -DCONFIG_BT_MAX_PAIRED=0  
 
   - board: seeeduino_xiao_ble
     shield: settings_reset
+    cmake-args: -DCONFIG_BT_MAX_PAIRED=0
