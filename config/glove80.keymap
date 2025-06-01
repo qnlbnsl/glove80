@@ -43,7 +43,7 @@
 	//#define ENABLE_MOUSE_KEYS  // requires v24.12-beta or newer firmware
 	//#define NATURAL_SCROLLING  // supports "natural scrolling" in macOS
 	#define OPERATING_SYSTEM 'W'// choose 'L'inux, 'M'acOS, or 'W'indows
-	#define DIFFICULTY_LEVEL  3// 0:custom, 1:easy -> 5:hard (see below)
+	#define DIFFICULTY_LEVEL  0// 0:custom, 1:easy -> 5:hard (see below)
 	//#define ENFORCE_BILATERAL    // cancels single-handed home row mod+tap
 	#define SPACE_FORGIVENESS// allow lingering taps on the space bar
 	#define THUMB_FORGIVENESS// allow lingering taps on the thumb keys
