@@ -3,9 +3,8 @@
 /* Include ZMK bindings for constants */
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
-#ifdef CONFIG_EXPERIMENTAL_RGB_LAYER
 #include <dt-bindings/zmk/rgb.h>
-#endif
+
 
 /* Include layer defines */
 #include "layer_defines.h"
