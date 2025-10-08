@@ -11,7 +11,7 @@ manifest:
     - name: zmk
       remote: qnlbnsl
       # revision: rgb-layer-24.12 #main
-      revision: rgb-layer-25.08
+      revision: rgb-layer-25.08-peripherals
       import: app/west.yml
 
     - name: prospector-zmk-module
