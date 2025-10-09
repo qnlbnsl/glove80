@@ -11,6 +11,7 @@
     chosen {
         zmk,kscan = &mock_kscan;
         zmk,physical-layout = &physical_layout0;
+        zmk,underglow = &dummy_led_strip;
         zmk,underglow-indicators = &underglow_indicators;
     };
 
@@ -19,6 +20,16 @@
         columns = <0>;
         rows = <0>;
         events = <0>;
+    };
+
+    /* Coordination-only LED strip for central dongle */
+    /* This provides the zmk,underglow chosen node for compilation */
+    dummy_led_strip: ws2812_coordinator {
+        compatible = "worldsemi,ws2812-spi";
+        /* SPI */
+        reg = <0>; /* ignored, but necessary for SPI bindings */
+        chain-length = <80>; /* Combined LEDs from both halves for coordination */
+        /* No SPI-specific properties since central dongle doesn't control physical LEDs */
     };
 
     default_transform: keymap_transform_0 {
