@@ -22,15 +22,15 @@
         events = <0>;
     };
 
-    /* Coordination-only LED strip for central dongle */
-    /* This provides the zmk,underglow chosen node for compilation */
+    /* Dummy LED strip for central dongle RGB coordination */
     dummy_led_strip: ws2812_coordinator {
         compatible = "worldsemi,ws2812-spi";
-        /* SPI */
-        reg = <0>; /* ignored, but necessary for SPI bindings */
-        chain-length = <80>; /* Combined LEDs from both halves for coordination */
-        /* No SPI-specific properties since central dongle doesn't control physical LEDs */
+        /* Minimal configuration for coordination only */
+        reg = <0>; /* Required for SPI binding */
+        chain-length = <80>; /* Combined LEDs from both halves */
+        /* No actual SPI hardware - just for coordination */
     };
+
 
     default_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
@@ -48,31 +48,36 @@
 
     underglow-layer {
         compatible = "zmk,underglow-layer";
-        /* Combined pixel lookup for both halves: LH + RH actual LED numbers */
+        /* Combined pixel lookup for both halves: LH (0-39) + RH (40-79) */
         pixel-lookup = <52>, <53>, <54>, <69>, <70>, <71>, <15>, <27>, <39>, <51>, <4>,  <14>, <26>, <38>,
                     <50>, <68>, <3>,  <13>, <25>, <37>, <49>, <67>, <2>,  <12>, <24>, <36>, <48>, <66>,
                     <1>,  <11>, <23>, <35>, <47>, <65>, <0>,  <10>, <22>, <34>, <46>, <64>,
-                    /* Right hand pixels (actual LED numbers from RH config) */
-                    <57>, <56>, <55>, <74>, <73>, <72>, <16>, <28>, <40>, <58>, <5>,  <17>, <29>, <41>,
-                    <59>, <75>, <6>,  <18>, <30>, <42>, <60>, <76>, <7>,  <19>, <31>, <43>, <61>, <77>,
-                    <8>,  <20>, <32>, <44>, <62>, <78>, <9>,  <21>, <33>, <45>, <63>, <79>;
+                    /* Right hand pixels (offset by 40) */
+                    <97>, <96>, <95>, <114>, <113>, <112>, <56>, <68>, <80>, <98>, <45>, <57>, <69>, <81>,
+                    <99>, <115>, <46>, <58>, <70>, <82>, <100>, <116>, <47>, <59>, <71>, <83>, <101>, <117>,
+                    <48>, <60>, <72>, <84>, <102>, <118>, <49>, <61>, <73>, <85>, <103>, <119>;
     };
 
     /*
       Combined MoErgo LEDs (40 per half, 80 total)
 
-      Left Half:                            Right Half:
-      Uses LED numbers: 0-71                Uses LED numbers: 5-79
-      (with gaps in numbering)              (with gaps in numbering)
-      
-      Note: The actual LED numbering is not sequential 0-79,
-      but uses the specific pixel lookup tables from each half.
+      Left Half (0-39):                     Right Half (40-79):
+      34 28 22 16 10                        34 28 22 16 10
+      35 29 23 17 11 6                      35 29 23 17 11 6
+      36 30 24 18 12 7                      36 30 24 18 12 7
+      37 31 25 19 13 8                      37 31 25 19 13 8
+      38 32 26 20 14 9                      38 32 26 20 14 9
+      39 33 27 21 15                        39 33 27 21 15
+                    0 1 2                              0 1 2
+                    3 4 5                              3 4 5
+
+      Central dongle coordinates both halves as a single 80-LED strip.
     */
     underglow_indicators: underglow-indicators {
         compatible = "zmk,underglow-indicators";
-        layer-state = <35 29 23 17 11 6>; /* Left half layer indicators */
-        bat-lhs     = <36 30 24 18 12 7>; /* Left half battery */
-        bat-rhs     = <37 31 25 19 13 8>; /* Right half battery */
+        layer-state = <35 29 23 17 11 6>; /* Left half layer indicators (0-39) */
+        bat-lhs     = <36 30 24 18 12 7>; /* Left half battery (0-39) */
+        bat-rhs     = <76 77 78 79 80 81>; /* Right half battery (40-79, offset by 40) */
         capslock    = <22>;
         numlock     = <16>;
         scrolllock  = <10>;
@@ -82,5 +87,13 @@
     };
 };
 
-// Central dongle doesn't need SPI or PWM configuration
-// as it only coordinates RGB, doesn't control physical LEDs
+/* SPI controller for dummy LED strip coordination */
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+    #address-cells = <1>;
+    #size-cells = <0>;
+};
