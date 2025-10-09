@@ -11,7 +11,8 @@
     chosen {
         zmk,kscan = &mock_kscan;
         zmk,physical-layout = &physical_layout0;
-        zmk,underglow = &dummy_led_strip;
+        zmk,underglow = &led_strip;
+        zmk,underglow-indicators = &underglow_indicators;
     };
 
     mock_kscan: mock_kscan_0 {
@@ -21,9 +22,9 @@
         events = <0>;
     };
 
-    dummy_led_strip: dummy_ws2812 {
+    led_strip: ws2812@0 {
         compatible = "worldsemi,ws2812-spi";
-        chain-length = <0>;
+        chain-length = <80>; /* Max LED number is 79, so 80 total LEDs */
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
         color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
@@ -45,6 +46,36 @@
 
     underglow-layer {
         compatible = "zmk,underglow-layer";
-        pixel-lookup = <0>;
+        /* Combined pixel lookup for both halves: LH + RH actual LED numbers */
+        pixel-lookup = <52>, <53>, <54>, <69>, <70>, <71>, <15>, <27>, <39>, <51>, <4>,  <14>, <26>, <38>,
+                    <50>, <68>, <3>,  <13>, <25>, <37>, <49>, <67>, <2>,  <12>, <24>, <36>, <48>, <66>,
+                    <1>,  <11>, <23>, <35>, <47>, <65>, <0>,  <10>, <22>, <34>, <46>, <64>,
+                    /* Right hand pixels (actual LED numbers from RH config) */
+                    <57>, <56>, <55>, <74>, <73>, <72>, <16>, <28>, <40>, <58>, <5>,  <17>, <29>, <41>,
+                    <59>, <75>, <6>,  <18>, <30>, <42>, <60>, <76>, <7>,  <19>, <31>, <43>, <61>, <77>,
+                    <8>,  <20>, <32>, <44>, <62>, <78>, <9>,  <21>, <33>, <45>, <63>, <79>;
+    };
+
+    /*
+      Combined MoErgo LEDs (40 per half, 80 total)
+
+      Left Half:                            Right Half:
+      Uses LED numbers: 0-71                Uses LED numbers: 5-79
+      (with gaps in numbering)              (with gaps in numbering)
+      
+      Note: The actual LED numbering is not sequential 0-79,
+      but uses the specific pixel lookup tables from each half.
+    */
+    underglow_indicators: underglow-indicators {
+        compatible = "zmk,underglow-indicators";
+        layer-state = <35 29 23 17 11 6>; /* Left half layer indicators */
+        bat-lhs     = <36 30 24 18 12 7>; /* Left half battery */
+        bat-rhs     = <37 31 25 19 13 8>; /* Right half battery */
+        capslock    = <22>;
+        numlock     = <16>;
+        scrolllock  = <10>;
+        ble-state   = <3 4 0 1>;
+        usb-state   = <5>;
+        output-fallback = <15>;
     };
 };
