@@ -45,6 +45,6 @@
 
     underglow-layer {
         compatible = "zmk,underglow-layer";
-        pixel-lookup = <>;
+        pixel-lookup = <0>;
     };
 };
