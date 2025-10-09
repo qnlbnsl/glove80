@@ -11,7 +11,6 @@
     chosen {
         zmk,kscan = &mock_kscan;
         zmk,physical-layout = &physical_layout0;
-        zmk,underglow = &led_strip;
         zmk,underglow-indicators = &underglow_indicators;
     };
 
@@ -20,17 +19,6 @@
         columns = <0>;
         rows = <0>;
         events = <0>;
-    };
-
-    led_strip: ws2812@0 {
-        compatible = "worldsemi,ws2812-spi";
-        /* SPI */
-        reg = <0>; /* ignored, but necessary for SPI bindings */
-        spi-max-frequency = <4000000>;
-        chain-length = <80>; /* Max LED number is 79, so 80 total LEDs */
-        spi-one-frame = <0x70>;
-        spi-zero-frame = <0x40>;
-        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
     };
 
     default_transform: keymap_transform_0 {
@@ -83,19 +71,5 @@
     };
 };
 
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
-    pinctrl-names = "default", "sleep";
-    #address-cells = <1>;
-    #size-cells = <0>;
-};
-
-// &pwm0 {
-//     status = "okay";
-//     pinctrl-0 = <&pwm0_default>;
-//     pinctrl-1 = <&pwm0_sleep>;
-//     pinctrl-names = "default", "sleep";
-// };
+// Central dongle doesn't need SPI or PWM configuration
+// as it only coordinates RGB, doesn't control physical LEDs
