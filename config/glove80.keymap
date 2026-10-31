@@ -10393,7 +10393,7 @@ macros {
             &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_C1R2  &right_index_tap KEY_RH_C2R2  &right_index_tap KEY_RH_C3R2  &right_index_tap KEY_RH_C4R2  &right_index_tap KEY_RH_C5R2  &right_index_tap KEY_RH_C6R2
             &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_C1R3  &right_index_tap KEY_RH_C2R3  &right_index_tap KEY_RH_C3R3  &right_index_tap KEY_RH_C4R3  &right_index_tap KEY_RH_C5R3  &right_index_tap KEY_RH_C6R3
             &trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans  &right_index_tap KEY_RH_C1R4  &none  &RightIndexMiddy  &RightIndexRingy  &RightIndexPinky  &right_index_tap KEY_RH_C6R4
-            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_T3  &mo LAY_RH_T2  &mo LAY_RH_T1  &right_index_tap KEY_RH_C1R5  &right_index_tap KEY_RH_C2R5  &right_index_tap KEY_RH_C3R5  &right_index_tap KEY_RH_C4R5  &right_index_tap KEY_RH_C5R5  &trans
+            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_T3  &mo LAY_RH_T2  &kp KEY_RH_T1  &right_index_tap KEY_RH_C1R5  &right_index_tap KEY_RH_C2R5  &right_index_tap KEY_RH_C3R5  &right_index_tap KEY_RH_C4R5  &right_index_tap KEY_RH_C5R5  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_index_tap KEY_RH_T6  &mo LAY_RH_T5  &mo LAY_RH_T4  &mo LAY_RH_C2R6  &right_index_tap KEY_RH_C3R6  &right_index_tap KEY_RH_C4R6  &right_index_tap KEY_RH_C5R6  &trans
             >;
         };
@@ -10405,7 +10405,7 @@ macros {
             &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_C1R2  &right_middy_tap KEY_RH_C2R2  &right_middy_tap KEY_RH_C3R2  &right_middy_tap KEY_RH_C4R2  &right_middy_tap KEY_RH_C5R2  &right_middy_tap KEY_RH_C6R2
             &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_C1R3  &right_middy_tap KEY_RH_C2R3  &right_middy_tap KEY_RH_C3R3  &right_middy_tap KEY_RH_C4R3  &right_middy_tap KEY_RH_C5R3  &right_middy_tap KEY_RH_C6R3
             &trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans  &right_middy_tap KEY_RH_C1R4  &RightMiddyIndex  &none  &RightMiddyRingy  &RightMiddyPinky  &right_middy_tap KEY_RH_C6R4
-            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_T3  &mo LAY_RH_T2  &mo LAY_RH_T1  &right_middy_tap KEY_RH_C1R5  &right_middy_tap KEY_RH_C2R5  &right_middy_tap KEY_RH_C3R5  &right_middy_tap KEY_RH_C4R5  &right_middy_tap KEY_RH_C5R5  &trans
+            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_T3  &mo LAY_RH_T2  &kp KEY_RH_T1  &right_middy_tap KEY_RH_C1R5  &right_middy_tap KEY_RH_C2R5  &right_middy_tap KEY_RH_C3R5  &right_middy_tap KEY_RH_C4R5  &right_middy_tap KEY_RH_C5R5  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_middy_tap KEY_RH_T6  &mo LAY_RH_T5  &mo LAY_RH_T4  &mo LAY_RH_C2R6  &right_middy_tap KEY_RH_C3R6  &right_middy_tap KEY_RH_C4R6  &right_middy_tap KEY_RH_C5R6  &trans
             >;
         };
@@ -10417,7 +10417,7 @@ macros {
             &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_C1R2  &right_ringy_tap KEY_RH_C2R2  &right_ringy_tap KEY_RH_C3R2  &right_ringy_tap KEY_RH_C4R2  &right_ringy_tap KEY_RH_C5R2  &right_ringy_tap KEY_RH_C6R2
             &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_C1R3  &right_ringy_tap KEY_RH_C2R3  &right_ringy_tap KEY_RH_C3R3  &right_ringy_tap KEY_RH_C4R3  &right_ringy_tap KEY_RH_C5R3  &right_ringy_tap KEY_RH_C6R3
             &trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans  &right_ringy_tap KEY_RH_C1R4  &RightRingyIndex  &RightRingyMiddy  &none  &RightRingyPinky  &right_ringy_tap KEY_RH_C6R4
-            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_T3  &mo LAY_RH_T2  &mo LAY_RH_T1  &right_ringy_tap KEY_RH_C1R5  &right_ringy_tap KEY_RH_C2R5  &right_ringy_tap KEY_RH_C3R5  &right_ringy_tap KEY_RH_C4R5  &right_ringy_tap KEY_RH_C5R5  &trans
+            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_T3  &mo LAY_RH_T2  &kp KEY_RH_T1  &right_ringy_tap KEY_RH_C1R5  &right_ringy_tap KEY_RH_C2R5  &right_ringy_tap KEY_RH_C3R5  &right_ringy_tap KEY_RH_C4R5  &right_ringy_tap KEY_RH_C5R5  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_ringy_tap KEY_RH_T6  &mo LAY_RH_T5  &mo LAY_RH_T4  &mo LAY_RH_C2R6  &right_ringy_tap KEY_RH_C3R6  &right_ringy_tap KEY_RH_C4R6  &right_ringy_tap KEY_RH_C5R6  &trans
             >;
         };
@@ -10429,7 +10429,7 @@ macros {
             &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_C1R2  &right_pinky_tap KEY_RH_C2R2  &right_pinky_tap KEY_RH_C3R2  &right_pinky_tap KEY_RH_C4R2  &right_pinky_tap KEY_RH_C5R2  &right_pinky_tap KEY_RH_C6R2
             &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_C1R3  &right_pinky_tap KEY_RH_C2R3  &right_pinky_tap KEY_RH_C3R3  &right_pinky_tap KEY_RH_C4R3  &right_pinky_tap KEY_RH_C5R3  &right_pinky_tap KEY_RH_C6R3
             &trans  &kp LEFT_PINKY_KEY  &kp LEFT_RINGY_KEY  &kp LEFT_MIDDY_KEY  &kp LEFT_INDEX_KEY  &trans  &right_pinky_tap KEY_RH_C1R4  &RightPinkyIndex  &RightPinkyMiddy  &RightPinkyRingy  &none  &right_pinky_tap KEY_RH_C6R4
-            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_T3  &mo LAY_RH_T2  &mo LAY_RH_T1  &right_pinky_tap KEY_RH_C1R5  &right_pinky_tap KEY_RH_C2R5  &right_pinky_tap KEY_RH_C3R5  &right_pinky_tap KEY_RH_C4R5  &right_pinky_tap KEY_RH_C5R5  &trans
+            &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_T3  &mo LAY_RH_T2  &kp KEY_RH_T1  &right_pinky_tap KEY_RH_C1R5  &right_pinky_tap KEY_RH_C2R5  &right_pinky_tap KEY_RH_C3R5  &right_pinky_tap KEY_RH_C4R5  &right_pinky_tap KEY_RH_C5R5  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &right_pinky_tap KEY_RH_T6  &mo LAY_RH_T5  &mo LAY_RH_T4  &mo LAY_RH_C2R6  &right_pinky_tap KEY_RH_C3R6  &right_pinky_tap KEY_RH_C4R6  &right_pinky_tap KEY_RH_C5R6  &trans
             >;
         };

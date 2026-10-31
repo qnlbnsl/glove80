@@ -44,7 +44,12 @@ const p = (x) => x.value + (x.params && x.params.length ? "(" + x.params.map(p).
 const renderJson = (b) => b.value === "Custom" ? b.params[0].value
   : [b.value, ...(b.params || []).map(p)].join(" ");
 
+// HRM layers use "&mo LAY_<key>" for base thumb keys; a key we turned into a plain key has no LAY_.
+const definedLay = new Set([...dtsi.matchAll(/#define (LAY_\w+)/g)].map((m) => m[1]));
+
 function remapToken(t) { // numeric layer refs, e.g. "&tog 28"
+  const lay = /^&mo (LAY_(\w+))$/.exec(t);
+  if (lay && !definedLay.has(lay[1])) return `&kp KEY_${lay[2]}`;
   const m = /^&(tog|mo|to|sl) (\d+)$/.exec(t);
   if (!m) return t;
   const name = orig.layer_names[+m[2]];
