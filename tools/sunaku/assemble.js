@@ -36,8 +36,12 @@ for (const m of body.matchAll(nodeRe)) {
 const oldIndex = Object.fromEntries(orig.layer_names.map((n, i) => [n, i]));
 const newIndex = Object.fromEntries(km.layer_names.map((n, i) => [n, i]));
 const ROWS = [10, 12, 12, 12, 18, 16];
-// Names shown on the Prospector display (default: layer name, "_" -> " ").
-const DISPLAY_NAMES = { QWERTY: "Base" };
+// Names shown on the Prospector display (default: layer name, "_" -> " "). The roller is 224px
+// wide at ~32px per character, so keep names to 6 characters.
+const DISPLAY_NAMES = { QWERTY: "Base", Function: "Fn" };
+// Helper layers get no display-name: the dongle's roller hides them
+// (CONFIG_PROSPECTOR_LAYER_ROLLER_HIDE_UNNAMED) and the layer map marks them as helpers.
+const HIDDEN = /^((Left|Right)(Pinky|Ringy|Middy|Index)|macOS_\w+|Mouse_\w+)$/;
 
 // Render a JSON binding the simple way, for positions we overrode.
 const p = (x) => x.value + (x.params && x.params.length ? "(" + x.params.map(p).join(",") + ")" : "");
@@ -74,8 +78,8 @@ body = body.replace(nodeRe, (all, indent, name) => {
   if (toks.length !== 80) throw new Error(`${name}: ${toks.length} bindings`);
   let k = 0;
   const rows = ROWS.map((n) => indent + "    " + toks.slice(k, (k += n)).join("  "));
-  const display = (DISPLAY_NAMES[name] ?? name.replace(/_/g, " "));
-  return `\n${indent}layer_${name} {\n${indent}    display-name = "${display}";\n${indent}    bindings = <\n${rows.join("\n")}\n${indent}    >;\n${indent}};`;
+  const display = HIDDEN.test(name) ? "" : `${indent}    display-name = "${DISPLAY_NAMES[name] ?? name.replace(/_/g, " ")}";\n`;
+  return `\n${indent}layer_${name} {\n${display}${indent}    bindings = <\n${rows.join("\n")}\n${indent}    >;\n${indent}};`;
 });
 fs.writeFileSync(outP, head + body);
 console.log("wrote", outP);

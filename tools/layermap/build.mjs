@@ -36,8 +36,8 @@ const layers = [];
 for (const m of src.slice(kstart).matchAll(/layer_(\w+)\s*\{([\s\S]*?)bindings\s*=\s*<([\s\S]*?)>\s*;/g)) {
   const bindings = m[3].split(/(?=&)/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
   if (bindings.length !== 80) throw new Error(`layer ${m[1]}: ${bindings.length} bindings`);
-  const display = /display-name\s*=\s*"([^"]*)"/.exec(m[2])?.[1] ?? m[1];
-  layers.push({ id: m[1], name: display, bindings });
+  const display = /display-name\s*=\s*"([^"]*)"/.exec(m[2])?.[1];
+  layers.push({ id: m[1], name: display || m[1].replace(/_/g, " "), internal: !display, bindings });
 }
 const layerIds = layers.map((l) => l.id);
 const layerRef = (t) => {
@@ -46,7 +46,6 @@ const layerRef = (t) => {
   const m = /^LAYER_(\w+)$/.exec(t);
   return m && layerIds.includes(m[1]) ? m[1] : null;
 };
-const INTERNAL = /^((Left|Right)(Pinky|Ringy|Middy|Index)|macOS_\w+|Mouse_\w+)$/;
 
 // ---- key labels ----
 const SYM = {
@@ -209,7 +208,7 @@ const out = {
   generated: new Date().toISOString().slice(0, 10),
   positions: posName,
   layers: layers.map((l) => ({
-    id: l.id, name: l.name, internal: INTERNAL.test(l.id),
+    id: l.id, name: l.name, internal: l.internal, // no display-name = helper layer
     keys: l.bindings.map((b) => ({ raw: b, ...describe(b) })),
     leds: leds[l.id] ?? null,
   })),
