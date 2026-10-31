@@ -11,7 +11,8 @@ const OVERRIDES = {
     10: "&kp EQUAL", 21: "&kp MINUS", 22: "&kp TAB", 33: "&kp BSLH", 65: "&kp GRAVE",
     54: "&kp LC(F19)", // LH T3: Wispr Flow push-to-talk (was PG_UP)
   },
-  Cursor: { 30: "&kp UP", 42: "&kp DOWN", 43: "&kp RIGHT", 44: "&kp _UNDO" },
+  // Vim arrows on H J K L; Copy (displaced from H) moves to ";".
+  Cursor: { 40: "&kp LEFT", 41: "&kp DOWN", 42: "&kp UP", 43: "&kp RIGHT", 44: "&kp _COPY" },
   // System's unique keys, moved onto Magic's empty right-hand slots.
   Magic: {
     28: "&kp K_APP", 29: "&kp PSCRN", 30: "&kp PAUSE_BREAK", 31: "&kp SLCK", 32: "&kp KP_NUM", 33: "&kp CAPS",
@@ -69,13 +70,12 @@ if (!erb.includes(bil)) throw new Error("ENFORCE_BILATERAL line not found");
 erb = erb.replace(bil, "//#define ENFORCE_BILATERAL  // cancels");
 fs.writeFileSync("keymap.dtsi.erb", erb);
 
-// Cursor RGB: highlight the inverted-T arrows.
+// Cursor RGB: highlight the HJKL arrows (row 3 left as Sunaku's).
 let dev = fs.readFileSync("device.dtsi", "utf8");
 const cur = /(      Cursor \{\n        bindings = <\n(?:.*\n){2})(.*\n)(.*\n)/;
 const m = cur.exec(dev);
 if (!m) throw new Error("Cursor RGB block not found");
-dev = dev.replace(cur, m[1] +
-  "          ___ COR COR COR COR GDN                                     GDN COR WHT PUR COR ___\n" +
-  "          YLW MAJ CYN GRN YLW GDN                                     GDN WHT WHT WHT PUR YLW\n");
+dev = dev.replace(cur, m[1] + m[2] +
+  "          YLW MAJ CYN GRN YLW GDN                                     WHT WHT WHT WHT GDN YLW\n");
 fs.writeFileSync("device.dtsi", dev);
 console.log("layers:", km.layer_names.join(", "));
