@@ -26,7 +26,9 @@ current state (git log, `gh run list -R qnlbnsl/glove80`) before relying on them
 - `keymap/sunaku-latest` (current work, branched from setup/my-config):
   - e2816a0 Update keymap to Sunaku glove80-keymaps main (f3594ac, post-v52). CI 41238107186 green.
   - 72b5b5b Drop Factory and System layers; merge System into Magic; delete
-    config/keymap.dts + config/keymaps_layers.h. CI 41240799708 (check result).
+    config/keymap.dts + config/keymaps_layers.h. CI 41240799708 FAILED (undefined LAY_RH_T1).
+  - 5da72cd Fix HRM thumb refs to RH T1 (assemble.js: `&mo LAY_x` -> `&kp KEY_x` when the base
+    thumb key has no layer). CI 41240998689 green. This is the current flashable state.
 - `origin/wip/build-scripts-2026-10-30`: local build.sh / build_seed.sh (west build). Not merged.
 - Untracked `trainer/` (tools/parse-keymap.mjs -> trainer/keymap.json, a JSON dump of the keymap
   layers). Purpose unknown; ask the user before changing it.
@@ -69,7 +71,7 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
 
 ## Plan (agreed order)
 
-1. ~~Update to Sunaku latest~~ (done) -> ~~layer cleanup~~ (done, verify CI 41240799708).
+1. ~~Update to Sunaku latest~~ (done) -> ~~layer cleanup~~ (done, CI 41240998689 green).
 2. Possibly first: an **interactive layer map** page like Sunaku's
    https://sunaku.github.io/moergo-glove80-keyboard.html#layers, generated from our keymap
    (user idea, 2026-10-31). Not started.
