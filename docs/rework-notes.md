@@ -74,7 +74,13 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
 1. ~~Update to Sunaku latest~~ (done) -> ~~layer cleanup~~ (done, CI 41240998689 green).
 2. Possibly first: an **interactive layer map** page like Sunaku's
    https://sunaku.github.io/moergo-glove80-keyboard.html#layers, generated from our keymap
-   (user idea, 2026-10-31). Not started.
+   (user idea, 2026-10-31). Not started. Sunaku's page is static PNGs per layer, swapped on
+   hover over the purple thumb keys. Proposed ours, generated from config/glove80.keymap by a
+   repo script: all 80 keys to scale with readable labels ("Bksp / hold Cursor"), hover/click a
+   layer key or pick from a layer list (helper layers marked internal), per-key LED colours
+   from the device.dtsi underglow-layer maps (doubles as the LED design tool), combos list.
+   Open: artifact page (recommended) vs GitHub Pages; build before the display fix?
+   trainer/ (keymap -> JSON layer dump) may have been the start of this; ask.
 3. **Prospector display fix** (then user flashes and tests). Diagnosis from reading
    `prospector-zmk-module/boards/shields/prospector_adapter/src/widgets/layer_roller.c` and
    `custom_status_screen.c`:
