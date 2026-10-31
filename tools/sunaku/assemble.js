@@ -38,7 +38,7 @@ const newIndex = Object.fromEntries(km.layer_names.map((n, i) => [n, i]));
 const ROWS = [10, 12, 12, 12, 18, 16];
 // Names shown on the Prospector display (default: layer name, "_" -> " "). The roller is 224px
 // wide at ~32px per character, so keep names to 6 characters.
-const DISPLAY_NAMES = { QWERTY: "Base", Function: "Fn" };
+const DISPLAY_NAMES = { QWERTY: "Base", Function: "Fn", Omarchy: "WM" };
 // Helper layers get no display-name: the dongle's roller hides them
 // (CONFIG_PROSPECTOR_LAYER_ROLLER_HIDE_UNNAMED) and the layer map marks them as helpers.
 const HIDDEN = /^((Left|Right)(Pinky|Ringy|Middy|Index)|macOS_\w+|Mouse_\w+)$/;
@@ -63,6 +63,22 @@ function remapToken(t) { // numeric layer refs, e.g. "&tog 28"
 const origJsonLayers = Object.fromEntries(orig.layer_names.map((n, i) => [n, orig.layers[i]]));
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 let firstIndent = null;
+const renderNode = (indent, name, toks) => {
+  if (toks.length !== 80) throw new Error(`${name}: ${toks.length} bindings`);
+  let k = 0;
+  const rows = ROWS.map((n) => indent + "    " + toks.slice(k, (k += n)).join("  "));
+  const display = HIDDEN.test(name) ? "" : `${indent}    display-name = "${DISPLAY_NAMES[name] ?? name.replace(/_/g, " ")}";\n`;
+  return `\n${indent}layer_${name} {\n${display}${indent}    bindings = <\n${rows.join("\n")}\n${indent}    >;\n${indent}};`;
+};
+// Layers we added (not in Sunaku's keymap.zmk) are rendered from JSON and placed before the
+// next layer that exists there.
+const added = km.layer_names.filter((n) => !(n in rendered));
+const addedBefore = {};
+for (const name of added) {
+  const next = km.layer_names.slice(newIndex[name] + 1).find((n) => n in rendered);
+  if (!next) throw new Error(`no existing layer after added layer ${name}`);
+  (addedBefore[next] ??= []).push(name);
+}
 body = body.replace(nodeRe, (all, indent, name) => {
   if (!(name in newIndex)) return ""; // dropped layer
   firstIndent ??= indent;
@@ -75,11 +91,8 @@ body = body.replace(nodeRe, (all, indent, name) => {
     if (!same(nb, ob)) return nb.value === "&none" ? "&none" : renderJson(nb);
     return remapToken(t);
   });
-  if (toks.length !== 80) throw new Error(`${name}: ${toks.length} bindings`);
-  let k = 0;
-  const rows = ROWS.map((n) => indent + "    " + toks.slice(k, (k += n)).join("  "));
-  const display = HIDDEN.test(name) ? "" : `${indent}    display-name = "${DISPLAY_NAMES[name] ?? name.replace(/_/g, " ")}";\n`;
-  return `\n${indent}layer_${name} {\n${display}${indent}    bindings = <\n${rows.join("\n")}\n${indent}    >;\n${indent}};`;
+  const pre = (addedBefore[name] ?? []).map((a) => renderNode(indent, a, km.layers[newIndex[a]].map(renderJson)));
+  return pre.join("\n") + (pre.length ? "\n" : "") + renderNode(indent, name, toks);
 });
 fs.writeFileSync(outP, head + body);
 console.log("wrote", outP);

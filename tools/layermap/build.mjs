@@ -65,7 +65,7 @@ const NAMES = {
   PG_UP: "PgUp", PG_DN: "PgDn", CAPS: "Caps", CAPSLOCK: "Caps", PSCRN: "PrtSc",
   PAUSE_BREAK: "Pause", SLCK: "ScrLk", KP_NUM: "NumLk", K_APP: "Menu",
   LSHFT: "Shift", LSFT: "Shift", RSHFT: "Shift", RSFT: "Shift", LCTRL: "Ctrl", LCTL: "Ctrl",
-  RCTRL: "Ctrl", RCTL: "Ctrl", LALT: "Alt", RALT: "AltGr", LGUI: "Gui", RGUI: "Gui",
+  RCTRL: "Ctrl", RCTL: "Ctrl", LALT: "Alt", RALT: "AltGr", LGUI: "Super", RGUI: "Super",
   C_PLAY: "Play", C_PP: "Play/Pause", C_PREV: "Prev", C_NEXT: "Next", C_STOP: "Stop",
   C_EJECT: "Eject", C_MUTE: "Mute", C_VOL_UP: "Vol+", C_VOL_DN: "Vol−", C_BRI_UP: "Bright+",
   C_BRI_DN: "Bright−", C_BRI_MAX: "Bright max", C_BRI_MIN: "Bright min", C_BRI_AUTO: "Bright auto",
@@ -76,10 +76,10 @@ const NAMES = {
   // Sunaku's OS-portable shortcuts (Linux values).
   _UNDO: "Undo", _REDO: "Redo", _CUT: "Cut", _COPY: "Copy", _PASTE: "Paste", _FIND: "Find",
   _FIND_NEXT: "Find next", _FIND_PREV: "Find prev", _HOME: "Home", _END: "End", _LOCK: "Lock",
-  _SLEEP: "Sleep", _POWER: "Power", _FILES: "Files", _EMOJI: "Emoji picker", _GLOBE: "Gui", _A_TAB: "Alt", _G_TAB: "Gui",
+  _SLEEP: "Sleep", _POWER: "Power", _FILES: "Files", _EMOJI: "Emoji picker", _GLOBE: "Super", _A_TAB: "Alt", _G_TAB: "Super",
 };
-const FINGER_MOD = { PINKY: "Gui", RINGY: "Alt", MIDDY: "Ctrl", INDEX: "Shift" };
-const MODFN = { LS: "Shift", RS: "Shift", LC: "Ctrl", RC: "Ctrl", LA: "Alt", RA: "AltGr", LG: "Gui", RG: "Gui", _C: "Ctrl" };
+const FINGER_MOD = { PINKY: "Super", RINGY: "Alt", MIDDY: "Ctrl", INDEX: "Shift" };
+const MODFN = { LS: "Shift", RS: "Shift", LC: "Ctrl", RC: "Ctrl", LA: "Alt", RA: "AltGr", LG: "Super", RG: "Super", _C: "Ctrl" };
 
 function key(t) {
   t = t.trim();

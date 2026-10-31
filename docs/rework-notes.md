@@ -86,7 +86,8 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
    from the device.dtsi underglow-layer maps (doubles as the LED design tool), combos list.
    Open: artifact page (recommended) vs GitHub Pages; build before the display fix?
    trainer/ (keymap -> JSON layer dump) may have been the start of this; ask.
-3. **Prospector display fix** (then user flashes and tests). Diagnosis from reading
+3. ~~Prospector display fix~~ (done 2026-10-31: module 4e6f5e9 + keymap f431cd8, CI green;
+   needs flashing + hardware check). Original notes: **Prospector display fix** (then user flashes and tests). Diagnosis from reading
    `prospector-zmk-module/boards/shields/prospector_adapter/src/widgets/layer_roller.c` and
    `custom_status_screen.c`:
    - Names cut off: roller is 224px wide with 48pt FRAC font; long names don't fit.
@@ -96,10 +97,20 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
    - Fix: short display names (DISPLAY_NAMES in assemble.js), hide helper layers
      (HRM, macOS_*, Mouse_*), non-infinite roller, shorter/no animation, fit text.
      Changes go to qnlbnsl/prospector-zmk-module and the keymap.
-4. **Omarchy layer** on RH T2: workspaces, window focus/move/swap/resize, launchers,
+4. ~~Omarchy layer~~ (done 2026-10-31, display name "WM"): customize.js OMARCHY. Every key
+   = Super + its Base key; HJKL = Super+arrows (Super+J/K/L moved to U/I/Y); LH T1-T3 =
+   Shift/Ctrl/Alt; LH T4-T6 = Super+Enter/Space/Esc; F-row capture keys. assemble.js now
+   renders layers added in customize.js. Original idea: **Omarchy layer** on RH T2: workspaces, window focus/move/swap/resize, launchers,
    screenshots, lock, menus. Source bindings: `omarchy menu keybindings --print` and
    `~/.config/hypr/bindings.lua`.
-5. **LEDs (per-key, per-layer colours as a visual helper)**: e.g. Cursor layer lights arrows,
+5. **LEDs**: root cause found 2026-10-31 (by reading, hardware test pending): the dongle had no
+   &rgb_ug driver (ZMK_RGB_UNDERGLOW=n), so RGB keys were dropped before being forwarded to the
+   halves, and the halves start with underglow off. Fix in qnlbnsl/zmk 8891d04:
+   CONFIG_ZMK_RGB_UNDERGLOW_FORWARD (dongle) + halves ON_START=y, EFF_START=4 (layer
+   indicators, now also enables layer mode at boot); reverted the bogus 80-LED commit ce51822.
+   Added Magic + Omarchy RGB maps. If a half still boots dark, saved RGB settings may be
+   overriding: Magic + RGB on/off / RGB effect, or settings_reset (needs re-pairing).
+   Original notes: **LEDs (per-key, per-layer colours as a visual helper)**: e.g. Cursor layer lights arrows,
    Number lights numpad, other action groups get their own colours. Sunaku's `device.dtsi`
    already has per-layer `underglow-layer` colour maps, and the fork has darknao's per-key RGB.
    The missing piece in the dongle setup: halves must receive layer state from the dongle
@@ -114,7 +125,6 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
 ## Open questions
 
 - Commit `trainer/`?
-- Omarchy layer contents and layout.
 - Magic layer has no LED map (System's was dropped with it); add one in the LED step.
 
 ## Other

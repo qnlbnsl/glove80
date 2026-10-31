@@ -87,7 +87,8 @@
 #define LAYER_Mouse_slow 23
 #define LAYER_Mouse_fast 24
 #define LAYER_Mouse_warp 25
-#define LAYER_Magic 26
+#define LAYER_Omarchy 26
+#define LAYER_Magic 27
 
 /* To deal with the situation where there is no Lower layer, to keep &lower happy */
 #ifndef LAYER_Lower
@@ -573,6 +574,34 @@
       };
       #endif
 
+      #ifdef LAYER_Omarchy
+      Omarchy {
+        bindings = <
+          WHT WHT RED ORN ORN ORN ORN ___ WHT WHT
+          YLW CYN CYN CYN CYN CYN CYN CYN CYN CYN CYN YLW
+          CYN RED RED ___ ___ PUR PUR PUR PUR PUR PUR ___
+          YLW ___ PUR ___ PUR PUR WHT WHT WHT WHT ___ ___
+          GRN ___ GDN GDN GDN ___ GRN GRN GRN ___ ___ BLU ___ ___ AZU ___ AZU GRN
+          ___ ___ ___ ___ ___ BLU BLU BLU ___ ___ ___ ___ ___ ___ ___ ___
+        >;
+        layer-id = <LAYER_Omarchy>;
+      };
+      #endif
+
+      #ifdef LAYER_Magic
+      Magic {
+        bindings = <
+          RED ___ ___ ___ ___ ___ ___ ___ ___ RED
+          ___ ___ ___ WHT ___ ___ ___ ___ ___ ___ ___ ___
+          ___ MAJ CYN YLW WHT GRN ORN ORN ORN ORN ORN ORN
+          RED MAJ CYN YLW WHT GRN RED RED RED RED ___ RED
+          RED ___ ___ ___ ___ ___ BLU BLU ___ ___ ___ ___ ___ ___ ___ ___ ___ RED
+          ___ WHT ___ ___ ___ BLU BLU CYN ___ ___ ___ ___ ___ ___ WHT ___
+        >;
+        layer-id = <LAYER_Magic>;
+      };
+      #endif
+
       #ifdef LAYER_Factory
       Factory {
         bindings = <
@@ -1024,7 +1053,7 @@
   #define KEY_LH_T3 LC(F19)
   #define KEY_RH_T3 0
   #define KEY_RH_T2 INSERT
-  #define LAY_RH_T2 LAYER_Lower
+  #define LAY_RH_T2 LAYER_Omarchy
   #define KEY_RH_T1 ENTER
   #define KEY_RH_C1R5 N
   #define KEY_RH_C2R5 M
@@ -10309,7 +10338,7 @@ macros {
             &kp EQUAL  &kp N1  &kp N2  &kp N3  &kp N4  &kp N5  &kp N6  &kp N7  &kp N8  &kp N9  &kp N0  &kp MINUS
             &kp TAB  &kp Q  &kp W  &kp E  &kp R  &kp T  &kp Y  &kp U  &kp I  &kp O  &kp P  &kp BSLH
             &kp EQUAL  &LeftPinky (A, LAYER_QWERTY)  &LeftRingy (S, LAYER_QWERTY)  &LeftMiddy (D, LAYER_QWERTY)  &LeftIndex (F, LAYER_QWERTY)  &kp G  &kp H  &RightIndex (J, LAYER_QWERTY)  &RightMiddy (K, LAYER_QWERTY)  &RightRingy (L, LAYER_QWERTY)  &RightPinky (SEMI, LAYER_QWERTY)  &kp SQT
-            &sticky_key_modtap LSFT LSFT  &kp Z  &kp X  &kp C  &kp V  &kp B  &thumb LAYER_Function ESC  &mo LAYER_Lower  &kp LC(F19)  &thums_up  &thumb LAYER_Lower INSERT  &kp ENTER  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &sticky_key_modtap RSFT RSFT
+            &sticky_key_modtap LSFT LSFT  &kp Z  &kp X  &kp C  &kp V  &kp B  &thumb LAYER_Function ESC  &mo LAYER_Lower  &kp LC(F19)  &thums_up  &thumb LAYER_Omarchy INSERT  &kp ENTER  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &sticky_key_modtap RSFT RSFT
             &magic LAYER_Magic 0  &kp GRAVE  &parang_left  &parang_right  &stumb LAYER_Emoji LSFT  &thumb LAYER_Cursor BACKSPACE  &thumb LAYER_Number DELETE  &kp PG_DN  &thums_down  &thumb LAYER_Mouse TAB  &space LAYER_Symbol SPACE  &stumb LAYER_World RSFT  &kp LBKT  &kp RBKT  &kp GRAVE  &magic LAYER_Magic 0
             >;
         };
@@ -10599,6 +10628,18 @@ macros {
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+            >;
+        };
+
+        layer_Omarchy {
+            display-name = "WM";
+            bindings = <
+            &kp LG(UP)  &kp LG(DOWN)  &kp PSCRN  &kp LA(PSCRN)  &kp LG(PSCRN)  &kp LG(LC(PSCRN))  &kp LG(LC(C))  &none  &kp LG(LEFT)  &kp LG(RIGHT)
+            &kp LG(EQUAL)  &kp LG(N1)  &kp LG(N2)  &kp LG(N3)  &kp LG(N4)  &kp LG(N5)  &kp LG(N6)  &kp LG(N7)  &kp LG(N8)  &kp LG(N9)  &kp LG(N0)  &kp LG(MINUS)
+            &kp LG(TAB)  &kp LG(Q)  &kp LG(W)  &kp LG(E)  &kp LG(R)  &kp LG(T)  &kp LG(L)  &kp LG(J)  &kp LG(K)  &kp LG(O)  &kp LG(P)  &kp LG(BSLH)
+            &kp LG(EQUAL)  &kp LG(A)  &kp LG(S)  &kp LG(D)  &kp LG(F)  &kp LG(G)  &kp LG(LEFT)  &kp LG(DOWN)  &kp LG(UP)  &kp LG(RIGHT)  &kp LG(SEMI)  &kp LG(SQT)
+            &kp LSHFT  &kp LG(Z)  &kp LG(X)  &kp LG(C)  &kp LG(V)  &kp LG(B)  &kp LSHFT  &kp LCTRL  &kp LALT  &none  &trans  &kp LG(ENTER)  &kp LG(N)  &kp LG(M)  &kp LG(COMMA)  &kp LG(DOT)  &kp LG(FSLH)  &kp RSHFT
+            &trans  &kp LG(GRAVE)  &none  &none  &none  &kp LG(RET)  &kp LG(SPACE)  &kp LG(ESC)  &none  &none  &none  &none  &kp LG(LBKT)  &kp LG(RBKT)  &kp LG(GRAVE)  &trans
             >;
         };
 

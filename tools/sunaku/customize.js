@@ -22,6 +22,7 @@ const OVERRIDES = {
 
 // "&kp LC(F19)" -> Layout Editor JSON object
 function toJson(s) {
+  if (s === "&trans" || s === "&none") return { value: s };
   const m = /^&kp\s+(.+)$/.exec(s);
   if (!m) return { value: "Custom", params: [{ value: s, params: [] }] };
   const parse = (t) => {
@@ -61,6 +62,41 @@ for (const [layer, pos] of Object.entries(OVERRIDES)) {
   const li = km.layer_names.indexOf(layer);
   for (const [i, s] of Object.entries(pos)) km.layers[li][i] = toJson(s);
 }
+
+// Omarchy layer (hold RH T2): every key sends Super + its Base key, so Omarchy's own Super+key
+// bindings apply as-is (Q quit, W close, F fullscreen, 1-0 workspaces, -/= resize, ...).
+// Exceptions below: HJKL focus, left thumbs as Shift/Ctrl/Alt (Super+Shift+3 = move window to 3),
+// left T4-T6 launchers, F-row screen capture.
+const OMARCHY = {
+  2: "&kp PSCRN", 3: "&kp LA(PSCRN)", 4: "&kp LG(PSCRN)", 5: "&kp LG(LC(PSCRN))", 6: "&kp LG(LC(C))", 7: "&none",
+  28: "&kp LG(L)", 29: "&kp LG(J)", 30: "&kp LG(K)", // layout, split, keybindings (displaced by HJKL)
+  40: "&kp LG(LEFT)", 41: "&kp LG(DOWN)", 42: "&kp LG(UP)", 43: "&kp LG(RIGHT)",
+  46: "&kp LSHFT", 63: "&kp RSHFT",
+  52: "&kp LSHFT", 53: "&kp LCTRL", 54: "&kp LALT",          // LH T1-T3
+  69: "&kp LG(RET)", 70: "&kp LG(SPACE)", 71: "&kp LG(ESC)", // LH T4-T6: terminal, menu, system menu
+  56: "&trans", 64: "&trans", 79: "&trans",                  // the held key; Magic
+};
+{
+  const base = km.layers[km.layer_names.indexOf("QWERTY")];
+  const baseKey = (b) => { // plain keycode of a Base binding, if any
+    const p = b.params?.[0];
+    if (b.value === "&kp" && p && !p.params?.length) return p.value;
+    if (b.value === "Custom") return /^&(?:Left|Right)\w+ \((\w+),/.exec(p.value.trim())?.[1];
+  };
+  const layer = base.map((b, i) => {
+    if (OMARCHY[i]) return toJson(OMARCHY[i]);
+    const k = baseKey(b);
+    return k ? toJson(`&kp LG(${k})`) : { value: "&none" };
+  });
+  const at = km.layer_names.indexOf("Magic"); // insert just below Magic
+  for (const l of km.layers) for (const b of l) {
+    const p = b.params?.[0];
+    if (LAYER_BEHAVIORS.has(b.value) && p && typeof p.value === "number" && p.value >= at) p.value++;
+  }
+  km.layers.splice(at, 0, layer);
+  km.layer_names.splice(at, 0, "Omarchy");
+  base[56] = toJson("&thumb LAYER_Omarchy INSERT"); // RH T2: hold Omarchy (was Lower; Lower stays on LH T2)
+}
 fs.writeFileSync("keymap.json", JSON.stringify(km, null, 2) + "\n");
 
 // Config defines: Linux default (keep), bilateral enforcement off.
@@ -77,5 +113,34 @@ const m = cur.exec(dev);
 if (!m) throw new Error("Cursor RGB block not found");
 dev = dev.replace(cur, m[1] + m[2] +
   "          YLW MAJ CYN GRN YLW GDN                                     WHT WHT WHT WHT GDN YLW\n");
+
+// RGB maps for layers Sunaku's device.dtsi doesn't cover (Magic had System's; Omarchy is ours).
+// 80 colours in key-position order (rows of 10, 12, 12, 12, 18, 16).
+const RGB_ROWS = [10, 12, 12, 12, 18, 16];
+function rgbBlock(name, colors) {
+  const c = colors.trim().split(/\s+/);
+  if (c.length !== 80) throw new Error(`${name} RGB map: ${c.length} colours`);
+  let k = 0;
+  const rows = RGB_ROWS.map((n) => "          " + c.slice(k, (k += n)).join(" "));
+  return `      #ifdef LAYER_${name}\n      ${name} {\n        bindings = <\n${rows.join("\n")}\n        >;\n` +
+    `        layer-id = <LAYER_${name}>;\n      };\n      #endif\n\n`;
+}
+const OMARCHY_RGB = `
+  WHT WHT RED ORN ORN ORN ORN ___ WHT WHT
+  YLW CYN CYN CYN CYN CYN CYN CYN CYN CYN CYN YLW
+  CYN RED RED ___ ___ PUR PUR PUR PUR PUR PUR ___
+  YLW ___ PUR ___ PUR PUR WHT WHT WHT WHT ___ ___
+  GRN ___ GDN GDN GDN ___ GRN GRN GRN ___ ___ BLU ___ ___ AZU ___ AZU GRN
+  ___ ___ ___ ___ ___ BLU BLU BLU ___ ___ ___ ___ ___ ___ ___ ___`;
+const MAGIC_RGB = `
+  RED ___ ___ ___ ___ ___ ___ ___ ___ RED
+  ___ ___ ___ WHT ___ ___ ___ ___ ___ ___ ___ ___
+  ___ MAJ CYN YLW WHT GRN ORN ORN ORN ORN ORN ORN
+  RED MAJ CYN YLW WHT GRN RED RED RED RED ___ RED
+  RED ___ ___ ___ ___ ___ BLU BLU ___ ___ ___ ___ ___ ___ ___ ___ ___ RED
+  ___ WHT ___ ___ ___ BLU BLU CYN ___ ___ ___ ___ ___ ___ WHT ___`;
+const anchor = "      #ifdef LAYER_Factory";
+if (!dev.includes(anchor)) throw new Error("Factory RGB block (insert anchor) not found");
+dev = dev.replace(anchor, rgbBlock("Omarchy", OMARCHY_RGB) + rgbBlock("Magic", MAGIC_RGB) + anchor);
 fs.writeFileSync("device.dtsi", dev);
 console.log("layers:", km.layer_names.join(", "));
