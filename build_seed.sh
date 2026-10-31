@@ -1,0 +1,14 @@
+west build -s zmk/app -d "./build/" -b "seeeduino_xiao_ble"  -- \
+    -DZMK_CONFIG=./config \
+    -DSHIELD="glove80_dongle prospector_adapter" \
+    -DZMK_EXTRA_MODULES='../glove80' \
+    -DCONFIG_EXPERIMENTAL_RGB_LAYER=y \
+    -DCONFIG_ZMK_RGB_UNDERGLOW=y \
+    -DCONFIG_PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR=n \
+    -DCONFIG_PROSPECTOR_FIXED_BRIGHTNESS=80 \
+    -DCONFIG_ZMK_SPLIT=y \
+    -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y \
+    -DCONFIG_ZMK_SPLIT_BLE=y \
+    -DCONFIG_ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS=2 \
+    -DCONFIG_BT_MAX_CONN=6 \
+    -DCONFIG_BT_MAX_PAIRED=6
