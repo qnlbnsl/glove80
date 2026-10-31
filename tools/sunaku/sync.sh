@@ -25,4 +25,5 @@ node "$here/assemble.js" "$work/orig.json" "$work/orig.zmk" keymap.json keymap.d
   "$repo/config/glove80.keymap"
 
 git rev-parse HEAD > "$here/REF"
+node "$repo/tools/layermap/build.mjs"
 echo "Built from sunaku/glove80-keymaps $(git log -1 --format='%h %ad %s' --date=short)"

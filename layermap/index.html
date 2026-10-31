@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glove80 Layer Map</title>
+<style>
+:root {
+  --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #dcdad4;
+  --key: #ffffff; --key-edge: #c9c6be; --key-dim: #a3a09a; --accent: #3f5bd9; --danger: #c43d3d;
+  --hover: #fff6d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181b; --panel: #1f2125; --ink: #ececef; --muted: #9a9ba3; --line: #33363c;
+    --key: #2a2d33; --key-edge: #41454d; --key-dim: #6c6f78; --accent: #8ea2ff; --danger: #ff7a7a;
+    --hover: #3a3523;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17181b; --panel: #1f2125; --ink: #ececef; --muted: #9a9ba3; --line: #33363c;
+  --key: #2a2d33; --key-edge: #41454d; --key-dim: #6c6f78; --accent: #8ea2ff; --danger: #ff7a7a;
+  --hover: #3a3523;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1280px; margin: 0 auto; padding: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+h1 { font-size: 20px; margin: 0; }
+.meta { color: var(--muted); font-size: 12px; }
+.opts { margin-left: auto; display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; }
+.opts label { display: flex; gap: 4px; align-items: center; cursor: pointer; }
+nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
+nav button { border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 999px; padding: 4px 12px 4px 8px; font: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; }
+nav button .dot { width: 10px; height: 10px; border-radius: 50%; }
+nav button[aria-pressed="true"] { border-color: var(--ink); font-weight: 600; }
+nav button.internal { font-size: 12px; opacity: .8; }
+nav .sep { width: 100%; height: 0; }
+#title { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 6px; }
+#title h2 { margin: 0; font-size: 18px; }
+#title .preview { color: var(--muted); font-size: 12px; }
+.board { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
+svg { width: 100%; height: auto; display: block; user-select: none; }
+.k rect.body { fill: var(--key); stroke: var(--key-edge); stroke-width: 1.2; }
+.k.trans rect.body { fill: none; stroke-dasharray: 3 3; }
+.k.none rect.body { fill: none; stroke: var(--line); }
+.k.layer rect.body, .k.hrm rect.body { stroke-width: 1.6; }
+.k:hover rect.body { fill: var(--hover); }
+.k.hl rect.body { stroke: var(--accent); stroke-width: 3; }
+.k.held rect.body { stroke: var(--ink); stroke-width: 3; }
+.k text { fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.k.trans text.tap { fill: var(--key-dim); }
+.k text.sub { font-size: 9.5px; font-weight: 600; }
+.k text.note { font-size: 8px; fill: var(--muted); }
+.k.danger text.tap { fill: var(--danger); }
+.k .led { stroke: var(--key-edge); stroke-width: .8; }
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.panel h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.panel ul { list-style: none; margin: 0; padding: 0; }
+.panel li { padding: 3px 0; border-bottom: 1px solid var(--line); }
+.panel li:last-child { border-bottom: 0; }
+.panel li.click { cursor: pointer; }
+.panel li.click:hover { color: var(--accent); }
+code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; background: var(--bg); padding: 1px 4px; border-radius: 4px; word-break: break-all; }
+dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; border: 1px solid var(--key-edge); }
+.hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
+kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Glove80 layer map</h1>
+    <span class="meta" id="meta"></span>
+    <div class="opts">
+      <label><input type="checkbox" id="optLed" checked> LED colours</label>
+      <label><input type="checkbox" id="optTrans" checked> Show fall-through keys</label>
+      <label><input type="checkbox" id="optInternal"> Helper layers</label>
+    </div>
+  </header>
+  <nav id="layers"></nav>
+  <div id="title"><h2 id="layerName"></h2><span class="preview" id="previewNote"></span></div>
+  <div class="board"><svg id="kb" role="img" aria-label="Glove80 keyboard"></svg></div>
+  <div class="panels">
+    <section class="panel"><h3>Key</h3><div id="detail"><span class="hint">Hover a key. Hover a layer key (coloured bar) to preview its layer; click to switch.</span></div></section>
+    <section class="panel"><h3>How to reach this layer</h3><ul id="reach"></ul></section>
+    <section class="panel"><h3>Combos on this layer</h3><ul id="combos"></ul>
+      <div class="hint">Hover a combo to highlight its keys. <kbd>←</kbd>/<kbd>→</kbd> cycle layers, <kbd>Esc</kbd> back to Base.</div></section>
+  </div>
+</main>
+<script src="data.js"></script>
+<script>
+"use strict";
+const K = window.KEYMAP;
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const byId = Object.fromEntries(K.layers.map((l) => [l.id, l]));
+const BASE = K.layers[0].id;
+
+// Per-layer accent colour: evenly spaced hues over the user-facing layers.
+const visible = K.layers.filter((l) => !l.internal);
+const layerColor = {};
+visible.forEach((l, i) => { layerColor[l.id] = `hsl(${Math.round((i * 360) / visible.length + 10)} 70% 50%)`; });
+K.layers.filter((l) => l.internal).forEach((l) => { layerColor[l.id] = "hsl(0 0% 55%)"; });
+const lname = (id) => byId[id]?.name ?? id;
+
+// ---- geometry (key units) ----
+const U = 60, W = 20, STAGGER = { 6: .45, 5: .45, 4: .15, 3: 0, 2: .15, 1: .3 };
+const THUMB = { 1: [6.3, 4.35], 2: [7.35, 4.68], 3: [8.4, 5.08], 4: [6.05, 5.5], 5: [7.1, 5.85], 6: [8.15, 6.25] };
+function geom(pos) {
+  const [hand, id] = K.positions[pos].split(" ");
+  let x, y, rot = 0, m;
+  if ((m = /^T(\d)$/.exec(id))) { [x, y] = THUMB[m[1]]; rot = 20; }
+  else { m = /^C(\d)R(\d)$/.exec(id); x = 6 - +m[1]; y = +m[2] - 1 + STAGGER[m[1]]; }
+  if (hand === "RH") { x = W - 1 - x; rot = -rot; }
+  return { x: x * U, y: y * U, rot };
+}
+
+// ---- state ----
+const opts = { led: true, trans: true, internal: false };
+let pinned = BASE, preview = null, heldPos = null, hlPos = new Set();
+
+function fit(label) {
+  if (label == null) return { lines: [], size: 0 };
+  const s = String(label);
+  if (s.length <= 2) return { lines: [s], size: 21 };
+  if (s.length <= 4) return { lines: [s], size: 16 };
+  if (s.length <= 7) return { lines: [s], size: 12.5 };
+  const words = s.split(" ");
+  if (words.length > 1) {
+    let best = null;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
+      const w = Math.max(a.length, b.length);
+      if (!best || w < best.w) best = { w, lines: [a, b] };
+    }
+    return { lines: best.lines, size: best.w <= 7 ? 11 : best.w <= 9 ? 9.5 : 8 };
+  }
+  return { lines: [s], size: s.length <= 9 ? 10 : 8 };
+}
+
+function el(name, attrs = {}, parent) {
+  const e = document.createElementNS(NS, name);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+function resolve(layer, pos) { // what a key shows, with fall-through to Base for &trans
+  const k = layer.keys[pos];
+  if (k.kind === "trans") return { ...byId[BASE].keys[pos], kind: "trans", raw: k.raw, through: true };
+  return k;
+}
+
+function render() {
+  const layer = byId[preview ?? pinned];
+  const svg = $("kb");
+  svg.setAttribute("viewBox", `-6 -6 ${W * U + 12} ${8.1 * U}`);
+  svg.replaceChildren();
+  layer.keys.forEach((_, pos) => {
+    const k = resolve(layer, pos);
+    const { x, y, rot } = geom(pos);
+    const s = U - 6;
+    const cls = ["k", k.kind, k.danger ? "danger" : "", hlPos.has(pos) ? "hl" : "", pos === heldPos ? "held" : ""].join(" ");
+    const g = el("g", { class: cls, transform: `translate(${x + 3} ${y + 3}) rotate(${rot} ${s / 2} ${s / 2})`, "data-pos": pos }, svg);
+    el("rect", { class: "body", width: s, height: s, rx: 8 }, g);
+    if (k.kind === "trans" && !opts.trans) { hookKey(g, pos, layer); return; }
+    if (k.kind === "none") { hookKey(g, pos, layer); return; }
+    const led = layer.leds?.[pos];
+    if (opts.led && led) el("rect", { class: "led", x: s - 13, y: 5, width: 8, height: 8, rx: 2, fill: led }, g);
+    // hold part: layer access or modifier
+    let sub = null, subColor = null;
+    if (k.kind === "layer" && k.layer) {
+      sub = lname(k.layer);
+      subColor = layerColor[k.layer];
+      if (!k.through) el("rect", { x: 0, y: s - 5, width: s, height: 5, rx: 2, fill: subColor }, g);
+    } else if (k.hold) { sub = k.hold; subColor = "var(--muted)"; }
+    const tapLabel = k.tap ?? (k.kind === "layer" && k.action !== "hold" ? k.action : "");
+    const f = fit(tapLabel);
+    const cy = sub ? s / 2 - 5 : s / 2;
+    f.lines.forEach((line, i) => {
+      const t = el("text", { class: "tap", x: s / 2, y: cy + (i - (f.lines.length - 1) / 2) * f.size * 1.05, "font-size": f.size }, g);
+      t.textContent = line;
+    });
+    if (sub) {
+      const t = el("text", { class: "sub", x: s / 2, y: s - 12, fill: subColor }, g);
+      t.textContent = sub.length > 11 ? sub.slice(0, 10) + "…" : sub;
+      if (!tapLabel) { t.setAttribute("y", s / 2); t.setAttribute("font-size", 11); }
+    }
+    if (k.note && !sub) { const t = el("text", { class: "note", x: s / 2, y: s - 8 }, g); t.textContent = k.note; }
+    hookKey(g, pos, layer);
+  });
+  $("layerName").textContent = layer.name + (layer.internal ? " (helper)" : "");
+  $("previewNote").textContent = preview ? "preview, click to switch" : "";
+  document.querySelectorAll("#layers button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.id === (preview ?? pinned)));
+  renderReach(layer); renderCombos(layer);
+}
+
+function hookKey(g, pos, layer) {
+  g.addEventListener("mouseenter", () => {
+    showDetail(layer, pos);
+    const k = layer.keys[pos];
+    if (k.kind === "layer" && k.layer && k.layer !== layer.id && !preview) {
+      preview = k.layer; heldPos = pos; render();
+    }
+  });
+  g.addEventListener("mouseleave", () => {
+    if (preview && heldPos === pos) { preview = null; heldPos = null; render(); }
+  });
+  g.addEventListener("click", () => {
+    const k = byId[pinned].keys[pos];
+    if (k.kind === "layer" && k.layer) { setLayer(k.layer); }
+  });
+}
+
+function showDetail(layer, pos) {
+  const k = resolve(layer, pos);
+  const raw = layer.keys[pos].raw;
+  const led = layer.leds?.[pos];
+  const rows = [
+    ["Position", `${K.positions[pos]} <span class="meta">#${pos}</span>`],
+    ["Layer", lname(layer.id)],
+    ["Tap", k.tap ?? "—"],
+  ];
+  if (k.kind === "layer" && k.layer) rows.push([k.action === "hold" ? "Hold" : "Action", `${k.action} <b style="color:${layerColor[k.layer]}">${lname(k.layer)}</b>`]);
+  else if (k.hold) rows.push(["Hold", k.hold]);
+  if (k.note) rows.push(["Note", k.note]);
+  if (k.through) rows.push(["Falls through", `to ${lname(BASE)} (transparent here)`]);
+  rows.push(["Binding", `<code>${esc(raw)}</code>`]);
+  if (layer.leds) rows.push(["LED", led ? `<span class="swatch" style="background:${led}"></span> ${led}` : "off"]);
+  $("detail").innerHTML = `<dl>${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>`;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderReach(layer) {
+  const items = [];
+  for (const src of K.layers) {
+    src.keys.forEach((k, pos) => {
+      if (k.kind === "layer" && k.layer === layer.id && src.id !== layer.id)
+        items.push({ src: src.id, pos, text: `${k.action} ${K.positions[pos]}${k.tap ? ` (${k.tap})` : ""} on <b>${esc(lname(src.id))}</b>` });
+      if (k.kind === "layer" && k.layer === layer.id && src.id === layer.id && k.action !== "hold")
+        items.push({ src: src.id, pos, text: `${k.action} off: ${K.positions[pos]} on this layer` });
+    });
+  }
+  for (const c of K.combos) if (c.layer === layer.id)
+    items.push({ combo: c, text: `${c.action} via combo ${c.positions.map((p) => K.positions[p]).join(" + ")}` });
+  const list = $("reach");
+  list.innerHTML = "";
+  if (!items.length) list.innerHTML = `<li class="hint">${layer.id === BASE ? "Default layer." : "Not referenced by any key."}</li>`;
+  const shown = items.filter((it) => opts.internal || !byId[it.src]?.internal);
+  const hiddenCount = items.length - shown.length;
+  for (const it of shown) {
+    const li = document.createElement("li");
+    li.innerHTML = it.text;
+    if (it.src) {
+      li.className = "click";
+      li.onclick = () => { setLayer(it.src); flash([it.pos]); };
+    } else if (it.combo) {
+      li.onmouseenter = () => { hlPos = new Set(it.combo.positions); render(); };
+      li.onmouseleave = () => { hlPos = new Set(); render(); };
+    }
+    list.appendChild(li);
+  }
+  if (hiddenCount) list.insertAdjacentHTML("beforeend", `<li class="hint">+${hiddenCount} from helper layers</li>`);
+}
+
+function renderCombos(layer) {
+  const list = $("combos");
+  list.innerHTML = "";
+  const cs = K.combos.filter((c) => c.layers.includes(layer.id));
+  if (!cs.length) list.innerHTML = `<li class="hint">None.</li>`;
+  for (const c of cs) {
+    const li = document.createElement("li");
+    const what = c.kind === "layer" ? `${c.action} ${esc(lname(c.layer))}` : esc(c.tap) + (c.note ? ` <span class="meta">(${c.note})</span>` : "");
+    li.innerHTML = `<b>${what}</b> <span class="meta">${c.positions.map((p) => K.positions[p]).join(" + ")}</span>`;
+    li.onmouseenter = () => { hlPos = new Set(c.positions); render(); };
+    li.onmouseleave = () => { hlPos = new Set(); render(); };
+    list.appendChild(li);
+  }
+}
+
+function flash(positions) { hlPos = new Set(positions); render(); setTimeout(() => { hlPos = new Set(); render(); }, 1400); }
+
+function setLayer(id) {
+  pinned = id; preview = null; heldPos = null;
+  if (byId[id].internal && !opts.internal) { opts.internal = true; $("optInternal").checked = true; buildNav(); }
+  history.replaceState(null, "", "#" + id);
+  render();
+}
+
+function buildNav() {
+  const nav = $("layers");
+  nav.innerHTML = "";
+  const add = (l) => {
+    const b = document.createElement("button");
+    b.dataset.id = l.id;
+    if (l.internal) b.className = "internal";
+    b.innerHTML = `<span class="dot" style="background:${layerColor[l.id]}"></span>${esc(l.name)}`;
+    b.onclick = () => setLayer(l.id);
+    nav.appendChild(b);
+  };
+  visible.forEach(add);
+  if (opts.internal) {
+    const sep = document.createElement("span"); sep.className = "sep"; nav.appendChild(sep);
+    K.layers.filter((l) => l.internal).forEach(add);
+  }
+}
+
+$("optLed").onchange = (e) => { opts.led = e.target.checked; render(); };
+$("optTrans").onchange = (e) => { opts.trans = e.target.checked; render(); };
+$("optInternal").onchange = (e) => { opts.internal = e.target.checked; buildNav(); render(); };
+document.addEventListener("keydown", (e) => {
+  const list = opts.internal ? K.layers : visible;
+  const i = list.findIndex((l) => l.id === pinned);
+  if (e.key === "ArrowRight") setLayer(list[(i + 1) % list.length].id);
+  else if (e.key === "ArrowLeft") setLayer(list[(i - 1 + list.length) % list.length].id);
+  else if (e.key === "Escape") setLayer(BASE);
+});
+$("kb").addEventListener("mouseleave", () => { if (preview) { preview = null; heldPos = null; render(); } });
+
+$("meta").textContent = `from ${K.source}, generated ${K.generated} · Linux labels`;
+const fromHash = decodeURIComponent(location.hash.slice(1));
+buildNav();
+setLayer(byId[fromHash] ? fromHash : BASE);
+</script>
+</body>
+</html>

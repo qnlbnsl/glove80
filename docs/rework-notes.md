@@ -30,8 +30,10 @@ current state (git log, `gh run list -R qnlbnsl/glove80`) before relying on them
   - 5da72cd Fix HRM thumb refs to RH T1 (assemble.js: `&mo LAY_x` -> `&kp KEY_x` when the base
     thumb key has no layer). CI 41240998689 green. This is the current flashable state.
 - `origin/wip/build-scripts-2026-10-30`: local build.sh / build_seed.sh (west build). Not merged.
-- Untracked `trainer/` (tools/parse-keymap.mjs -> trainer/keymap.json, a JSON dump of the keymap
-  layers). Purpose unknown; ask the user before changing it.
+- Untracked `trainer/`: the user's own WIP **keymap trainer game** (web JS, top-down dungeon
+  crawler / RPG like the Vim trainers, battles, built around this keymap). Has
+  tools/parse-keymap.mjs -> trainer/keymap.json (layer dump; currently stale, still has System).
+  The user owns it; don't change it unasked. layermap/data.js could feed it later.
 
 ## Keymap pipeline (how config/glove80.keymap is made)
 
@@ -67,12 +69,15 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
 - OS: no auto-detection possible in ZMK. Build is Linux. GUI/Cmd stays on pinky (GACS).
   Sunaku's macOS toggle (Magic + C5R6) swaps to CAGS for trying Mac ordering. Emoji/World
   unicode entry is compile-time per OS (only correct on Linux with this build).
-- Cursor: user may later want vim-style HJKL arrows instead of inverted-T. Not decided.
+- Cursor: vim HJKL arrows (H Left, J Down, K Up, L Right), decided 2026-10-31. `;` = Copy
+  (moved off H), I = Undo again (Sunaku's). RGB: HJKL white. Done in customize.js.
 
 ## Plan (agreed order)
 
 1. ~~Update to Sunaku latest~~ (done) -> ~~layer cleanup~~ (done, CI 41240998689 green).
-2. Possibly first: an **interactive layer map** page like Sunaku's
+2. ~~Interactive layer map~~ (done 2026-10-31): `layermap/index.html` + generated
+   `layermap/data.js` (`node tools/layermap/build.mjs`, also run by sync.sh). Serve with
+   `python3 -m http.server -d layermap`. Original proposal: an **interactive layer map** page like Sunaku's
    https://sunaku.github.io/moergo-glove80-keyboard.html#layers, generated from our keymap
    (user idea, 2026-10-31). Not started. Sunaku's page is static PNGs per layer, swapped on
    hover over the purple thumb keys. Proposed ours, generated from config/glove80.keymap by a
@@ -108,11 +113,9 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
 
 ## Open questions
 
-- What is `trainer/` for? Commit it?
-- Interactive layer map: build it before the display fix? Where should it live (artifact
-  page vs. GitHub Pages)?
+- Commit `trainer/`?
 - Omarchy layer contents and layout.
-- HJKL Cursor layer?
+- Magic layer has no LED map (System's was dropped with it); add one in the LED step.
 
 ## Other
 
