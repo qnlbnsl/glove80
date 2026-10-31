@@ -1,7 +1,8 @@
 // Step 1: customize Sunaku's keymap.json + device.dtsi + keymap.dtsi.erb in-place (run inside the sunaku worktree).
 const fs = require("fs");
 
-const DROP = ["Enthium", "Dvorak", "Colemak"];
+// Alternate alpha layouts (QWERTY only), Factory (key test), System (merged into Magic below).
+const DROP = ["Enthium", "Dvorak", "Colemak", "Factory", "System"];
 // Position overrides per layer, as rendered ZMK bindings.
 const OVERRIDES = {
   QWERTY: {
@@ -11,6 +12,11 @@ const OVERRIDES = {
     54: "&kp LC(F19)", // LH T3: Wispr Flow push-to-talk (was PG_UP)
   },
   Cursor: { 30: "&kp UP", 42: "&kp DOWN", 43: "&kp RIGHT", 44: "&kp _UNDO" },
+  // System's unique keys, moved onto Magic's empty right-hand slots.
+  Magic: {
+    28: "&kp K_APP", 29: "&kp PSCRN", 30: "&kp PAUSE_BREAK", 31: "&kp SLCK", 32: "&kp KP_NUM", 33: "&kp CAPS",
+    40: "&kp _LOCK", 41: "&kp _SLEEP", 42: "&kp _POWER", 43: "&linux_magic_sysrq",
+  },
 };
 
 // "&kp LC(F19)" -> Layout Editor JSON object
@@ -38,6 +44,13 @@ km.layers = km.layers.filter((_, i) => !dropIdx.includes(i)).map((layer) =>
     if (LAYER_BEHAVIORS.has(b.value) && p && typeof p.value === "number") {
       const n = remap(p.value);
       return n === null ? { value: "&none" } : { ...b, params: [{ ...p, value: n }, ...b.params.slice(1)] };
+    }
+    // Custom bindings naming a dropped layer: "&thumb LAYER_X KEY" keeps its tap, anything else goes.
+    const custom = b.value === "Custom" && p.value;
+    const dead = custom && DROP.find((d) => new RegExp(`\\bLAYER_${d}\\b`).test(custom));
+    if (dead) {
+      const tap = new RegExp(`^&\\w+ LAYER_${dead} (\\w+)$`).exec(custom.trim());
+      return tap ? toJson(`&kp ${tap[1]}`) : { value: "&none" };
     }
     return b;
   })
