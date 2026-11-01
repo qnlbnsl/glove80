@@ -8,3 +8,24 @@
     /delete-property/ rdy-gpios;
     /delete-property/ reset-gpios;
 };
+
+/*
+ * The 4-wire breakout may have no I2C pull-ups (the XIAO has none either): turn on the nRF's
+ * internal ones (~13 kOhm, weak) and run the bus at 100 kHz so the edges are still clean.
+ * External 4.7 kOhm pull-ups to 3V3 on SDA/SCL would let this go back to 400 kHz.
+ */
+&i2c1_default {
+    group1 {
+        bias-pull-up;
+    };
+};
+
+&i2c1_sleep {
+    group1 {
+        bias-pull-up;
+    };
+};
+
+&xiao_i2c {
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+};
