@@ -451,6 +451,10 @@ static void ptp_process(const struct device *dev, const uint8_t *buf) {
         frame.contacts[frame.count++] = (struct ptp_contact){
             .id = i, .tip = present, .x = data->ptp_x[i], .y = data->ptp_y[i]};
     }
+    if (down != data->ptp_down) {
+        LOG_DBG("ptp fingers 0x%02x -> 0x%02x (count byte %u)", data->ptp_down, down,
+                buf[OFF_NUM_FINGERS]);
+    }
     data->ptp_down = down;
     if (frame.count) {
         int err = ptp_send(&frame);

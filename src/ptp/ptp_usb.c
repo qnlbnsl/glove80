@@ -174,10 +174,14 @@ static uint8_t input_report[INPUT_REPORT_LEN] = {RID_INPUT};
 static uint8_t caps_report[2] = {RID_CAPS, PTP_MAX_CONTACTS | (PAD_TYPE_NON_CLICKABLE << 4)};
 static uint8_t mode_report[2] = {RID_MODE, INPUT_MODE_MOUSE};
 static uint8_t selective_report[2] = {RID_SELECTIVE, 0x03}; /* surface + buttons on */
+static uint32_t frames_sent, frames_failed;
+
+/* Kept from usb_conn_state_changed: zmk_usb_is_hid_ready() logs a debug line per call. */
+static bool usb_ready;
 
 bool ptp_active(void) {
-    return hid_dev && mode_report[1] == INPUT_MODE_TOUCHPAD && (selective_report[1] & BIT(0)) &&
-           zmk_usb_is_hid_ready();
+    return hid_dev && usb_ready && mode_report[1] == INPUT_MODE_TOUCHPAD &&
+           (selective_report[1] & BIT(0));
 }
 
 int ptp_send(const struct ptp_frame *frame) {
@@ -208,6 +212,14 @@ int ptp_send(const struct ptp_frame *frame) {
     int err = hid_int_ep_write(hid_dev, input_report, sizeof(input_report), NULL);
     if (err) {
         k_sem_give(&in_sem);
+        frames_failed++;
+    } else {
+        frames_sent++;
+    }
+    if ((frames_sent + frames_failed) % 200 == 1) {
+        LOG_INF("frames sent %u failed %u (last: %u contacts, first id %u tip %u at %u,%u)",
+                frames_sent, frames_failed, count, frame->contacts[0].id, frame->contacts[0].tip,
+                frame->contacts[0].x, frame->contacts[0].y);
     }
     return err;
 }
@@ -284,7 +296,9 @@ static const struct hid_ops ops = {
 
 /* A new host (or a re-plug) has to choose touchpad mode again. */
 static int usb_listener(const zmk_event_t *eh) {
-    if (!zmk_usb_is_hid_ready()) {
+    usb_ready = zmk_usb_is_hid_ready();
+    LOG_INF("USB %s", usb_ready ? "ready" : "not ready");
+    if (!usb_ready) {
         mode_report[1] = INPUT_MODE_MOUSE;
         selective_report[1] = 0x03;
     }
