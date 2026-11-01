@@ -48,6 +48,10 @@ Details and history: `docs/rework-notes.md`.
   disconnect. Workaround in `src/ptp/ptp_split_central.c`: tell pads from halves by GAP
   appearance (always readable), and stop every discovery/read as soon as it has what it needs.
   Upstream 4.1 has it right (`int ret; if (ret == 0 || ret == -EBUSY)`).
+- Split pad choppiness had three causes, fixed in this order: ZMK drops idle split links to
+  22.5 ms (pad frames aren't "activity"), the dongle stamped Scan Time on arrival (host speed
+  comes from it), and BLE's 7.5 ms connection events bunch ~11.5 ms frames (7.5/15 ms
+  arrivals). Fixes: per-pad fast link, pad-side scan time, 10 ms jitter buffer on the dongle.
 
 ## Builds and tooling
 - Builds are CI only; download with `gh run download <id> -n firmware -D firmware`.

@@ -57,11 +57,15 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       pads -> one ideal diode (e.g. LM66100) per load -> Glove80 half BAT, trackpad XIAO BAT.
       Per-load diodes stop either board's USB charger back-feeding the pack or the other board.
       Open: charger with power path, battery % calibration
-- [ ] Solder the 6-pin breakout (VCC, GND, SDA, SCL, RDY, RST) for the next rig tests
+- [x] RDY -> D2, NRST -> D3 soldered and enabled; driver runs on the RDY interrupt
 - [ ] Second breakout board for the second TPS65 (current spare is for a TPS43 / RP2040)
-- [ ] Pads report to the dongle over the split link (mouse mode: deltas + touch state)
-- [ ] Touchpad mode over split: batch each finger frame into one BLE message (input-split
-      sends one notification per event, too much at 100 Hz x 5 fingers)
+- [x] Touchpad mode over split, hardware-confirmed smooth (`tps65_pad` peripheral -> dongle
+      HID_1/HID_2): one packed 20-byte notification per frame with the pad's scan time;
+      pads identified by GAP appearance 965; dongle keeps the pad's link at 7.5 ms while in
+      use and releases frames through a 10 ms jitter buffer (PTP_SPLIT_JITTER_US). Pad rate
+      measured 75-88 Hz (controller scan limit ~10-11 ms, below the 125 Hz PTP spec)
+- [ ] Mouse-mode fallback over split (macOS): pad sends deltas/gestures when the dongle's
+      host never sets touchpad mode
 - [ ] Dongle gesture engine across both pads: left = scroll, right = cursor; resting finger
       on one pad holds the button while the other drags (two fingers resting = right drag)
 - [ ] Input thread stack 2 KB on the dongle/halves once gestures emit keys there
@@ -78,5 +82,6 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       uses the `recycled` callback)
 - [ ] Prospector module: rebase our widgets (layer name, battery bar, status icons) onto
       upstream's 4.1 / LVGL 9 version
-- [ ] Trackpad driver and PTP mode on 4.1 (FluxWav's patch targets 4.1 directly)
+- [ ] Trackpad driver and PTP mode on 4.1 (FluxWav's patch targets 4.1 directly). 4.1 fixes
+      the ATT error-response hang (see gotchas); keep the workaround, it is harmless
 - [ ] Re-test everything on hardware: layers, LEDs, display, reconnect, battery, trackpads
