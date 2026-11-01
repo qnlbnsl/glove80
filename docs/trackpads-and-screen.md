@@ -2,7 +2,7 @@
 
 Decided 2026-11-01. Mockups: https://claude.ai/artifact/7NVWtvHsdBnupHMSsFTco8 (option B chosen).
 
-## Fixed sides (done, untested)
+## Fixed sides (done, tested 2026-11-01)
 - Pad firmware is built per side: `tps65_pad_lh` / `tps65_pad_rh` (`CONFIG_PTP_SPLIT_PAD_SIDE_LEFT/RIGHT`).
   The BLE name follows: "TPS65 Pad L" / "TPS65 Pad R".
 - The pad exposes its side as a read characteristic (`PTP_SPLIT_SIDE_UUID`). The dongle reads it
@@ -39,7 +39,13 @@ Open:
   The wheel is simpler; check whether ZMK's report supports high-resolution scrolling.
 - **macOS:** none of this works until mouse mode works over the split link (see todo.md).
 
-## Screen (option B + changes)
+## Screen (done 2026-11-01, prospector-zmk-module zephyr-4.1)
+Built as below, except the OS logo went to the bottom left and "wpm" sits on one line with a
+small graph. Spacing is even by visible extents (8 px edges, 20 px gaps), documented in
+`layouts/glove80/status_screen.c`. Pad tiles poll `ptp_split_pad_status()` from the split
+central. Not done yet: pad battery % (needs per-pad batteries).
+
+Original plan:
 - **Top:** modifier row, as now. The OS logo moves up beside it.
 - **Middle:** layer name with its underline right below it (no gap).
 - **Tile grid,** mirrored like the hardware:
