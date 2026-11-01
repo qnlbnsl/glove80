@@ -6,8 +6,6 @@ manifest:
       url-base: https://github.com/darknao
     - name: qnlbnsl
       url-base: https://github.com/qnlbnsl
-    - name: carrefinho
-      url-base: https://github.com/carrefinho
 
   projects:
     - name: zmk
@@ -15,10 +13,10 @@ manifest:
       revision: zephyr-4.1
       import: app/west.yml
 
-    # Stage 1 of the 4.1 move: upstream's 4.1 branch as-is (classic layout); our widgets next.
+    # Upstream's 4.1 branch (feat/new-status-screens) plus our "glove80" layout.
     - name: prospector-zmk-module
-      remote: carrefinho
-      revision: feat/new-status-screens
+      remote: qnlbnsl
+      revision: zephyr-4.1
 
   self:
     path: config
