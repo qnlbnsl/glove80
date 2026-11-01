@@ -20,7 +20,7 @@ itself (a few seconds). Self-update needs a running bootloader >= 0.4.0 (stock i
 The SoftDevice and the ZMK application are kept. Power loss during the update needs SWD to
 recover.
 
-Done: left trackpad (2026-11-01, verified 0.11.0 / TPADLHBOOT, ZMK still flashes).
+Done (2026-11-01, verified 0.11.0, ZMK app intact): left trackpad (`TPADLHBOOT`), dongle (`DONGLEBOOT`).
 
 ## Rebuilding
 ```
