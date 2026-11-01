@@ -147,7 +147,8 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
     if (params->type == BT_GATT_DISCOVER_PRIMARY) {
         if (!attr) {
             /* Not a trackpad (e.g. a keyboard half): free the slot. */
-            LOG_DBG("pad %d: no touchpad service on this peripheral", pad_index(pad));
+            LOG_INF("pad %d: no touchpad service on this peripheral, freeing slot",
+                    pad_index(pad));
             release(pad);
             return BT_GATT_ITER_STOP;
         }
@@ -206,20 +207,38 @@ static void discover_work_cb(struct k_work *work) {
     }
 }
 
-static void security_changed(struct bt_conn *conn, bt_security_t level,
-                             enum bt_security_err err) {
+/* Claim a pad slot for a new split peripheral connection and look for the touchpad service.
+ * Discovery doesn't need encryption; subscribing to the (encrypted) frames CCC makes the stack
+ * raise security itself. Keyboard halves have no touchpad service and give their slot back. */
+static void claim(struct bt_conn *conn, const char *why) {
     struct bt_conn_info info;
-    if (err || level < BT_SECURITY_L2 || bt_conn_get_info(conn, &info) ||
-        info.role != BT_CONN_ROLE_CENTRAL || pad_for_conn(conn)) {
+    if (bt_conn_get_info(conn, &info) || info.role != BT_CONN_ROLE_CENTRAL ||
+        pad_for_conn(conn)) {
         return;
     }
     struct pad *pad = pad_for_conn(NULL);
     if (!pad) {
-        return; /* all pad slots taken by connected trackpads */
+        LOG_WRN("no free pad slot (%s)", why);
+        return;
     }
     pad->conn = bt_conn_ref(conn);
+    LOG_INF("pad %d: probing peripheral (%s)", pad_index(pad), why);
     /* Let ZMK's own split discovery go first. */
-    k_work_schedule(&pad->discover_work, K_MSEC(300));
+    k_work_schedule(&pad->discover_work, K_MSEC(1000));
+}
+
+static void connected(struct bt_conn *conn, uint8_t err) {
+    if (!err) {
+        claim(conn, "connected");
+    }
+}
+
+static void security_changed(struct bt_conn *conn, bt_security_t level,
+                             enum bt_security_err err) {
+    LOG_INF("security changed: level %d err %d", level, err);
+    if (!err && level >= BT_SECURITY_L2) {
+        claim(conn, "encrypted");
+    }
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason) {
@@ -231,6 +250,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason) {
 }
 
 BT_CONN_CB_DEFINE(ptp_split_central_conn_cb) = {
+    .connected = connected,
     .security_changed = security_changed,
     .disconnected = disconnected,
 };
