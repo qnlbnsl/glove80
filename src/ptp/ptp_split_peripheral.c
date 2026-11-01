@@ -26,9 +26,11 @@ LOG_MODULE_REGISTER(ptp_split, CONFIG_PTP_LOG_LEVEL);
 static bool notify_enabled;
 static bool central_touchpad_mode;
 static uint32_t frames_sent, frames_failed;
+static uint16_t last_scan; /* time-byte state, matches the central's (ptp_frame_pack) */
 
 static void frames_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value) {
     notify_enabled = value == BT_GATT_CCC_NOTIFY;
+    last_scan = 0;
     if (!notify_enabled) {
         central_touchpad_mode = false;
     }
@@ -70,7 +72,7 @@ int ptp_send(const struct ptp_frame *frame) {
         return -EAGAIN;
     }
     uint8_t buf[PTP_PACKED_MAX];
-    size_t len = ptp_frame_pack(frame, buf);
+    size_t len = ptp_frame_pack(frame, &last_scan, buf);
     /* attrs[1] = frames characteristic declaration */
     int err = bt_gatt_notify(NULL, &ptp_svc.attrs[1], buf, len);
     if (err) {

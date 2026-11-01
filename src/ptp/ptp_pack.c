@@ -33,12 +33,26 @@ static uint32_t get(struct bits *b, int n) {
     return v;
 }
 
-size_t ptp_frame_pack(const struct ptp_frame *frame, uint8_t out[PTP_PACKED_MAX]) {
+#define TIME_UNIT 2 /* 100 us scan-time units per time-byte step */
+
+size_t ptp_frame_pack(const struct ptp_frame *frame, uint16_t *last_scan,
+                      uint8_t out[PTP_PACKED_MAX]) {
     uint8_t count = MIN(frame->count, PTP_MAX_CONTACTS);
     memset(out, 0, PTP_PACKED_MAX);
     out[0] = count | ((frame->buttons & 0x07) << 3);
 
-    struct bits b = {.buf = &out[1]};
+    /* Track the receiver's reconstructed timeline so rounding doesn't accumulate. */
+    uint16_t delta = (uint16_t)(frame->scan_time - *last_scan);
+    if (delta >= 255 * TIME_UNIT) {
+        out[1] = 255;
+        *last_scan = frame->scan_time; /* long gap (new touch): resync, exact gap unimportant */
+    } else {
+        uint8_t steps = MAX((delta + TIME_UNIT / 2) / TIME_UNIT, 1);
+        out[1] = steps;
+        *last_scan += steps * TIME_UNIT;
+    }
+
+    struct bits b = {.buf = &out[2]};
     for (int i = 0; i < count; i++) {
         const struct ptp_contact *c = &frame->contacts[i];
         put(&b, c->id & 0x07, 3);
@@ -46,22 +60,25 @@ size_t ptp_frame_pack(const struct ptp_frame *frame, uint8_t out[PTP_PACKED_MAX]
         put(&b, MIN(c->x, PTP_COORD_MAX), 12);
         put(&b, MIN(c->y, PTP_COORD_MAX), 12);
     }
-    return 1 + DIV_ROUND_UP(b.pos, 8);
+    return 2 + DIV_ROUND_UP(b.pos, 8);
 }
 
-int ptp_frame_unpack(const uint8_t *buf, size_t len, struct ptp_frame *frame) {
-    if (len < 1) {
+int ptp_frame_unpack(const uint8_t *buf, size_t len, uint16_t *last_scan,
+                     struct ptp_frame *frame) {
+    if (len < 2) {
         return -EINVAL;
     }
     uint8_t count = buf[0] & 0x07;
-    if (count > PTP_MAX_CONTACTS || len < 1 + DIV_ROUND_UP(count * 28, 8)) {
+    if (count > PTP_MAX_CONTACTS || len < 2 + DIV_ROUND_UP(count * 28, 8)) {
         return -EINVAL;
     }
     memset(frame, 0, sizeof(*frame));
     frame->count = count;
     frame->buttons = (buf[0] >> 3) & 0x07;
+    *last_scan += buf[1] * TIME_UNIT;
+    frame->scan_time = *last_scan;
 
-    struct bits b = {.buf = (uint8_t *)&buf[1]};
+    struct bits b = {.buf = (uint8_t *)&buf[2]};
     for (int i = 0; i < count; i++) {
         struct ptp_contact *c = &frame->contacts[i];
         c->id = get(&b, 3);

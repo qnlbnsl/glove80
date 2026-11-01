@@ -236,8 +236,7 @@ int ptp_usb_pad_send(uint8_t idx, const struct ptp_frame *frame) {
         p += FINGER_BYTES;
     }
     p = &pad->input_report[1 + PTP_MAX_CONTACTS * FINGER_BYTES];
-    uint16_t scan_time = (uint16_t)(k_ticks_to_us_floor64(k_uptime_ticks()) / 100);
-    sys_put_le16(scan_time, p);
+    sys_put_le16(frame->scan_time, p);
     uint8_t buttons = (pad->selective_report[1] & BIT(1)) ? (frame->buttons & 0x07) : 0;
     p[2] = count | (buttons << 4);
 

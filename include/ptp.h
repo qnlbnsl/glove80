@@ -31,6 +31,7 @@ struct ptp_contact {
 struct ptp_frame {
     uint8_t count;   /* entries used in contacts[] */
     uint8_t buttons; /* bit 0..2 = button 1..3 */
+    uint16_t scan_time; /* when the pad was read: 100 us units, wrapping (HID Scan Time) */
     struct ptp_contact contacts[PTP_MAX_CONTACTS];
 };
 
@@ -45,8 +46,14 @@ int ptp_usb_pad_send(uint8_t pad, const struct ptp_frame *frame);
 /* Called (from the USB stack / event context) when a pad's touchpad mode turns on or off. */
 void ptp_usb_set_mode_callback(void (*cb)(uint8_t pad, bool active));
 
-/* Split link encoding: header byte (count | buttons << 3), then 28 bits per contact
- * (id:3 tip:1 x:12 y:12), LSB first. 5 contacts fit in 19 bytes (default ATT MTU: 20). */
-#define PTP_PACKED_MAX (1 + (PTP_MAX_CONTACTS * 28 + 7) / 8)
-size_t ptp_frame_pack(const struct ptp_frame *frame, uint8_t out[PTP_PACKED_MAX]);
-int ptp_frame_unpack(const uint8_t *buf, size_t len, struct ptp_frame *frame);
+/* Split link encoding: header byte (count | buttons << 3), time byte (scan time since the
+ * previous frame, 200 us units, 255 = long gap), then 28 bits per contact (id:3 tip:1 x:12
+ * y:12), LSB first. 5 contacts fit in 20 bytes (default ATT MTU payload).
+ * The host derives finger speed from Scan Time, so it must be the pad's own read time: stamping
+ * frames on arrival at the dongle makes BLE connection-event bunching look like speed jumps.
+ * *last_scan is per-link state on each side (start both at 0 on (re)subscribe). */
+#define PTP_PACKED_MAX (2 + (PTP_MAX_CONTACTS * 28 + 7) / 8)
+size_t ptp_frame_pack(const struct ptp_frame *frame, uint16_t *last_scan,
+                      uint8_t out[PTP_PACKED_MAX]);
+int ptp_frame_unpack(const uint8_t *buf, size_t len, uint16_t *last_scan,
+                     struct ptp_frame *frame);

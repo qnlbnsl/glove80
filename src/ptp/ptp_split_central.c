@@ -37,6 +37,7 @@ struct pad {
     struct bt_gatt_subscribe_params sub;
     struct k_work fast_work;
     int64_t fast_checked;
+    uint16_t last_scan; /* time-byte state, matches the peripheral's (ptp_frame_unpack) */
     uint16_t svc_end, frames_handle, mode_handle;
     bool subscribed;
 };
@@ -135,7 +136,7 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
         k_work_submit(&pad->fast_work);
     }
     struct frame_item item = {.pad = pad_index(pad)};
-    if (ptp_frame_unpack(data, length, &item.frame) == 0) {
+    if (ptp_frame_unpack(data, length, &pad->last_scan, &item.frame) == 0) {
         if (k_msgq_put(&frame_q, &item, K_NO_WAIT) != 0) {
             LOG_WRN("pad %d: frame queue full, dropping", item.pad);
         }
@@ -152,6 +153,7 @@ static void subscribed_cb(struct bt_conn *conn, uint8_t err,
         return;
     }
     pad->subscribed = true;
+    pad->last_scan = 0;
     pad->step = "done";
     LOG_INF("pad %d: subscribed to frames", pad_index(pad));
     k_work_submit(&mode_work);

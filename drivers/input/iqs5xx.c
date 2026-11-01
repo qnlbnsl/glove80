@@ -457,6 +457,7 @@ static void ptp_process(const struct device *dev, const uint8_t *buf) {
     }
     data->ptp_down = down;
     if (frame.count) {
+        frame.scan_time = (uint16_t)(k_ticks_to_us_floor64(k_uptime_ticks()) / 100);
         int err = ptp_send(&frame);
         if (err) {
             LOG_DBG("ptp_send %d", err);
