@@ -50,9 +50,15 @@ struct pad {
     uint8_t usb;  /* USB touchpad interface (and frame queue) this pad's frames go to */
     bool usb_assigned;
     bool subscribed;
+    /* For the display (ptp_split_pad_status). */
+    int64_t last_touch_ms;
+    uint32_t interval_avg_us; /* exponential average, 1/8 weight per frame */
 };
 
 static struct pad pads[CONFIG_PTP_USB_PADS];
+
+BUILD_ASSERT(PTP_SIDE_LEFT == PTP_SPLIT_SIDE_LEFT && PTP_SIDE_RIGHT == PTP_SPLIT_SIDE_RIGHT,
+             "ptp.h and ptp_split.h side numbers must match");
 
 /*
  * Jitter buffer. The pad produces a frame every ~11-12 ms but BLE delivers only at 7.5 ms
@@ -221,7 +227,16 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
     }
 
     int64_t rx = now_us();
-    pad->pad_us += (uint16_t)(item.frame.scan_time - pad->prev_scan) * 100;
+    uint32_t scan_delta_us = (uint16_t)(item.frame.scan_time - pad->prev_scan) * 100;
+    if (item.frame.count > 0) {
+        if (scan_delta_us > 0 && scan_delta_us < 50000 && rx - pad->last_rx_us < 50000) {
+            pad->interval_avg_us = pad->interval_avg_us
+                                       ? (pad->interval_avg_us * 7 + scan_delta_us) / 8
+                                       : scan_delta_us;
+        }
+        pad->last_touch_ms = now;
+    }
+    pad->pad_us += scan_delta_us;
     pad->prev_scan = item.frame.scan_time;
     const int64_t delay = CONFIG_PTP_SPLIT_JITTER_US;
     int64_t due = pad->pad_us + pad->offset_us + delay;
@@ -497,6 +512,27 @@ BT_CONN_CB_DEFINE(ptp_split_central_conn_cb) = {
     .security_changed = security_changed,
     .disconnected = disconnected,
 };
+
+void ptp_split_pad_status(uint8_t side, struct ptp_split_pad_status *out) {
+    *out = (struct ptp_split_pad_status){0};
+    for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+        struct pad *pad = &pads[i];
+        if (!pad->conn || !pad->subscribed) {
+            continue;
+        }
+        uint8_t pad_side = pad->side;
+        if (pad_side == PTP_SPLIT_SIDE_UNKNOWN) {
+            pad_side = pad->usb == 1 ? PTP_SPLIT_SIDE_RIGHT : PTP_SPLIT_SIDE_LEFT;
+        }
+        if (pad_side != side) {
+            continue;
+        }
+        out->connected = true;
+        out->touching = pad->last_touch_ms && k_uptime_get() - pad->last_touch_ms < 300;
+        out->interval_us = MIN(pad->interval_avg_us, UINT16_MAX);
+        return;
+    }
+}
 
 static int ptp_split_central_init(void) {
     for (int i = 0; i < ARRAY_SIZE(pads); i++) {

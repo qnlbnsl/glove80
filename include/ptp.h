@@ -46,6 +46,18 @@ int ptp_usb_pad_send(uint8_t pad, const struct ptp_frame *frame);
 /* Called (from the USB stack / event context) when a pad's touchpad mode turns on or off. */
 void ptp_usb_set_mode_callback(void (*cb)(uint8_t pad, bool active));
 
+/* Split central (CONFIG_PTP_SPLIT_CENTRAL): state of the pad on one side, for the display.
+ * side: PTP_SIDE_LEFT / PTP_SIDE_RIGHT. Pads that didn't say which side they are on count as
+ * left on USB touchpad 1 and right on USB touchpad 2. Safe to call from any thread. */
+#define PTP_SIDE_LEFT 1
+#define PTP_SIDE_RIGHT 2
+struct ptp_split_pad_status {
+    bool connected;       /* subscribed to its frames */
+    bool touching;        /* a frame with a finger down arrived in the last 300 ms */
+    uint16_t interval_us; /* average time between pad scans while touching (0 = not known) */
+};
+void ptp_split_pad_status(uint8_t side, struct ptp_split_pad_status *out);
+
 /* Split link encoding: header byte (count | buttons << 3), time byte (scan time since the
  * previous frame, 200 us units, 255 = long gap), then 28 bits per contact (id:3 tip:1 x:12
  * y:12), LSB first. 5 contacts fit in 20 bytes (default ATT MTU payload).
