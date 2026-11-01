@@ -35,6 +35,8 @@ struct pad {
     struct bt_gatt_read_params read;
     struct bt_gatt_discover_params disc;
     struct bt_gatt_subscribe_params sub;
+    struct k_work fast_work;
+    int64_t fast_checked;
     uint16_t svc_end, frames_handle, mode_handle;
     bool subscribed;
 };
@@ -97,6 +99,26 @@ static void mode_work_cb(struct k_work *work) {
 
 static K_WORK_DEFINE(mode_work, mode_work_cb);
 
+/* ZMK slows every split link to the idle parameters when the keyboard sees no key activity;
+ * touchpad frames don't count as activity. While a pad is sending, put its link (only) back to
+ * the active parameters. */
+static void fast_work_cb(struct k_work *work) {
+    struct pad *pad = CONTAINER_OF(work, struct pad, fast_work);
+    struct bt_conn_info info;
+    if (!pad->conn || bt_conn_get_info(pad->conn, &info)) {
+        return;
+    }
+    if (info.le.interval <= CONFIG_ZMK_SPLIT_BLE_PREF_INT) {
+        return;
+    }
+    int err = bt_conn_le_param_update(
+        pad->conn, BT_LE_CONN_PARAM(CONFIG_ZMK_SPLIT_BLE_PREF_INT, CONFIG_ZMK_SPLIT_BLE_PREF_INT,
+                                    CONFIG_ZMK_SPLIT_BLE_PREF_LATENCY,
+                                    CONFIG_ZMK_SPLIT_BLE_PREF_TIMEOUT));
+    LOG_INF("pad %d: link interval %u while in use, requesting %u (%d)", pad_index(pad),
+            info.le.interval, CONFIG_ZMK_SPLIT_BLE_PREF_INT, err);
+}
+
 static void usb_mode_changed(uint8_t pad, bool active) { k_work_submit(&mode_work); }
 
 static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *params,
@@ -106,6 +128,11 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
         LOG_INF("pad %d: unsubscribed", pad_index(pad));
         pad->subscribed = false;
         return BT_GATT_ITER_STOP;
+    }
+    int64_t now = k_uptime_get();
+    if (now - pad->fast_checked > 500) {
+        pad->fast_checked = now;
+        k_work_submit(&pad->fast_work);
     }
     struct frame_item item = {.pad = pad_index(pad)};
     if (ptp_frame_unpack(data, length, &item.frame) == 0) {
@@ -325,6 +352,7 @@ static int ptp_split_central_init(void) {
     for (int i = 0; i < ARRAY_SIZE(pads); i++) {
         k_work_init_delayable(&pads[i].discover_work, discover_work_cb);
         k_work_init_delayable(&pads[i].watchdog_work, watchdog_work_cb);
+        k_work_init(&pads[i].fast_work, fast_work_cb);
     }
     ptp_usb_set_mode_callback(usb_mode_changed);
     return 0;
