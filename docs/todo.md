@@ -52,8 +52,10 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 
 ## Trackpads: hardware and integration
 - [x] Decide A vs B: **B** (pads on their own XIAO). User's power plan: one ~3000 mAh LiPo
-      with a fast charger in a custom enclosure, feeding loads through diodes (design open:
-      cell protection, power path, ideal diode vs Schottky, battery % calibration)
+      per half (stock cells removed): cell -> protection + charger board (own USB-C) -> output
+      pads -> one ideal diode (e.g. LM66100) per load -> Glove80 half BAT, trackpad XIAO BAT.
+      Per-load diodes stop either board's USB charger back-feeding the pack or the other board.
+      Open: charger with power path, battery % calibration
 - [ ] Solder the 6-pin breakout (VCC, GND, SDA, SCL, RDY, RST) for the next rig tests
 - [ ] Second breakout board for the second TPS65 (current spare is for a TPS43 / RP2040)
 - [ ] Pads report to the dongle over the split link (mouse mode: deltas + touch state)
