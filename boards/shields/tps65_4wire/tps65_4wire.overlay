@@ -1,0 +1,10 @@
+/*
+ * Add-on for tps65_pad / tps65_xiao when the trackpad is on the old 4-wire harness
+ * (VDD, GND, SDA, SCL only): no RDY or NRST. List it after the main shield, e.g.
+ * "tps65_pad tps65_4wire". The driver then polls every report-rate-ms and the controller
+ * holds the I2C clock until its comms window opens.
+ */
+&trackpad {
+    /delete-property/ rdy-gpios;
+    /delete-property/ reset-gpios;
+};
