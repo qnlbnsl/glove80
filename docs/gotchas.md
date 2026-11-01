@@ -37,6 +37,11 @@ Details and history: `docs/rework-notes.md`.
 - 3-finger up/down sends PgUp/PgDn, which a focused text box swallows (looks like swipes do
   nothing on e.g. ChatGPT).
 
+- **keyd grabs ZMK devices by USB ID (1d50:615e), including the trackpad.** It then re-sends
+  the touchpad as an absolute "keyd virtual pointer": the pad maps to the whole screen and
+  multi-touch is lost. Any keyd config must not match the touchpad (match keyboards only), and
+  `sudo keyd reload` after removing a config, or the running keyd keeps the old one.
+
 ## Builds and tooling
 - Builds are CI only; download with `gh run download <id> -n firmware -D firmware`.
 - The shell is zsh: an unmatched glob (`rm firmware/*` on an empty dir) aborts the whole command

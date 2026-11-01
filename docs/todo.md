@@ -41,10 +41,11 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [ ] Press-and-hold drag on a single pad (optional, `hold-to-drag`)
 
 ## Trackpads: touchpad (PTP digitizer) mode
-- [ ] Port the touchpad part of FluxWav's `zmk-zephyr41-ptp` patch to the 3.5 fork: second
-      USB HID interface, PTP descriptor, feature reports (capabilities, PTPHQA blob, mode,
-      selective reporting); drop the old `ZMK_MOUSE` parts that clash with `ZMK_POINTING`
-- [ ] Driver emits per-finger events (ABS_MT_SLOT / ABS_X / ABS_Y / BTN_TOUCH) in PTP mode
+- [x] Touchpad (PTP) mode on the USB rig, written as our own module (`src/ptp/`, no ZMK fork
+      change): HID_1 with Windows PTP descriptor + feature reports; Linux hid-multitouch
+      switches it on. Hardware-confirmed: cursor, gestures, 3-finger workspace swipes
+- [x] Driver hands one frame per scan to `ptp_send()` (transport-agnostic, for the split link)
+- [~] X/Y resolution axis fix (cursor speed per axis); confirm on the rig
 - [ ] Clicks in PTP reports (patch has them as TODO)
 - [ ] Runtime switch mouse mode <-> touchpad mode (Magic layer; later tied to the OS setting)
 - [ ] Test: Linux (libinput / Hyprland gestures), Windows (certification blob), macOS
