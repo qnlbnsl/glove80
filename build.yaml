@@ -51,6 +51,11 @@ include:
     shield: tps65_pad tps65_4wire
     cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_LEFT=y
     artifact-name: tps65_pad_lh
+  - board: xiao_ble//zmk
+    shield: tps65_pad tps65_4wire
+    snippet: zmk-usb-logging
+    cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_LEFT=y
+    artifact-name: logging-tps65_pad_lh
   # Right pad XIAO (AA9365CAC6EE74D0) has RDY on D2 and NRST on D3 (6 wires).
   - board: xiao_ble//zmk
     shield: tps65_pad

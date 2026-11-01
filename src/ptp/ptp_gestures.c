@@ -85,6 +85,7 @@ static void press(int button) {
     zmk_hid_mouse_button_press(button);
     pressed_button = button;
     send();
+    LOG_INF("gesture: %s button down", button == BTN_LEFT ? "left" : "right");
 }
 
 static void release(void) {
@@ -92,6 +93,7 @@ static void release(void) {
         return;
     }
     zmk_hid_mouse_button_release(pressed_button);
+    LOG_INF("gesture: %s button up", pressed_button == BTN_LEFT ? "left" : "right");
     pressed_button = -1;
     send();
 }
@@ -105,6 +107,7 @@ static void click_work_cb(struct k_work *work) {
     send();
     zmk_hid_mouse_button_release(BTN_LEFT);
     send();
+    LOG_INF("gesture: click");
 }
 
 static K_WORK_DELAYABLE_DEFINE(click_work, click_work_cb);
@@ -128,6 +131,7 @@ static void emit_scroll(void) {
     scroll_rad -= steps / per_rad;
     /* Pad y grows downwards, so a growing angle is clockwise; clockwise scrolls down, and a
      * positive HID wheel value scrolls up. */
+    LOG_INF("gesture: scroll %d (multiplier %d)", -steps, wheel_multiplier());
     zmk_hid_mouse_scroll_set(0, CLAMP(-steps, INT16_MIN, INT16_MAX));
     send();
     zmk_hid_mouse_scroll_set(0, 0);
@@ -172,6 +176,8 @@ static void touch_down(const struct ptp_contact *c, int64_t now) {
 
 static void touch_lift(int64_t now) {
     bool tap = state != SCROLL && now - down_ms < TAP_MAX_MS && max_move < TAP_MAX_MOVE;
+    LOG_INF("gesture: left lift after %d ms, moved %d, turned %d deg%s", (int)(now - down_ms),
+            max_move, (int)(turned * 180.0f / (float)M_PI), tap ? " (tap)" : "");
 
     if (lock_this_touch) {
         /* Double tap (or tap then rest): keep the button latched. */
@@ -201,8 +207,15 @@ static void touch_lift(int64_t now) {
     armed_button = -1;
 }
 
+static uint32_t left_frames;
+
 void ptp_gestures_left_frame(const struct ptp_frame *frame) {
     int64_t now = k_uptime_get();
+    if (left_frames++ % 200 == 0) {
+        LOG_INF("gesture: left frames %u (this one: %u contacts, first at %u,%u tip %u)",
+                left_frames, frame->count, frame->contacts[0].x, frame->contacts[0].y,
+                frame->contacts[0].tip);
+    }
     const struct ptp_contact *first = NULL;
     uint8_t touching = 0;
     for (int i = 0; i < frame->count; i++) {
@@ -230,6 +243,8 @@ void ptp_gestures_left_frame(const struct ptp_frame *frame) {
             click_pending = false;
         }
         touch_down(first, now);
+        LOG_INF("gesture: left touch at %u,%u%s", first->x, first->y,
+                second_touch ? " (second tap)" : "");
     }
 
     fingers_max = MAX(fingers_max, touching);
@@ -251,12 +266,14 @@ void ptp_gestures_left_frame(const struct ptp_frame *frame) {
             release();
         }
         armed_button = -1;
-        LOG_DBG("gesture: scrolling");
+        LOG_INF("gesture: circling -> scroll mode");
         return;
     }
 
     if (state == PENDING && now - down_ms >= REST_MS) {
         state = ARMED;
+        LOG_INF("gesture: resting (%u finger%s)%s", fingers_max, fingers_max > 1 ? "s" : "",
+                right_touching ? ", right pad touched" : "");
         if (second_touch && !locked) {
             /* Second tap of a double tap: latch the left button now. */
             locked = true;
