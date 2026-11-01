@@ -16,6 +16,7 @@
 #include <zephyr/device.h>
 #include <zephyr/init.h>
 #include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/usb/usb_device.h>
@@ -27,7 +28,7 @@
 
 #include <ptp.h>
 
-LOG_MODULE_REGISTER(ptp_usb, CONFIG_PTP_USB_LOG_LEVEL);
+LOG_MODULE_REGISTER(ptp_usb, CONFIG_PTP_LOG_LEVEL);
 
 #define RID_INPUT 0x01
 #define RID_CAPS 0x02
@@ -167,29 +168,64 @@ static const uint8_t hqa_report[1 + 256] = {
     0xa5, 0xe5, 0x24, 0xc2,
 };
 
-static const struct device *hid_dev;
-static K_SEM_DEFINE(in_sem, 1, 1);
+struct pad {
+    const struct device *hid_dev;
+    struct k_sem in_sem;
+    uint8_t input_report[INPUT_REPORT_LEN];
+    uint8_t caps_report[2];
+    uint8_t mode_report[2];
+    uint8_t selective_report[2];
+    bool was_active;
+    uint32_t frames_sent, frames_failed;
+};
 
-static uint8_t input_report[INPUT_REPORT_LEN] = {RID_INPUT};
-static uint8_t caps_report[2] = {RID_CAPS, PTP_MAX_CONTACTS | (PAD_TYPE_NON_CLICKABLE << 4)};
-static uint8_t mode_report[2] = {RID_MODE, INPUT_MODE_MOUSE};
-static uint8_t selective_report[2] = {RID_SELECTIVE, 0x03}; /* surface + buttons on */
-static uint32_t frames_sent, frames_failed;
+static struct pad pads[CONFIG_PTP_USB_PADS];
+static void (*mode_cb)(uint8_t pad, bool active);
 
 /* Kept from usb_conn_state_changed: zmk_usb_is_hid_ready() logs a debug line per call. */
 static bool usb_ready;
 
-bool ptp_active(void) {
-    return hid_dev && usb_ready && mode_report[1] == INPUT_MODE_TOUCHPAD &&
-           (selective_report[1] & BIT(0));
+static struct pad *pad_for_dev(const struct device *dev) {
+    for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+        if (pads[i].hid_dev == dev) {
+            return &pads[i];
+        }
+    }
+    return NULL;
 }
 
-int ptp_send(const struct ptp_frame *frame) {
-    if (!ptp_active()) {
+bool ptp_usb_pad_active(uint8_t idx) {
+    if (idx >= ARRAY_SIZE(pads)) {
+        return false;
+    }
+    struct pad *p = &pads[idx];
+    return p->hid_dev && usb_ready && p->mode_report[1] == INPUT_MODE_TOUCHPAD &&
+           (p->selective_report[1] & BIT(0));
+}
+
+void ptp_usb_set_mode_callback(void (*cb)(uint8_t pad, bool active)) { mode_cb = cb; }
+
+/* Tell the listener (the split central) when a pad's effective mode flips. */
+static void check_modes(void) {
+    for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+        bool active = ptp_usb_pad_active(i);
+        if (active != pads[i].was_active) {
+            pads[i].was_active = active;
+            LOG_INF("pad %d: %s mode", i, active ? "touchpad" : "mouse");
+            if (mode_cb) {
+                mode_cb(i, active);
+            }
+        }
+    }
+}
+
+int ptp_usb_pad_send(uint8_t idx, const struct ptp_frame *frame) {
+    if (!ptp_usb_pad_active(idx)) {
         return -EAGAIN;
     }
+    struct pad *pad = &pads[idx];
 
-    uint8_t *p = &input_report[1];
+    uint8_t *p = &pad->input_report[1];
     memset(p, 0, INPUT_REPORT_LEN - 1);
     uint8_t count = MIN(frame->count, PTP_MAX_CONTACTS);
     for (int i = 0; i < count; i++) {
@@ -199,32 +235,41 @@ int ptp_send(const struct ptp_frame *frame) {
         sys_put_le16(MIN(c->y, CONFIG_PTP_LOGICAL_Y), &p[3]);
         p += FINGER_BYTES;
     }
-    p = &input_report[1 + PTP_MAX_CONTACTS * FINGER_BYTES];
+    p = &pad->input_report[1 + PTP_MAX_CONTACTS * FINGER_BYTES];
     uint16_t scan_time = (uint16_t)(k_ticks_to_us_floor64(k_uptime_ticks()) / 100);
     sys_put_le16(scan_time, p);
-    uint8_t buttons = (selective_report[1] & BIT(1)) ? (frame->buttons & 0x07) : 0;
+    uint8_t buttons = (pad->selective_report[1] & BIT(1)) ? (frame->buttons & 0x07) : 0;
     p[2] = count | (buttons << 4);
 
     if (zmk_usb_get_status() == USB_DC_SUSPEND) {
         return usb_wakeup_request();
     }
-    k_sem_take(&in_sem, K_MSEC(30));
-    int err = hid_int_ep_write(hid_dev, input_report, sizeof(input_report), NULL);
+    k_sem_take(&pad->in_sem, K_MSEC(30));
+    int err = hid_int_ep_write(pad->hid_dev, pad->input_report, INPUT_REPORT_LEN, NULL);
     if (err) {
-        k_sem_give(&in_sem);
-        frames_failed++;
+        k_sem_give(&pad->in_sem);
+        pad->frames_failed++;
     } else {
-        frames_sent++;
+        pad->frames_sent++;
     }
-    if ((frames_sent + frames_failed) % 200 == 1) {
-        LOG_INF("frames sent %u failed %u (last: %u contacts, first id %u tip %u at %u,%u)",
-                frames_sent, frames_failed, count, frame->contacts[0].id, frame->contacts[0].tip,
-                frame->contacts[0].x, frame->contacts[0].y);
+    if ((pad->frames_sent + pad->frames_failed) % 500 == 1) {
+        LOG_INF("pad %d: frames sent %u failed %u (last: %u contacts, id %u tip %u at %u,%u)",
+                idx, pad->frames_sent, pad->frames_failed, count, frame->contacts[0].id,
+                frame->contacts[0].tip, frame->contacts[0].x, frame->contacts[0].y);
     }
     return err;
 }
 
-static void in_ready_cb(const struct device *dev) { k_sem_give(&in_sem); }
+/* The local trackpad driver (USB rig) uses the first pad. */
+bool ptp_active(void) { return ptp_usb_pad_active(0); }
+int ptp_send(const struct ptp_frame *frame) { return ptp_usb_pad_send(0, frame); }
+
+static void in_ready_cb(const struct device *dev) {
+    struct pad *pad = pad_for_dev(dev);
+    if (pad) {
+        k_sem_give(&pad->in_sem);
+    }
+}
 
 #define REPORT_TYPE(setup) ((setup)->wValue >> 8)
 #define REPORT_ID(setup) ((setup)->wValue & 0xFF)
@@ -233,11 +278,14 @@ static void in_ready_cb(const struct device *dev) { k_sem_give(&in_sem); }
 
 static int get_report_cb(const struct device *dev, struct usb_setup_packet *setup, int32_t *len,
                          uint8_t **data) {
+    struct pad *pad = pad_for_dev(dev);
     uint8_t type = REPORT_TYPE(setup), id = REPORT_ID(setup);
-
+    if (!pad) {
+        return -ENODEV;
+    }
     if (type == TYPE_INPUT && id == RID_INPUT) {
-        *data = input_report;
-        *len = sizeof(input_report);
+        *data = pad->input_report;
+        *len = INPUT_REPORT_LEN;
         return 0;
     }
     if (type != TYPE_FEATURE) {
@@ -245,20 +293,20 @@ static int get_report_cb(const struct device *dev, struct usb_setup_packet *setu
     }
     switch (id) {
     case RID_CAPS:
-        *data = caps_report;
-        *len = sizeof(caps_report);
+        *data = pad->caps_report;
+        *len = sizeof(pad->caps_report);
         return 0;
     case RID_HQA:
         *data = (uint8_t *)hqa_report;
         *len = sizeof(hqa_report);
         return 0;
     case RID_MODE:
-        *data = mode_report;
-        *len = sizeof(mode_report);
+        *data = pad->mode_report;
+        *len = sizeof(pad->mode_report);
         return 0;
     case RID_SELECTIVE:
-        *data = selective_report;
-        *len = sizeof(selective_report);
+        *data = pad->selective_report;
+        *len = sizeof(pad->selective_report);
         return 0;
     default:
         LOG_WRN("get feature %d: unknown", id);
@@ -268,24 +316,25 @@ static int get_report_cb(const struct device *dev, struct usb_setup_packet *setu
 
 static int set_report_cb(const struct device *dev, struct usb_setup_packet *setup, int32_t *len,
                          uint8_t **data) {
-    if (REPORT_TYPE(setup) != TYPE_FEATURE || *len < 2) {
+    struct pad *pad = pad_for_dev(dev);
+    if (!pad || REPORT_TYPE(setup) != TYPE_FEATURE || *len < 2) {
         return -ENOTSUP;
     }
     uint8_t *buf = *data;
     switch (REPORT_ID(setup)) {
     case RID_MODE:
-        mode_report[1] = buf[1];
-        LOG_INF("host set input mode %d (%s)", buf[1],
-                buf[1] == INPUT_MODE_TOUCHPAD ? "touchpad" : "mouse");
-        return 0;
+        pad->mode_report[1] = buf[1];
+        LOG_INF("pad %d: host set input mode %d", (int)(pad - pads), buf[1]);
+        break;
     case RID_SELECTIVE:
-        selective_report[1] = buf[1] & 0x03;
-        LOG_INF("host set selective reporting: surface %d, buttons %d", buf[1] & 1,
-                (buf[1] >> 1) & 1);
-        return 0;
+        pad->selective_report[1] = buf[1] & 0x03;
+        LOG_INF("pad %d: host set selective reporting 0x%02x", (int)(pad - pads), buf[1] & 3);
+        break;
     default:
         return -ENOTSUP;
     }
+    check_modes();
+    return 0;
 }
 
 static const struct hid_ops ops = {
@@ -299,9 +348,12 @@ static int usb_listener(const zmk_event_t *eh) {
     usb_ready = zmk_usb_is_hid_ready();
     LOG_INF("USB %s", usb_ready ? "ready" : "not ready");
     if (!usb_ready) {
-        mode_report[1] = INPUT_MODE_MOUSE;
-        selective_report[1] = 0x03;
+        for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+            pads[i].mode_report[1] = INPUT_MODE_MOUSE;
+            pads[i].selective_report[1] = 0x03;
+        }
     }
+    check_modes();
     return ZMK_EV_EVENT_BUBBLE;
 }
 
@@ -309,13 +361,27 @@ ZMK_LISTENER(ptp_usb, usb_listener);
 ZMK_SUBSCRIPTION(ptp_usb, zmk_usb_conn_state_changed);
 
 static int ptp_usb_init(void) {
-    hid_dev = device_get_binding("HID_1");
-    if (!hid_dev) {
-        LOG_ERR("HID_1 missing: set CONFIG_USB_HID_DEVICE_COUNT=2");
-        return -ENODEV;
+    for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+        struct pad *pad = &pads[i];
+        char name[8];
+        snprintk(name, sizeof(name), "HID_%d", i + 1);
+        pad->hid_dev = device_get_binding(name);
+        if (!pad->hid_dev) {
+            LOG_ERR("%s missing: set CONFIG_USB_HID_DEVICE_COUNT=%d", name, CONFIG_PTP_USB_PADS + 1);
+            return -ENODEV;
+        }
+        k_sem_init(&pad->in_sem, 1, 1);
+        pad->input_report[0] = RID_INPUT;
+        pad->caps_report[0] = RID_CAPS;
+        pad->caps_report[1] = PTP_MAX_CONTACTS | (PAD_TYPE_NON_CLICKABLE << 4);
+        pad->mode_report[0] = RID_MODE;
+        pad->mode_report[1] = INPUT_MODE_MOUSE;
+        pad->selective_report[0] = RID_SELECTIVE;
+        pad->selective_report[1] = 0x03; /* surface + buttons on */
+        usb_hid_register_device(pad->hid_dev, report_desc, sizeof(report_desc), &ops);
+        usb_hid_init(pad->hid_dev);
     }
-    usb_hid_register_device(hid_dev, report_desc, sizeof(report_desc), &ops);
-    return usb_hid_init(hid_dev);
+    return 0;
 }
 
 /* Before ZMK enables the USB stack (CONFIG_ZMK_USB_INIT_PRIORITY). */

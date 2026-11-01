@@ -1,0 +1,6 @@
+/*
+ * Trackpad as a split peripheral of the dongle: same wiring as the USB rig (tps65_xiao).
+ * The D1 button input is kept but nothing is wired to it; if one is later, its key position
+ * (0) would land on the dongle's keymap, so give it a proper position first.
+ */
+#include "../tps65_xiao/tps65_xiao.overlay"

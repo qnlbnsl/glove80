@@ -13,7 +13,7 @@
  *   3-finger tap        middle click (INPUT_BTN_2)                      [ours]
  *   3-finger swipe      INPUT_KEY_LEFT/RIGHT/UP/DOWN, once per touch    [ours]
  *
- * Touchpad mode (CONFIG_PTP_USB): while the host has switched the PTP interface into touchpad
+ * Touchpad mode (CONFIG_PTP): while the host has switched the PTP interface into touchpad
  * mode, every report becomes one finger frame (ptp_send) and the host does all gestures; none
  * of the above is emitted.
  *
@@ -32,7 +32,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
 
-#if IS_ENABLED(CONFIG_PTP_USB)
+#if IS_ENABLED(CONFIG_PTP)
 #include <ptp.h>
 #endif
 
@@ -107,7 +107,7 @@ struct iqs5xx_data {
     struct k_work_delayable init_work;
     bool ready;
     uint16_t x_res, y_res; /* controller output range, for scaling touchpad frames */
-#if IS_ENABLED(CONFIG_PTP_USB)
+#if IS_ENABLED(CONFIG_PTP)
     bool ptp_mode;
     uint8_t ptp_down;                        /* fingers reported as touching last frame */
     uint16_t ptp_x[MAX_FINGERS], ptp_y[MAX_FINGERS];
@@ -420,7 +420,7 @@ static void process(const struct device *dev, const uint8_t *buf) {
     }
 }
 
-#if IS_ENABLED(CONFIG_PTP_USB)
+#if IS_ENABLED(CONFIG_PTP)
 static uint16_t scale(uint16_t v, uint16_t res, uint16_t logical) {
     if (res == 0) {
         return v;
@@ -480,7 +480,7 @@ static int read_report(const struct device *dev) {
         k_work_schedule(&data->init_work, K_MSEC(10));
         return 0;
     }
-#if IS_ENABLED(CONFIG_PTP_USB)
+#if IS_ENABLED(CONFIG_PTP)
     bool ptp = ptp_active();
     if (ptp != data->ptp_mode) {
         LOG_INF("%s mode", ptp ? "touchpad" : "mouse");

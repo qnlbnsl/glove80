@@ -1,20 +1,46 @@
-menuconfig PTP_USB
-    bool "Precision touchpad over USB (second HID interface)"
-    depends on USB_DEVICE_HID && ZMK_USB
-    help
-      Adds a Windows Precision Touchpad HID interface (HID_1). Hosts that switch it into
-      touchpad mode (Windows, Linux hid-multitouch) get raw finger frames and do gestures
-      themselves; others keep the driver's mouse output. Needs USB_HID_DEVICE_COUNT=2 and
-      HID_INTERRUPT_EP_MPS >= 30.
+# Precision touchpad (PTP) support. See include/ptp.h.
 
-if PTP_USB
+config PTP
+    bool
+    help
+      Set when this build has a touchpad frame transport; the trackpad driver then hands over
+      finger frames whenever ptp_active() says the host wants them.
+
+config PTP_USB
+    bool "Precision touchpad over USB (one extra HID interface per pad)"
+    depends on USB_DEVICE_HID && ZMK_USB
+    select PTP
+    help
+      Adds a Windows Precision Touchpad HID interface per pad (HID_1, HID_2, ...). Hosts that
+      switch it into touchpad mode (Windows, Linux hid-multitouch) get raw finger frames and do
+      gestures themselves; others (macOS) keep mouse mode. Needs
+      USB_HID_DEVICE_COUNT = PTP_USB_PADS + 1 and HID_INTERRUPT_EP_MPS >= 30.
+
+config PTP_SPLIT_PERIPHERAL
+    bool "Send touchpad frames to the split central over BLE"
+    depends on ZMK_SPLIT_BLE && !ZMK_SPLIT_ROLE_CENTRAL
+    select PTP
+
+config PTP_SPLIT_CENTRAL
+    bool "Forward touchpad frames from split peripherals to USB"
+    depends on PTP_USB && ZMK_SPLIT_BLE && ZMK_SPLIT_ROLE_CENTRAL
+
+if PTP
+
+config PTP_USB_PADS
+    int "Number of USB touchpad interfaces"
+    depends on PTP_USB
+    range 1 2
+    default 1
 
 config PTP_LOGICAL_X
     int "Logical X range"
+    range 1 4095
     default 4095
 
 config PTP_LOGICAL_Y
     int "Logical Y range"
+    range 1 4095
     default 4095
 
 config PTP_PHYSICAL_X
@@ -26,11 +52,12 @@ config PTP_PHYSICAL_Y
     default 490
 
 config PTP_USB_INIT_PRIORITY
-    int "Init priority (must run before ZMK_USB_INIT_PRIORITY)"
+    int "USB touchpad init priority (must run before ZMK_USB_INIT_PRIORITY)"
+    depends on PTP_USB
     default 90
 
-module = PTP_USB
-module-str = ptp_usb
+module = PTP
+module-str = ptp
 source "subsys/logging/Kconfig.template.log_config"
 
 endif
