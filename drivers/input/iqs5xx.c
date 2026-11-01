@@ -101,6 +101,8 @@ struct iqs5xx_data {
     bool three_active, three_swiped;
     int32_t three_x0, three_y0, three_move;
     int64_t three_t0;
+    int64_t touch_t0;
+    bool right_pending;
     int32_t scroll_acc_x, scroll_acc_y, zoom_acc;
 };
 
@@ -203,6 +205,8 @@ static void process(const struct device *dev, const uint8_t *buf) {
 
     if (fingers > 0 && !data->touching) {
         data->touching = true;
+        data->touch_t0 = now;
+        data->right_pending = false;
         data->max_fingers = 0;
         data->three_active = false;
         data->three_swiped = false;
@@ -246,7 +250,13 @@ static void process(const struct device *dev, const uint8_t *buf) {
             data->dragging = true;
             input_report_key(dev, INPUT_BTN_0, 1, true, K_FOREVER);
         } else if (ge1 & GE1_TWO_FINGER_TAP) {
-            click(dev, INPUT_BTN_1);
+            /* Decide at lift-off: a 3-finger tap whose third finger landed late must not
+             * become a right click. */
+            if (data->touching) {
+                data->right_pending = true;
+            } else if (data->max_fingers <= 2) {
+                click(dev, INPUT_BTN_1);
+            }
         } else if (ge1 & GE1_SCROLL) {
             int32_t sign = cfg->natural_scroll ? -1 : 1;
             data->scroll_acc_x += rel_x;
@@ -278,11 +288,15 @@ static void process(const struct device *dev, const uint8_t *buf) {
     }
 
     if (fingers == 0 && data->touching) {
-        if (data->three_active && !data->three_swiped &&
-            now - data->three_t0 <= cfg->three_finger_tap_ms && data->three_move < TAP_MAX_MOVE) {
+        /* 3-finger tap: measured over the whole touch (fingers rarely land or lift together). */
+        if (data->max_fingers >= 3 && !data->three_swiped &&
+            now - data->touch_t0 <= cfg->three_finger_tap_ms && data->three_move < TAP_MAX_MOVE) {
             LOG_DBG("3-finger tap");
             click(dev, INPUT_BTN_2);
+        } else if (data->right_pending && data->max_fingers <= 2) {
+            click(dev, INPUT_BTN_1);
         }
+        data->right_pending = false;
         if (data->dragging) {
             input_report_key(dev, INPUT_BTN_0, 0, true, K_FOREVER);
             data->dragging = false;

@@ -58,5 +58,6 @@ properties:
     description: 3-finger movement (controller units) that triggers a swipe.
   three-finger-tap-ms:
     type: int
-    default: 250
-    description: Longest 3-finger contact that still counts as a middle-click tap.
+    default: 350
+    description: Longest touch (first finger down to last finger up) that still counts as a
+      3-finger tap (middle click).
