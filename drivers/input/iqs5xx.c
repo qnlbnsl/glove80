@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
@@ -423,6 +424,20 @@ static void init_work_cb(struct k_work *work) {
     struct iqs5xx_data *data = CONTAINER_OF(dwork, struct iqs5xx_data, init_work);
     const struct device *dev = data->dev;
 
+#if IS_ENABLED(CONFIG_HWINFO)
+    /* Why did we (re)boot? SOFTWARE = crash/fatal error, PIN = reset button,
+     * POR/BROWNOUT = power dropped (e.g. a loose 3V3/GND contact). */
+    static bool cause_logged;
+    if (!cause_logged) {
+        uint32_t cause = 0;
+        hwinfo_get_reset_cause(&cause);
+        LOG_INF("reset cause 0x%08x%s%s%s%s%s", cause, (cause & RESET_SOFTWARE) ? " SOFTWARE" : "",
+                (cause & RESET_PIN) ? " PIN" : "", (cause & RESET_POR) ? " POR" : "",
+                (cause & RESET_BROWNOUT) ? " BROWNOUT" : "", (cause & RESET_CPU_LOCKUP) ? " LOCKUP" : "");
+        hwinfo_clear_reset_cause();
+        cause_logged = true;
+    }
+#endif
     if (configure(dev) < 0) {
         k_work_schedule(dwork, K_SECONDS(1)); /* retry, e.g. pad not plugged in yet */
         return;
