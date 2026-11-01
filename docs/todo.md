@@ -23,7 +23,7 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       the OS logo instead of the layer name; dongle HID indicators on
 - [ ] Phase 3: runtime OS switching (Linux/macOS/Windows) from Magic, icon follows
       (design needed: shortcuts and unicode entry are compile-time today)
-- [ ] Halves show Base LEDs at boot without waiting for the first layer update
+- [~] Halves show Base LEDs at boot (zmk 42e4769: unread battery 0% was treated as empty)
 
 ## Trackpads: driver and mouse mode (XIAO + TPS65 USB rig)
 - [x] IQS5xx driver: polling without RDY, NACK retry, reset recovery, reset-cause log
