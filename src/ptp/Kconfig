@@ -1,0 +1,36 @@
+menuconfig PTP_USB
+    bool "Precision touchpad over USB (second HID interface)"
+    depends on USB_DEVICE_HID && ZMK_USB
+    help
+      Adds a Windows Precision Touchpad HID interface (HID_1). Hosts that switch it into
+      touchpad mode (Windows, Linux hid-multitouch) get raw finger frames and do gestures
+      themselves; others keep the driver's mouse output. Needs USB_HID_DEVICE_COUNT=2 and
+      HID_INTERRUPT_EP_MPS >= 30.
+
+if PTP_USB
+
+config PTP_LOGICAL_X
+    int "Logical X range"
+    default 4095
+
+config PTP_LOGICAL_Y
+    int "Logical Y range"
+    default 4095
+
+config PTP_PHYSICAL_X
+    int "Pad width in 0.1 mm"
+    default 650
+
+config PTP_PHYSICAL_Y
+    int "Pad height in 0.1 mm"
+    default 490
+
+config PTP_USB_INIT_PRIORITY
+    int "Init priority (must run before ZMK_USB_INIT_PRIORITY)"
+    default 90
+
+module = PTP_USB
+module-str = ptp_usb
+source "subsys/logging/Kconfig.template.log_config"
+
+endif

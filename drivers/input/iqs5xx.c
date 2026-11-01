@@ -13,6 +13,10 @@
  *   3-finger tap        middle click (INPUT_BTN_2)                      [ours]
  *   3-finger swipe      INPUT_KEY_LEFT/RIGHT/UP/DOWN, once per touch    [ours]
  *
+ * Touchpad mode (CONFIG_PTP_USB): while the host has switched the PTP interface into touchpad
+ * mode, every report becomes one finger frame (ptp_send) and the host does all gestures; none
+ * of the above is emitted.
+ *
  * SPDX-License-Identifier: MIT
  */
 
@@ -28,6 +32,10 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
 
+#if IS_ENABLED(CONFIG_PTP_USB)
+#include <ptp.h>
+#endif
+
 LOG_MODULE_REGISTER(iqs5xx, CONFIG_INPUT_LOG_LEVEL);
 
 /* Registers (16-bit addresses, big-endian data). */
@@ -39,6 +47,8 @@ LOG_MODULE_REGISTER(iqs5xx, CONFIG_INPUT_LOG_LEVEL);
 #define REG_SYSTEM_CONFIG_0 0x058E
 #define REG_SYSTEM_CONFIG_1 0x058F
 #define REG_XY_CONFIG_0 0x0669
+#define REG_X_RESOLUTION 0x066E
+#define REG_Y_RESOLUTION 0x0670
 #define REG_SINGLE_FINGER_GESTURES 0x06B7
 #define REG_END_COMMS 0xEEEE
 
@@ -96,6 +106,12 @@ struct iqs5xx_data {
     struct k_work_delayable poll_work; /* used when RDY is not wired */
     struct k_work_delayable init_work;
     bool ready;
+    uint16_t x_res, y_res; /* controller output range, for scaling touchpad frames */
+#if IS_ENABLED(CONFIG_PTP_USB)
+    bool ptp_mode;
+    uint8_t ptp_down;                        /* fingers reported as touching last frame */
+    uint16_t ptp_x[MAX_FINGERS], ptp_y[MAX_FINGERS];
+#endif
 
     /* Gesture state for the current touch (first finger down until all lifted). */
     bool touching;
@@ -404,6 +420,47 @@ static void process(const struct device *dev, const uint8_t *buf) {
     }
 }
 
+#if IS_ENABLED(CONFIG_PTP_USB)
+static uint16_t scale(uint16_t v, uint16_t res, uint16_t logical) {
+    if (res == 0) {
+        return v;
+    }
+    return (uint16_t)MIN((uint32_t)v * logical / res, logical);
+}
+
+/*
+ * One touchpad frame per report. The controller keeps each finger in the same slot for the
+ * whole touch, so the slot number is the contact id. A finger that disappears is reported once
+ * more with tip = 0 at its last position.
+ */
+static void ptp_process(const struct device *dev, const uint8_t *buf) {
+    struct iqs5xx_data *data = dev->data;
+    struct ptp_frame frame = {0};
+    uint8_t down = 0;
+
+    for (int i = 0; i < MAX_FINGERS; i++) {
+        const uint8_t *f = &buf[OFF_FINGERS + i * FINGER_BLOCK];
+        bool present = sys_get_be16(&f[4]) != 0;
+        if (present) {
+            down |= BIT(i);
+            data->ptp_x[i] = scale(sys_get_be16(&f[0]), data->x_res, CONFIG_PTP_LOGICAL_X);
+            data->ptp_y[i] = scale(sys_get_be16(&f[2]), data->y_res, CONFIG_PTP_LOGICAL_Y);
+        } else if (!(data->ptp_down & BIT(i))) {
+            continue;
+        }
+        frame.contacts[frame.count++] = (struct ptp_contact){
+            .id = i, .tip = present, .x = data->ptp_x[i], .y = data->ptp_y[i]};
+    }
+    data->ptp_down = down;
+    if (frame.count) {
+        int err = ptp_send(&frame);
+        if (err) {
+            LOG_DBG("ptp_send %d", err);
+        }
+    }
+}
+#endif
+
 static int read_report(const struct device *dev) {
     struct iqs5xx_data *data = dev->data;
     uint8_t buf[DATA_LEN];
@@ -419,6 +476,21 @@ static int read_report(const struct device *dev) {
         k_work_schedule(&data->init_work, K_MSEC(10));
         return 0;
     }
+#if IS_ENABLED(CONFIG_PTP_USB)
+    bool ptp = ptp_active();
+    if (ptp != data->ptp_mode) {
+        LOG_INF("%s mode", ptp ? "touchpad" : "mouse");
+        data->ptp_mode = ptp;
+        data->ptp_down = 0;
+        data->touching = false; /* restart gesture tracking cleanly */
+        data->two_active = false;
+        data->three_active = false;
+    }
+    if (ptp) {
+        ptp_process(dev, buf);
+        return 0;
+    }
+#endif
     process(dev, buf);
     return 0;
 }
@@ -503,6 +575,18 @@ static int configure(const struct device *dev) {
           (cfg->swap_xy ? XY_SWAP : 0);
     xy = cfg->palm_reject ? (xy | XY_PALM_REJECT) : (xy & ~XY_PALM_REJECT);
     err |= wr_u8(dev, REG_XY_CONFIG_0, xy);
+
+    struct iqs5xx_data *data = dev->data;
+    err |= RD(REG_X_RESOLUTION, val, 2);
+    data->x_res = sys_get_be16(val);
+    err |= RD(REG_Y_RESOLUTION, val, 2);
+    data->y_res = sys_get_be16(val);
+    if (xy & XY_SWAP) {
+        uint16_t t = data->x_res;
+        data->x_res = data->y_res;
+        data->y_res = t;
+    }
+    LOG_INF("resolution %u x %u (xy config 0x%02x)", data->x_res, data->y_res, xy);
 
     /* Single-finger: tap (+ press-and-hold for drag). Multi: 2-finger tap, scroll, zoom. */
     val[0] = BIT(0) | (cfg->hold_to_drag ? BIT(1) : 0);

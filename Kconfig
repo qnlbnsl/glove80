@@ -1,1 +1,2 @@
 rsource "drivers/input/Kconfig"
+rsource "src/ptp/Kconfig"
