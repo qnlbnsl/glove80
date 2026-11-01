@@ -130,8 +130,9 @@ hang also starved layer sync to the halves: no LED layer changes, no logs, froze
 widgets. Bisect: old roller OK, new roller/no-forward broken, test-c (normal mode, all layers)
 worked after a reset; RGB forwarding was not the cause.
 
-- Phase 1 (done, module 0101574): roller replaced by a layer_name widget (big cross-fading
-  name of the highest active named layer + colour bar), display thread priority 10.
+- Phase 1 (done, module 0101574; works on hardware 2026-10-31, LEDs follow layers too): roller
+  replaced by a layer_name widget (big cross-fading name of the highest active named layer +
+  colour bar), display thread priority 10.
 - Phase 2: status icons on top: Ctrl/Alt/Super/Shift (CAGS) while held, caps word, OS icon
   (driven by the macOS toggle for now).
 - Phase 3: runtime OS switching (Linux/macOS/Windows) from Magic, icon follows. Needs design:
@@ -139,6 +140,10 @@ worked after a reset; RGB forwarding was not the cause.
   per-OS layers or a custom behavior.
 - LEDs keep Sunaku's home-row-mod colours (halves get the raw layer state); only the display
   hides helper layers.
+- Split reconnect is flaky: after a dongle reset (or half reboot) a half sometimes never
+  reconnects until it is power-cycled (seen on both halves, e.g. left half typed on during a
+  dongle reset). Not investigated yet; compare the fork's split central/peripheral code
+  ("valdur's mod", layer-sync additions) with upstream ZMK.
 - Battery widget on the dongle is flaky (one or both sides missing): separate, later.
 
 ## Open questions
