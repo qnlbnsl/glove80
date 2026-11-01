@@ -53,6 +53,11 @@ Details and history: `docs/rework-notes.md`.
   comes from it), and BLE's 7.5 ms connection events bunch ~11.5 ms frames (7.5/15 ms
   arrivals). Fixes: per-pad fast link, pad-side scan time, 10 ms jitter buffer on the dongle.
 
+- Zephyr 4.1: `CONFIG_I2C_LOG_LEVEL_OFF=y` breaks the link (`log_const_i2c_nrfx_twi[m]`
+  undefined: the shared nrfx I2C code still references the log module). Don't turn I2C logging
+  fully off. A split peripheral with `BT_BUF_ACL_TX_COUNT` raised also needs
+  `BT_BUF_EVT_RX_COUNT` above it (build-time assert).
+
 ## Builds and tooling
 - Builds are CI only; download with `gh run download <id> -n firmware -D firmware`.
 - The shell is zsh: an unmatched glob (`rm firmware/*` on an empty dir) aborts the whole command
