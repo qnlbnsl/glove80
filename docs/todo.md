@@ -99,4 +99,5 @@ in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry wo
   non-logging dongle; then stop ptp_split's fast_work from racing ZMK's updates; then consider a
   slightly longer interval for the halves with 4 links.
 - Left 4-wire breakout: wiring was wrong (fixed). Same I2C setup as the right pad (no internal
-  pull-ups, 400 kHz); only RDY/NRST are missing.
+  pull-ups, 400 kHz); only RDY/NRST are missing. When the new breakout with RDY/NRST arrives (wire them to D2/D3
+  like the right pad), drop `tps65_4wire` from the tps65_pad_lh entries in build.yaml.
