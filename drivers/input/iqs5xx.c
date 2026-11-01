@@ -8,8 +8,8 @@
  *
  *   1 finger            cursor (INPUT_REL_X/Y)
  *   tap / 2-finger tap  left / right click (INPUT_BTN_0 / INPUT_BTN_1)  [controller gestures]
- *   2-finger drag       scroll (INPUT_REL_WHEEL / INPUT_REL_HWHEEL)     [controller gesture]
- *   pinch               INPUT_KEY_KPPLUS / INPUT_KEY_KPMINUS steps      [controller gesture]
+ *   2-finger drag       scroll (INPUT_REL_WHEEL / INPUT_REL_HWHEEL)     [ours]
+ *   pinch               INPUT_KEY_KPPLUS / INPUT_KEY_KPMINUS steps      [ours]
  *   3-finger tap        middle click (INPUT_BTN_2)                      [ours]
  *   3-finger swipe      INPUT_KEY_LEFT/RIGHT/UP/DOWN, once per touch    [ours]
  *
@@ -76,6 +76,8 @@ LOG_MODULE_REGISTER(iqs5xx, CONFIG_INPUT_LOG_LEVEL);
 #define XY_SWAP BIT(2)
 #define XY_PALM_REJECT BIT(3)
 
+enum { TWO_NONE, TWO_SCROLL, TWO_ZOOM };
+
 #define TAP_MAX_MOVE 80 /* controller units a 3-finger tap may wander */
 
 struct iqs5xx_config {
@@ -103,6 +105,9 @@ struct iqs5xx_data {
     int32_t three_x0, three_y0, three_move;
     int64_t three_t0;
     int64_t touch_t0;
+    bool two_active;
+    uint8_t two_mode;
+    int32_t two_x0, two_y0, two_d0, two_x, two_y, two_d;
     bool right_pending;
     int32_t scroll_acc_x, scroll_acc_y, zoom_acc;
 };
@@ -193,6 +198,118 @@ static bool centroid(const uint8_t *buf, int32_t *x, int32_t *y) {
     return true;
 }
 
+/*
+ * Two fingers: our own scroll / pinch from absolute positions (the controller's scroll and
+ * zoom gestures misfire into each other on fast swipes and lose movement when a report window
+ * is missed; absolute positions don't). The first motion past a threshold locks the mode for
+ * the rest of the touch: centroid travel -> scroll, change in finger spacing -> zoom.
+ */
+#define TWO_SCROLL_START 40
+#define TWO_ZOOM_START 160
+
+static int32_t isqrt(uint32_t v) {
+    uint32_t r = 0, bit = 1u << 30;
+    while (bit > v) {
+        bit >>= 2;
+    }
+    while (bit) {
+        if (v >= r + bit) {
+            v -= r + bit;
+            r = (r >> 1) + bit;
+        } else {
+            r >>= 1;
+        }
+        bit >>= 2;
+    }
+    return (int32_t)r;
+}
+
+static bool two_points(const uint8_t *buf, int32_t *cx, int32_t *cy, int32_t *dist) {
+    int32_t x[2], y[2], n = 0;
+    for (int i = 0; i < MAX_FINGERS && n < 2; i++) {
+        const uint8_t *f = &buf[OFF_FINGERS + i * FINGER_BLOCK];
+        if (sys_get_be16(&f[4]) == 0) {
+            continue;
+        }
+        x[n] = sys_get_be16(&f[0]);
+        y[n] = sys_get_be16(&f[2]);
+        n++;
+    }
+    if (n < 2) {
+        return false;
+    }
+    *cx = (x[0] + x[1]) / 2;
+    *cy = (y[0] + y[1]) / 2;
+    int32_t dx = x[0] - x[1], dy = y[0] - y[1];
+    *dist = isqrt((uint32_t)(dx * dx + dy * dy));
+    return true;
+}
+
+static void two_finger(const struct device *dev, const uint8_t *buf) {
+    const struct iqs5xx_config *cfg = dev->config;
+    struct iqs5xx_data *data = dev->data;
+    int32_t cx, cy, d;
+
+    if (!two_points(buf, &cx, &cy, &d)) {
+        return;
+    }
+    if (!data->two_active) {
+        data->two_active = true;
+        data->two_mode = TWO_NONE;
+        data->two_x0 = data->two_x = cx;
+        data->two_y0 = data->two_y = cy;
+        data->two_d0 = data->two_d = d;
+        return;
+    }
+
+    if (data->two_mode == TWO_NONE) {
+        int32_t travel = MAX(abs(cx - data->two_x0), abs(cy - data->two_y0));
+        int32_t spread = abs(d - data->two_d0);
+        if (spread >= TWO_ZOOM_START && spread > travel) {
+            data->two_mode = TWO_ZOOM;
+        } else if (travel >= TWO_SCROLL_START) {
+            data->two_mode = TWO_SCROLL;
+        }
+        if (data->two_mode != TWO_NONE) {
+            LOG_DBG("2-finger %s", data->two_mode == TWO_ZOOM ? "zoom" : "scroll");
+            /* Start counting from here so the threshold travel doesn't jump. */
+            data->two_x = cx;
+            data->two_y = cy;
+            data->two_d = d;
+        }
+        return;
+    }
+
+    if (data->two_mode == TWO_SCROLL) {
+        int32_t sign = cfg->natural_scroll ? -1 : 1;
+        data->scroll_acc_x += cx - data->two_x;
+        data->scroll_acc_y += cy - data->two_y;
+        int32_t h = data->scroll_acc_x / cfg->scroll_divisor;
+        int32_t v = data->scroll_acc_y / cfg->scroll_divisor;
+        data->scroll_acc_x -= h * cfg->scroll_divisor;
+        data->scroll_acc_y -= v * cfg->scroll_divisor;
+        if (h) {
+            input_report_rel(dev, INPUT_REL_HWHEEL, sign * h, !v, K_FOREVER);
+        }
+        if (v) {
+            input_report_rel(dev, INPUT_REL_WHEEL, -sign * v, true, K_FOREVER);
+        }
+    } else {
+        data->zoom_acc += d - data->two_d;
+        while (data->zoom_acc >= cfg->zoom_divisor) {
+            click(dev, INPUT_KEY_KPPLUS);
+            data->zoom_acc -= cfg->zoom_divisor;
+        }
+        while (data->zoom_acc <= -cfg->zoom_divisor) {
+            click(dev, INPUT_KEY_KPMINUS);
+            data->zoom_acc += cfg->zoom_divisor;
+        }
+    }
+    data->two_x = cx;
+    data->two_y = cy;
+    data->two_d = d;
+}
+
 static void process(const struct device *dev, const uint8_t *buf) {
     const struct iqs5xx_config *cfg = dev->config;
     struct iqs5xx_data *data = dev->data;
@@ -214,6 +331,9 @@ static void process(const struct device *dev, const uint8_t *buf) {
         data->scroll_acc_x = data->scroll_acc_y = data->zoom_acc = 0;
     }
     data->max_fingers = MAX(data->max_fingers, fingers);
+    if (fingers != 2) {
+        data->two_active = false;
+    }
 
     /* 3+ fingers: our own swipe / tap detection on the finger centroid. */
     if (fingers >= 3) {
@@ -258,32 +378,8 @@ static void process(const struct device *dev, const uint8_t *buf) {
             } else if (data->max_fingers <= 2) {
                 click(dev, INPUT_BTN_1);
             }
-        } else if (ge1 & GE1_SCROLL) {
-            LOG_DBG("scroll %d/%d", rel_x, rel_y);
-            int32_t sign = cfg->natural_scroll ? -1 : 1;
-            data->scroll_acc_x += rel_x;
-            data->scroll_acc_y += rel_y;
-            int32_t h = data->scroll_acc_x / cfg->scroll_divisor;
-            int32_t v = data->scroll_acc_y / cfg->scroll_divisor;
-            data->scroll_acc_x -= h * cfg->scroll_divisor;
-            data->scroll_acc_y -= v * cfg->scroll_divisor;
-            if (h) {
-                input_report_rel(dev, INPUT_REL_HWHEEL, sign * h, !v, K_FOREVER);
-            }
-            if (v) {
-                input_report_rel(dev, INPUT_REL_WHEEL, -sign * v, true, K_FOREVER);
-            }
-        } else if (ge1 & GE1_ZOOM) {
-            LOG_DBG("zoom %d", rel_x);
-            data->zoom_acc += rel_x;
-            while (data->zoom_acc >= cfg->zoom_divisor) {
-                click(dev, INPUT_KEY_KPPLUS);
-                data->zoom_acc -= cfg->zoom_divisor;
-            }
-            while (data->zoom_acc <= -cfg->zoom_divisor) {
-                click(dev, INPUT_KEY_KPMINUS);
-                data->zoom_acc += cfg->zoom_divisor;
-            }
+        } else if (fingers == 2) {
+            two_finger(dev, buf);
         } else if (fingers == 1 && data->max_fingers == 1 && (rel_x || rel_y)) {
             input_report_rel(dev, INPUT_REL_X, rel_x, false, K_FOREVER);
             input_report_rel(dev, INPUT_REL_Y, rel_y, true, K_FOREVER);
@@ -410,7 +506,7 @@ static int configure(const struct device *dev) {
 
     /* Single-finger: tap (+ press-and-hold for drag). Multi: 2-finger tap, scroll, zoom. */
     val[0] = BIT(0) | (cfg->hold_to_drag ? BIT(1) : 0);
-    val[1] = BIT(0) | BIT(1) | BIT(2);
+    val[1] = BIT(0); /* 2-finger tap only; scroll and zoom are ours */
     err |= WR(REG_SINGLE_FINGER_GESTURES, val, 2);
 
     end_comms(dev);

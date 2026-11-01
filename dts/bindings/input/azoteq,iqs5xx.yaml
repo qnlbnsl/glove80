@@ -46,12 +46,12 @@ properties:
     description: Invert the scroll direction.
   scroll-divisor:
     type: int
-    default: 16
-    description: Controller scroll units per wheel step.
+    default: 24
+    description: Finger travel (controller units) per wheel step.
   zoom-divisor:
     type: int
-    default: 64
-    description: Controller zoom units per zoom key step.
+    default: 120
+    description: Change in finger spacing (controller units) per zoom key step.
   swipe-distance:
     type: int
     default: 300
