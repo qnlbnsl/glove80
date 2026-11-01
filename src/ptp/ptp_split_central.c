@@ -29,6 +29,8 @@ static struct bt_uuid_128 mode_uuid = BT_UUID_INIT_128(PTP_SPLIT_MODE_UUID);
 struct pad {
     struct bt_conn *conn;
     struct k_work_delayable discover_work;
+    struct k_work_delayable watchdog_work;
+    const char *step;
     struct bt_gatt_discover_params disc;
     struct bt_gatt_subscribe_params sub;
     uint16_t svc_end, frames_handle, mode_handle;
@@ -66,6 +68,7 @@ static struct pad *pad_for_conn(struct bt_conn *conn) {
 
 static void release(struct pad *pad) {
     k_work_cancel_delayable(&pad->discover_work);
+    k_work_cancel_delayable(&pad->watchdog_work);
     if (pad->conn) {
         bt_conn_unref(pad->conn);
     }
@@ -120,6 +123,7 @@ static void subscribed_cb(struct bt_conn *conn, uint8_t err,
         return;
     }
     pad->subscribed = true;
+    pad->step = "done";
     LOG_INF("pad %d: subscribed to frames", pad_index(pad));
     k_work_submit(&mode_work);
 }
@@ -154,6 +158,9 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
         }
         const struct bt_gatt_service_val *svc = attr->user_data;
         pad->svc_end = svc->end_handle;
+        LOG_INF("pad %d: service at %u..%u, discovering characteristics", pad_index(pad),
+                attr->handle, pad->svc_end);
+        pad->step = "characteristic discovery";
         pad->disc.uuid = NULL;
         pad->disc.type = BT_GATT_DISCOVER_CHARACTERISTIC;
         pad->disc.start_handle = attr->handle + 1;
@@ -167,6 +174,8 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
 
     if (attr) {
         const struct bt_gatt_chrc *chrc = attr->user_data;
+        LOG_INF("pad %d: characteristic at %u (value %u)", pad_index(pad), attr->handle,
+                chrc->value_handle);
         if (bt_uuid_cmp(chrc->uuid, &frames_uuid.uuid) == 0) {
             pad->frames_handle = chrc->value_handle;
         } else if (bt_uuid_cmp(chrc->uuid, &mode_uuid.uuid) == 0) {
@@ -183,6 +192,7 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
     }
     LOG_INF("pad %d: touchpad service found (frames %u, mode %u)", pad_index(pad),
             pad->frames_handle, pad->mode_handle);
+    pad->step = "subscribe";
     subscribe(pad);
     return BT_GATT_ITER_STOP;
 }
@@ -200,10 +210,21 @@ static void discover_work_cb(struct k_work *work) {
         .end_handle = BT_ATT_LAST_ATTRIBUTE_HANDLE,
         .type = BT_GATT_DISCOVER_PRIMARY,
     };
+    pad->step = "service discovery";
     int err = bt_gatt_discover(pad->conn, &pad->disc);
+    LOG_INF("pad %d: service discovery started (%d)", pad_index(pad), err);
     if (err) {
-        LOG_WRN("pad %d: discovery failed to start (%d), retrying", pad_index(pad), err);
         k_work_schedule(dwork, K_MSEC(500));
+        return;
+    }
+    k_work_schedule(&pad->watchdog_work, K_SECONDS(5));
+}
+
+static void watchdog_work_cb(struct k_work *work) {
+    struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+    struct pad *pad = CONTAINER_OF(dwork, struct pad, watchdog_work);
+    if (pad->conn && !pad->subscribed) {
+        LOG_WRN("pad %d: still waiting on %s after 5 s", pad_index(pad), pad->step);
     }
 }
 
@@ -258,6 +279,7 @@ BT_CONN_CB_DEFINE(ptp_split_central_conn_cb) = {
 static int ptp_split_central_init(void) {
     for (int i = 0; i < ARRAY_SIZE(pads); i++) {
         k_work_init_delayable(&pads[i].discover_work, discover_work_cb);
+        k_work_init_delayable(&pads[i].watchdog_work, watchdog_work_cb);
     }
     ptp_usb_set_mode_callback(usb_mode_changed);
     return 0;
