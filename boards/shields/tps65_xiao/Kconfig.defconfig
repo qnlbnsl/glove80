@@ -1,0 +1,9 @@
+if SHIELD_TPS65_XIAO
+
+config ZMK_KEYBOARD_NAME
+    default "TPS65 Pad"
+
+config ZMK_POINTING
+    default y
+
+endif

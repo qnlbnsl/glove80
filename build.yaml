@@ -41,3 +41,9 @@ include:
     cmake-args: -DCONFIG_EXPERIMENTAL_RGB_LAYER=y -DCONFIG_ZMK_RGB_UNDERGLOW_ON_START=y -DCONFIG_ZMK_RGB_UNDERGLOW_EFF_START=4 -DCONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE=y -DCONFIG_ZMK_POINTING=y -DCONFIG_ZMK_SPLIT=y -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n -DCONFIG_ZMK_HID_INDICATORS=y -DCONFIG_ZMK_BLE=y
     snippet: zmk-usb-logging
     artifact-name: logging-glove80_rh
+
+  # Trackpad test rig: TPS65 on a XIAO nRF52840, USB only, with USB logging
+  - board: seeeduino_xiao_ble
+    shield: tps65_xiao
+    snippet: zmk-usb-logging
+    artifact-name: tps65_xiao

@@ -1,0 +1,7 @@
+config INPUT_IQS5XX
+    bool "Azoteq IQS5xx trackpad controller"
+    default y
+    depends on DT_HAS_AZOTEQ_IQS5XX_ENABLED
+    select I2C
+    select GPIO
+    select INPUT

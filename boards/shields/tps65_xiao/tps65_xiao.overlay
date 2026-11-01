@@ -1,0 +1,32 @@
+/*
+ * Test rig: Azoteq TPS65 trackpad on a Seeed XIAO nRF52840, USB only.
+ *
+ * Wiring: pad VDD -> 3V3, GND -> GND, SDA -> D4, SCL -> D5.
+ * Optional (solder to the module pads if the breakout lacks them): RDY -> D2, NRST -> D3;
+ * then uncomment rdy-gpios / reset-gpios below. Without RDY the driver polls.
+ * D1: optional push button to GND (acts as a left click).
+ */
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-direct";
+        input-gpios = <&xiao_d 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+    };
+};
+
+&xiao_i2c {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_FAST>;
+
+    trackpad: trackpad@74 {
+        compatible = "azoteq,iqs5xx";
+        reg = <0x74>;
+        // rdy-gpios = <&xiao_d 2 GPIO_ACTIVE_HIGH>;
+        // reset-gpios = <&xiao_d 3 GPIO_ACTIVE_LOW>;
+        palm-reject;
+    };
+};

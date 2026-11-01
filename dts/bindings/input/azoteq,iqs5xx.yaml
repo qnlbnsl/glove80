@@ -1,0 +1,62 @@
+description: |
+  Azoteq IQS5xx-B000 trackpad controller (IQS550 / IQS572 / IQS525), as used on the
+  TPS43 and TPS65 trackpad modules. Reports cursor movement, scroll, clicks (1/2/3-finger
+  tap) and 3-finger swipes / pinch zoom as input events.
+
+  Events: INPUT_REL_X/Y (cursor), INPUT_REL_WHEEL/HWHEEL (scroll), INPUT_BTN_0/1/2
+  (left/right/middle click), INPUT_KEY_LEFT/RIGHT/UP/DOWN (3-finger swipe, press+release),
+  INPUT_KEY_KPPLUS/KPMINUS (pinch zoom in/out steps). Map the key codes to behaviors with a
+  zmk,input-processor-behaviors processor.
+
+compatible: "azoteq,iqs5xx"
+
+include: i2c-device.yaml
+
+properties:
+  rdy-gpios:
+    type: phandle-array
+    description: |
+      RDY output of the controller (active high). Optional: without it the driver polls every
+      report-rate-ms and the controller holds the I2C clock until its comms window opens.
+  reset-gpios:
+    type: phandle-array
+    description: Optional NRST line (use GPIO_ACTIVE_LOW).
+  report-rate-ms:
+    type: int
+    default: 10
+    description: Report interval in active and idle-touch modes.
+  event-mode:
+    type: boolean
+    description: |
+      Only signal RDY on touch / gesture changes (saves power) instead of every cycle.
+      Ignored without rdy-gpios.
+  flip-x:
+    type: boolean
+  flip-y:
+    type: boolean
+  swap-xy:
+    type: boolean
+  palm-reject:
+    type: boolean
+  hold-to-drag:
+    type: boolean
+    description: Holding one finger still (controller hold time) presses the left button until lift.
+  natural-scroll:
+    type: boolean
+    description: Invert the scroll direction.
+  scroll-divisor:
+    type: int
+    default: 16
+    description: Controller scroll units per wheel step.
+  zoom-divisor:
+    type: int
+    default: 64
+    description: Controller zoom units per zoom key step.
+  swipe-distance:
+    type: int
+    default: 300
+    description: 3-finger movement (controller units) that triggers a swipe.
+  three-finger-tap-ms:
+    type: int
+    default: 250
+    description: Longest 3-finger contact that still counts as a middle-click tap.
