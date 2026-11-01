@@ -2,7 +2,7 @@
 
 Plan: finish everything on the current base (qnlbnsl/zmk `rgb-layer-25.08-peripherals`,
 Zephyr 3.5). Once it all works on hardware, move to Zephyr 4.1 (last section).
-Background, decisions and findings: `docs/rework-notes.md`.
+Background, decisions and findings: `docs/rework-notes.md`. Known gotchas: `docs/gotchas.md`.
 
 Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]` open.
 
