@@ -91,3 +91,12 @@ in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry wo
 - Backlog: left trackpad as a normal trackpad on its own. For now it is helper-only (gestures
   for the right pad, see docs/trackpads-and-screen.md). Until the gesture code exists, the
   dongle still passes it through as USB touchpad 1.
+
+- Connection quality (2026-11-01, gestures branch, logging dongle): occasional repeated key
+  ("rrrrr") then the halves' LEDs flash and it recovers. No disconnects in the log. It lines up
+  with ZMK's sleep/wake param swaps on all 4 links (22.5 <-> 7.5 ms), `opcode 0x2013 status 0x02`
+  (LE conn update rejected) and "Failed to sleep split connection: -5". Next: test on the
+  non-logging dongle; then stop ptp_split's fast_work from racing ZMK's updates; then consider a
+  slightly longer interval for the halves with 4 links.
+- Left 4-wire breakout: wiring was wrong (fixed). The gestures branch's tps65_4wire still turns
+  on internal pull-ups and 100 kHz; drop them if the breakout has its own pull-ups.

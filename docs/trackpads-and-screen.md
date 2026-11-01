@@ -19,7 +19,9 @@ Roles:
   host as a touchpad; the dongle uses its frames for gestures only. (Using it as a normal
   trackpad on its own is in the backlog, see todo.md.)
 
-Decided 2026-11-01 (being built on branch `gestures`):
+Decided and built 2026-11-01 (branch `gestures`). All ten checks passed on hardware: no cursor from the
+left pad, tap click, 1- and 2-finger rest drags, double-tap drag lock on and off, circle scroll
+both ways, rest without the right pad does nothing, brushes do nothing.
 
 | Left pad | Result |
 |---|---|
