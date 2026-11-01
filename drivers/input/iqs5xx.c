@@ -259,6 +259,7 @@ static void process(const struct device *dev, const uint8_t *buf) {
                 click(dev, INPUT_BTN_1);
             }
         } else if (ge1 & GE1_SCROLL) {
+            LOG_DBG("scroll %d/%d", rel_x, rel_y);
             int32_t sign = cfg->natural_scroll ? -1 : 1;
             data->scroll_acc_x += rel_x;
             data->scroll_acc_y += rel_y;
@@ -273,6 +274,7 @@ static void process(const struct device *dev, const uint8_t *buf) {
                 input_report_rel(dev, INPUT_REL_WHEEL, -sign * v, true, K_FOREVER);
             }
         } else if (ge1 & GE1_ZOOM) {
+            LOG_DBG("zoom %d", rel_x);
             data->zoom_acc += rel_x;
             while (data->zoom_acc >= cfg->zoom_divisor) {
                 click(dev, INPUT_KEY_KPPLUS);
