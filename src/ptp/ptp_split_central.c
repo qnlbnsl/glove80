@@ -46,6 +46,7 @@ struct pad {
     int64_t pad_us, offset_us, last_rx_us;
     uint16_t svc_end, frames_handle, mode_handle, side_handle;
     uint8_t side; /* PTP_SPLIT_SIDE_* */
+    uint8_t read_tries;
     uint8_t usb;  /* USB touchpad interface (and frame queue) this pad's frames go to */
     bool usb_assigned;
     bool subscribed;
@@ -158,6 +159,7 @@ static void release(struct pad *pad) {
     pad->frames_handle = pad->mode_handle = pad->side_handle = 0;
     pad->side = PTP_SPLIT_SIDE_UNKNOWN;
     pad->usb_assigned = false;
+    pad->read_tries = 0;
 }
 
 static void send_mode(struct pad *pad) {
@@ -389,9 +391,17 @@ static uint8_t appearance_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_r
                              const void *data, uint16_t length) {
     struct pad *pad = CONTAINER_OF(params, struct pad, read);
     if (err || !data || length < 2) {
-        LOG_WRN("pad %d: appearance read failed (err %u, len %u), freeing slot", pad_index(pad),
-                err, length);
-        release(pad);
+        /* Seen once right after a reconnect (err 14, "unlikely error"). Giving up here would
+         * leave a connected pad unused until it reconnects, so retry a few times first. */
+        if (++pad->read_tries < 4) {
+            LOG_WRN("pad %d: appearance read failed (err %u, len %u), retrying", pad_index(pad),
+                    err, length);
+            k_work_schedule(&pad->discover_work, K_MSEC(1000));
+        } else {
+            LOG_WRN("pad %d: appearance read failed (err %u, len %u), freeing slot",
+                    pad_index(pad), err, length);
+            release(pad);
+        }
         return BT_GATT_ITER_STOP;
     }
     uint16_t appearance = sys_get_le16(data);
