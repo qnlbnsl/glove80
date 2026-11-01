@@ -42,11 +42,8 @@ include:
     snippet: zmk-usb-logging
     artifact-name: logging-glove80_rh
 
-  # Trackpad test rig: TPS65 on a XIAO nRF52840, USB only, with USB logging
-  - board: xiao_ble//zmk
-    shield: tps65_xiao
-    snippet: zmk-usb-logging
-    artifact-name: tps65_xiao
+  # Trackpad: TPS65 on a XIAO nRF52840 as a split peripheral (touchpad frames to the dongle)
+  # tps65_xiao (standalone USB trackpad) is no longer built; tps65_pad reuses its overlay.
   - board: xiao_ble//zmk
     shield: tps65_pad
     artifact-name: tps65_pad
