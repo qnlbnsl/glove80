@@ -237,6 +237,7 @@
           ___ ___ ___ ___ ___         ___ ___ ___     ___ ___ ___         ___ ___ ___ ___ ___
         >;
         layer-id = <LAYER_Template>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       */
 
@@ -250,6 +251,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <0>;
+        fade-delay = <1>; // seconds, then LEDs fade out and power off
       };
 
       #ifdef LAYER_macOS
@@ -263,6 +265,7 @@
           RED RED ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ RED RED
         >;
         layer-id = <LAYER_macOS>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -277,6 +280,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_LeftPinky>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -291,6 +295,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_LeftRingy>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -305,6 +310,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_LeftMiddy>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -319,6 +325,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_LeftIndex>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -333,6 +340,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_RightIndex>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -347,6 +355,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_RightMiddy>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -361,6 +370,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_RightRingy>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -375,6 +385,7 @@
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
         layer-id = <LAYER_RightPinky>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -389,6 +400,7 @@
           PNK PUR PUR PUR PUR         RED ___ ___     SPG SPG SPG         PUR PUR PUR PUR PNK
         >;
         layer-id = <LAYER_Cursor>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -403,6 +415,7 @@
           TEA PUR PUR PUR PUR         ___ RED ___     SPG SPG GOL         SPG SPG SPG SPG SPG
         >;
         layer-id = <LAYER_Number>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -417,6 +430,7 @@
           ___ PUR PUR PUR PUR         ___ ___ ___     AZU AZU AZU         CHU CHU CHU CHU CHU
         >;
         layer-id = <LAYER_Function>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -431,6 +445,7 @@
           ___ ___ ___ ___ RED         YLW ___ ___     ___ ___ ___         ___ CYN CYN ___ ___
         >;
         layer-id = <LAYER_Emoji>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -445,6 +460,7 @@
           COR BLU PNK PNK BLU         GDN GDN GDN     ___ ___ RED         YLW GRN CYN MAJ ___
         >;
         layer-id = <LAYER_Symbol>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -459,6 +475,7 @@
           ___ ___ BLU BLU BLU         GDN GDN GDN     ___ RED ___         YLW GRN CYN MAJ ___
         >;
         layer-id = <LAYER_Mouse>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -473,6 +490,7 @@
           ___ ___ BLU BLU BLU         GDN GDN GDN     ___ RED ___         YLW GRN CYN MAJ ___
         >;
         layer-id = <LAYER_Mouse_fast>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -487,6 +505,7 @@
           ___ ___ BLU BLU BLU         GDN GDN GDN     ___ RED ___         YLW GRN CYN MAJ ___
         >;
         layer-id = <LAYER_Mouse_warp>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -501,6 +520,7 @@
           ___ ___ BLU BLU BLU         GDN GDN GDN     ___ RED ___         YLW GRN CYN MAJ PUR
         >;
         layer-id = <LAYER_Mouse_slow>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -515,6 +535,7 @@
           ___ ___ ___ ___ ORN         SSL SNL SCL     BLU BLU BLU         YLW GRN CYN MAJ PUR
         >;
         layer-id = <LAYER_System>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -529,6 +550,7 @@
           SPG SPG SPG SPG SPG         ___ ___ ___     ___ ___ ___         RED ___ ___ ___ ___
         >;
         layer-id = <LAYER_World>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -543,6 +565,7 @@
           ___ ___ ___ ___ ___         ___ ___ ___     ___ ___ ___         RED ___ ___ ___ ___
         >;
         layer-id = <LAYER_Typing>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -557,6 +580,7 @@
           ___ GRN ___ ___ RED         COR GRN COR     AZU AZU AZU         ___ ___ ___ ___ ___
         >;
         layer-id = <LAYER_Gaming>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -571,6 +595,7 @@
           ___ ___ ___ ___ RED         RED RED COR     COR RED RED         RED ___ ___ ___ ___
         >;
         layer-id = <LAYER_Lower>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -585,6 +610,7 @@
           ___ ___ ___ ___ ___ BLU BLU BLU ___ ___ ___ ___ ___ ___ ___ ___
         >;
         layer-id = <LAYER_Omarchy>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -599,6 +625,7 @@
           ___ WHT ___ ___ ___ BLU BLU CYN ___ ___ ___ ___ ___ ___ WHT ___
         >;
         layer-id = <LAYER_Magic>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
@@ -613,6 +640,7 @@
           RED ___ ___ ___ ___         ___ ___ ___     ___ ___ ___         ___ ___ ___ ___ ___
         >;
         layer-id = <LAYER_Factory>;
+        fade-delay = <3>; // seconds, then LEDs fade out and power off
       };
       #endif
 
