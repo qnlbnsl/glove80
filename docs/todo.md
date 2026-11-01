@@ -18,7 +18,8 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [x] Wispr key: leave as Ctrl+F19 (double-tap = hands-free mode)
 
 ## Dongle display
-- [ ] Phase 2: status icons on top: Ctrl/Alt/Super/Shift (SF symbols), caps word, OS icon
+- [~] Phase 2: status row (module 496fee5): OS icon, Ctrl/Alt/Super/Shift, caps lock, caps word;
+      macOS layer shown as the OS icon instead of the layer name; dongle HID indicators on
 - [ ] Phase 3: runtime OS switching (Linux/macOS/Windows) from Magic, icon follows
       (design needed: shortcuts and unicode entry are compile-time today)
 - [ ] Halves show Base LEDs at boot without waiting for the first layer update
