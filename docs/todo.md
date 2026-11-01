@@ -87,3 +87,7 @@ in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry wo
 - [x] Trackpad driver and PTP mode on 4.1 (builds; TWIM, no I2C_LOG_LEVEL_OFF) (FluxWav's patch targets 4.1 directly). 4.1 fixes
       the ATT error-response hang (see gotchas); keep the workaround, it is harmless
 - [ ] Re-test everything on hardware: layers, LEDs, display, reconnect, battery, trackpads
+
+- Backlog: left trackpad as a normal trackpad on its own. For now it is helper-only (gestures
+  for the right pad, see docs/trackpads-and-screen.md). Until the gesture code exists, the
+  dongle still passes it through as USB touchpad 1.

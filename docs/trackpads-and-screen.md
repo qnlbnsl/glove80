@@ -14,8 +14,10 @@ Roles:
 - **Right pad = the main trackpad.** It behaves like a normal laptop touchpad, with the host's
   own gestures: 1-finger tap = click, 2-finger tap = right click, 2-finger scroll, and so on. The
   dongle passes it through unchanged unless the left pad is helping.
-- **Left pad = helper**, for the things trackpads are bad at: holding a button while dragging,
-  drag lock and fine scrolling. **On its own it is also a normal trackpad.**
+- **Left pad = helper only**, for the things the small TPS65 is bad at: holding a button while
+  dragging, drag lock and fine scrolling. It never moves the cursor and is not passed to the
+  host as a touchpad; the dongle uses its frames for gestures only. (Using it as a normal
+  trackpad on its own is in the backlog, see todo.md.)
 
 Cross-pad (combined on the dongle, the only place that sees both pads):
 
@@ -25,7 +27,6 @@ Cross-pad (combined on the dongle, the only place that sees both pads):
 | 2 fingers resting | moving | right-button drag |
 | circling clockwise | — | scroll down, speed follows the circling (like the Steam Deck); counter-clockwise scrolls up |
 | — | normal use | normal touchpad |
-| normal use, right pad untouched | — | normal touchpad |
 
 Open:
 - **Drag lock:** how to latch and release a drag. Maybe a left tap while dragging latches it,
