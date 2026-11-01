@@ -173,3 +173,4 @@ worked after a reset; RGB forwarding was not the cause.
 ## Wispr Flow key
 - `&kp LC(F19)`: ZMK drops implicit modifiers when another key is pressed, so Wispr sees Ctrl
   released and cancels. Wispr requires a modifier in its hotkey (Fn only exists on macOS).
+- Decision: leave as is. Double-tap = Wispr hands-free mode for typing while dictating.
