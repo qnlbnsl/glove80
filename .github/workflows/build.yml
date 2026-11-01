@@ -2,4 +2,4 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    uses: qnlbnsl/zmk/.github/workflows/build-user-config.yml@rgb-layer-25.08-peripherals
+    uses: qnlbnsl/zmk/.github/workflows/build-user-config.yml@zephyr-4.1
