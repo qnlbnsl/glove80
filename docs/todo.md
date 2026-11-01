@@ -51,9 +51,10 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       fallback to mouse mode
 
 ## Trackpads: hardware and integration
-- [ ] Decide A (pad on each half's GPIO header) vs B (pad on its own XIAO + LiPo)
-- [ ] A: per half 3.3 V LDO with enable from VDDH, 4-ch level shifter to VEXT, wiring per
-      `rework-notes.md`; bigger LiPo
+- [x] Decide A vs B: **B** (pads on their own XIAO). User's power plan: one ~3000 mAh LiPo
+      with a fast charger in a custom enclosure, feeding loads through diodes (design open:
+      cell protection, power path, ideal diode vs Schottky, battery % calibration)
+- [ ] Solder the 6-pin breakout (VCC, GND, SDA, SCL, RDY, RST) for the next rig tests
 - [ ] Second breakout board for the second TPS65 (current spare is for a TPS43 / RP2040)
 - [ ] Pads report to the dongle over the split link (mouse mode: deltas + touch state)
 - [ ] Touchpad mode over split: batch each finger frame into one BLE message (input-split
