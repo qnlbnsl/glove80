@@ -156,3 +156,20 @@ worked after a reset; RGB forwarding was not the cause.
 ## Other
 
 - Founder OS: SKILL-FEEDBACK.md had 5 open rows (skill-sharpen); repo has no plugin selection.
+
+## Trackpads (planned, 2026-10-31)
+- 2x Azoteq ProxSense TPS65 (IQS550/IQS572, up to 5 fingers). No ZMK driver: port QMK's
+  azoteq_iqs5xx, add own 3-finger detection. One pad per half via the 2x6 1.27mm GPIO header
+  (I2C SDA/SCL + RDY [+ RST]); input forwarded to the dongle (ZMK_INPUT_SPLIT). Gestures are
+  resolved on-device and sent as pointer/scroll/keys (no native multi-touch HID).
+- Gesture plan (agreed in principle): left pad 1 finger = scroll, right pad 1 finger = cursor;
+  tap/2-tap/3-tap = left/right/middle click; pinch = zoom; 3-finger swipe L/R = workspace
+  prev/next (no 4-finger gestures); 3-finger up/down = overview/show desktop.
+- Drag (user's design, replaces traditional drag lock and the "both pads" scroll idea): a still
+  finger resting on one pad holds the mouse button while the other pad moves the cursor;
+  lifting the moving finger to reposition keeps the drag; lifting the resting finger drops.
+- Open: exact pad part number; OK to use the GPIO header (voids warranty); priority vs display.
+
+## Wispr Flow key
+- `&kp LC(F19)`: ZMK drops implicit modifiers when another key is pressed, so Wispr sees Ctrl
+  released and cancels. Wispr requires a modifier in its hotkey (Fn only exists on macOS).
