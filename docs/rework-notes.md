@@ -1,5 +1,7 @@
 # Glove80 rework: working notes / session handoff
 
+TODO list: docs/todo.md
+
 Last updated 2026-10-31. Repo: github.com/qnlbnsl/glove80. Read this first when resuming.
 Claims below were verified in the 2026-10-31 session unless marked otherwise; re-check
 current state (git log, `gh run list -R qnlbnsl/glove80`) before relying on them.
