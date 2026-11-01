@@ -21,8 +21,10 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [x] Phase 2: status row (module dd13b44): Ctrl/Alt/Super + Shift (white held, cyan Caps Word,
       amber sticky Shift / Caps Lock); OS logo between the battery cells; macOS layer shown as
       the OS logo instead of the layer name; dongle HID indicators on
-- [ ] Phase 3: runtime OS switching (Linux/macOS/Windows) from Magic, icon follows
-      (design needed: shortcuts and unicode entry are compile-time today)
+- [ ] Phase 3 (deferred by user): runtime OS switching from Magic, icon follows. Leaning
+      layer-set swap, but the current GACS -> CAGS mod swap is hard to relearn; undecided
+- [~] Right half booted dark: LED supply restored "off" from flash (zmk 2119beb re-asserts it)
+- [ ] Left half "iffy" connecting after reboot: needs a log capture to diagnose
 - [~] Halves show Base LEDs at boot (zmk 42e4769: unread battery 0% was treated as empty)
 - [~] LED power saving: maps fade 1 s after Base, 3 s after other layers; idle off after 10 s
 

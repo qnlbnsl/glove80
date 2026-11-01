@@ -14,6 +14,15 @@ Details and history: `docs/rework-notes.md`.
   Ctrl in the Wispr key `&kp LC(F19)`. Holding it and typing cancels Wispr; double-tap
   (hands-free mode) avoids it.
 
+## LEDs
+- **Base is dark while typing, by design.** Each layer map has a `fade-delay` (Base 1 s, other
+  layers 3 s); after it the LEDs fade and their power supply switches off. Holding a layer
+  lights that layer again. Each half also powers its LEDs off after 10 s without a key press
+  on that half (`ZMK_IDLE_TIMEOUT=10000`, halves only).
+- The LED supply (ext-power) saves every on/off to flash and restores it at boot, so a half
+  that last faded out boots with the supply off. The RGB code re-asserts power after settings
+  load (zmk 2119beb); without that, one half could boot dark.
+
 ## Display (Prospector dongle)
 - Modifier icons only show explicit modifiers, so `&kp LC(F19)` does not light Ctrl.
 - Sticky Shift is detected as "Shift active and no key physically down"; it can flick white
