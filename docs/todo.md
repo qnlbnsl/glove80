@@ -68,7 +68,7 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [ ] Optional: haptics (e.g. DRV2605L on the same I2C bus), touch-to-wake
 
 ## Other
-- [ ] Commit or ignore `.gitignore` (firmware/) and `trainer/` (user's WIP game, leave untouched)
+- [x] `.gitignore` (firmware/) and `trainer/` committed
 - [ ] Trainer game (user's own project)
 
 ## Later: move to Zephyr 4.1 (after everything above works)
