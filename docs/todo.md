@@ -76,12 +76,14 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [ ] Trainer game (user's own project)
 
 ## Later: move to Zephyr 4.1 (after everything above works)
-- [ ] Rebase the fork onto upstream ZMK main (Zephyr 4.1, `moergo/glove80` HWMv2 board):
+Branches `zephyr-4.1` in glove80, qnlbnsl/zmk, qnlbnsl/prospector-zmk-module. All builds green
+in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry workflow files).
+- [x] Rebase the fork onto upstream ZMK main (Zephyr 4.1, `moergo/glove80` HWMv2 board):
       darknao per-key underglow layers (no 4.1 port exists yet), central->peripheral layer
       sync, `&rgb_ug` forward stub, Kconfig tweaks; drop the advertising-retry fix (upstream
       uses the `recycled` callback)
-- [ ] Prospector module: rebase our widgets (layer name, battery bar, status icons) onto
+- [x] Prospector module (as layout `glove80` on upstream feat/new-status-screens): rebase our widgets (layer name, battery bar, status icons) onto
       upstream's 4.1 / LVGL 9 version
-- [ ] Trackpad driver and PTP mode on 4.1 (FluxWav's patch targets 4.1 directly). 4.1 fixes
+- [x] Trackpad driver and PTP mode on 4.1 (builds; TWIM, no I2C_LOG_LEVEL_OFF) (FluxWav's patch targets 4.1 directly). 4.1 fixes
       the ATT error-response hang (see gotchas); keep the workaround, it is harmless
 - [ ] Re-test everything on hardware: layers, LEDs, display, reconnect, battery, trackpads
