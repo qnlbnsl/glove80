@@ -38,27 +38,76 @@ struct pad {
     struct k_work fast_work;
     int64_t fast_checked;
     uint16_t last_scan; /* time-byte state, matches the peripheral's (ptp_frame_unpack) */
+    /* Jitter buffer timeline: pad time (us, extended) and its offset onto our clock. */
+    uint16_t prev_scan;
+    int64_t pad_us, offset_us, last_rx_us;
     uint16_t svc_end, frames_handle, mode_handle;
     bool subscribed;
 };
 
 static struct pad pads[CONFIG_PTP_USB_PADS];
 
+/*
+ * Jitter buffer. The pad produces a frame every ~11-12 ms but BLE delivers only at 7.5 ms
+ * connection events, so arrivals alternate 7.5 / 15 ms apart and the cursor visibly lurches,
+ * even with correct Scan Time. Each frame is released to USB at its pad read time (scan_time,
+ * mapped onto our clock) plus a fixed delay, so the host sees the pad's own even cadence.
+ */
 struct frame_item {
-    uint8_t pad;
+    int64_t due_us;
     struct ptp_frame frame;
 };
 
-K_MSGQ_DEFINE(frame_q, sizeof(struct frame_item), 16, 4);
+K_MSGQ_DEFINE(frame_q0, sizeof(struct frame_item), 16, 8);
+#if CONFIG_PTP_USB_PADS > 1
+K_MSGQ_DEFINE(frame_q1, sizeof(struct frame_item), 16, 8);
+#endif
+static struct k_msgq *const frame_qs[] = {
+    &frame_q0,
+#if CONFIG_PTP_USB_PADS > 1
+    &frame_q1,
+#endif
+};
 
-static void tx_work_cb(struct k_work *work) {
-    struct frame_item item;
-    while (k_msgq_get(&frame_q, &item, K_NO_WAIT) == 0) {
-        ptp_usb_pad_send(item.pad, &item.frame);
+static struct k_spinlock due_lock;
+static int64_t scheduled_due_us = INT64_MAX;
+
+static int64_t now_us(void) { return k_ticks_to_us_floor64(k_uptime_ticks()); }
+
+static void tx_work_cb(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(tx_work, tx_work_cb);
+
+static void schedule_tx(int64_t due_us) {
+    k_spinlock_key_t key = k_spin_lock(&due_lock);
+    if (due_us < scheduled_due_us) {
+        scheduled_due_us = due_us;
+        int64_t wait = MAX(due_us - now_us(), 0);
+        k_work_reschedule(&tx_work, K_USEC(wait));
     }
+    k_spin_unlock(&due_lock, key);
 }
 
-static K_WORK_DEFINE(tx_work, tx_work_cb);
+static void tx_work_cb(struct k_work *work) {
+    k_spinlock_key_t key = k_spin_lock(&due_lock);
+    scheduled_due_us = INT64_MAX;
+    k_spin_unlock(&due_lock, key);
+
+    int64_t next = INT64_MAX;
+    for (int i = 0; i < ARRAY_SIZE(frame_qs); i++) {
+        struct frame_item item;
+        while (k_msgq_peek(frame_qs[i], &item) == 0) {
+            if (item.due_us > now_us() + 300) {
+                next = MIN(next, item.due_us);
+                break;
+            }
+            k_msgq_get(frame_qs[i], &item, K_NO_WAIT);
+            ptp_usb_pad_send(i, &item.frame);
+        }
+    }
+    if (next != INT64_MAX) {
+        schedule_tx(next);
+    }
+}
 
 static int pad_index(struct pad *pad) { return pad - pads; }
 
@@ -135,13 +184,36 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
         pad->fast_checked = now;
         k_work_submit(&pad->fast_work);
     }
-    struct frame_item item = {.pad = pad_index(pad)};
-    if (ptp_frame_unpack(data, length, &pad->last_scan, &item.frame) == 0) {
-        if (k_msgq_put(&frame_q, &item, K_NO_WAIT) != 0) {
-            LOG_WRN("pad %d: frame queue full, dropping", item.pad);
-        }
-        k_work_submit(&tx_work);
+    struct frame_item item;
+    if (ptp_frame_unpack(data, length, &pad->last_scan, &item.frame) != 0) {
+        return BT_GATT_ITER_CONTINUE;
     }
+
+    int64_t rx = now_us();
+    pad->pad_us += (uint16_t)(item.frame.scan_time - pad->prev_scan) * 100;
+    pad->prev_scan = item.frame.scan_time;
+    const int64_t delay = CONFIG_PTP_SPLIT_JITTER_US;
+    int64_t due = pad->pad_us + pad->offset_us + delay;
+    if (rx - pad->last_rx_us > 50000 || due > rx + 3 * delay) {
+        /* New touch (or lost track): map pad time onto ours from this frame. */
+        pad->offset_us = rx - pad->pad_us;
+        due = rx + delay;
+    } else if (due < rx) {
+        /* Later than the buffer allows: shift the timeline (adds latency). */
+        pad->offset_us += rx - due;
+        due = rx;
+    } else if (due > rx + delay) {
+        /* More buffered than needed (an earlier late frame, clock drift): ease back. */
+        pad->offset_us -= 100;
+        due -= 100;
+    }
+    pad->last_rx_us = rx;
+    item.due_us = due;
+
+    if (k_msgq_put(frame_qs[pad_index(pad)], &item, K_NO_WAIT) != 0) {
+        LOG_WRN("pad %d: frame queue full, dropping", pad_index(pad));
+    }
+    schedule_tx(due);
     return BT_GATT_ITER_CONTINUE;
 }
 

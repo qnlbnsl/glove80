@@ -27,6 +27,14 @@ config PTP_SPLIT_CENTRAL
 
 if PTP
 
+config PTP_SPLIT_JITTER_US
+    int "Jitter buffer delay for split pads (us)"
+    depends on PTP_SPLIT_CENTRAL
+    default 10000
+    help
+      Frames from a split pad are released to USB this long after the pad read them, on the
+      pad's own timing, which hides BLE connection-event bunching. 0 = send on arrival.
+
 config PTP_SPLIT_PAD_APPEARANCE
     int "GAP appearance that marks a split peripheral as a trackpad"
     default 965
