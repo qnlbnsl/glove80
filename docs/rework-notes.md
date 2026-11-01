@@ -191,3 +191,22 @@ worked after a reset; RGB forwarding was not the cause.
   EXT3 P0.24 RDY, EXT4 P0.20 LDO EN, EXT5 P0.25 NRST, EXT6 P1.00 spare (RH equivalents by EXT#).
   Firmware: Zephyr input driver for IQS5xx on each half (per-pad gestures resolved locally),
   compact results + touch state forwarded via ZMK_INPUT_SPLIT; dongle does cross-pad logic.
+
+## Trackpad status (2026-10-31, XIAO + TPS65 USB rig, IQS550 confirmed)
+- Driver drivers/input/iqs5xx.c + shield tps65_xiao work: cursor, tap, 2-finger tap, own
+  2-finger scroll/pinch (absolute positions, mode locked per touch), 3-finger tap and swipes.
+  RDY/RST not wired on the breakout -> polling with 1 ms retry on NACK.
+- Gotcha: swipe/zoom keys (&kp via zmk,input-processor-behaviors) run on the input thread;
+  Zephyr's 512 B default stack overflowed and froze the device -> INPUT_THREAD_STACK_SIZE=2048.
+  Glove80/dongle builds will need the same once gestures emit keys there.
+- Touchpad (PTP digitizer) mode research: no upstream ZMK PR. FluxWav/zmk-config patches
+  (zmk-zephyr41-ptp*.patch, on petejohanson/zmk 73c0fdc, Zephyr 4.1) add a 2nd USB HID interface
+  with Windows PTP descriptor + feature reports, listener mode "trackpad" consuming
+  ABS_MT_SLOT/ABS_X/ABS_Y/BTN_TOUCH. Uses the legacy USB HID API (exists on 3.5), so a 3.5
+  port is mostly mechanical; conflicts with the fork's deprecated ZMK_MOUSE symbol; buttons TODO.
+  Hard part for the dongle: raw finger frames over BLE split need batching (input-split sends
+  one notification per event). macOS: no gestures for 3rd-party PTP.
+- Zephyr 4.1: upstream ZMK main moved Dec 2025 (#3060) incl. moergo/glove80 HWMv2 board;
+  MoErgo has a zephyr-4-1 branch (main still 3.5); Prospector upstream main supports 4.1;
+  darknao rgb-layer branches are all still 3.5 (no 4.1 port). Upstream peripheral.c now
+  restarts advertising from the bt_conn 'recycled' callback (equivalent of our 2f818eb).
