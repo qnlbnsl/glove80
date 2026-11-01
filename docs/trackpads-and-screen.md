@@ -19,25 +19,33 @@ Roles:
   host as a touchpad; the dongle uses its frames for gestures only. (Using it as a normal
   trackpad on its own is in the backlog, see todo.md.)
 
-Cross-pad (combined on the dongle, the only place that sees both pads):
+Decided 2026-11-01 (being built on branch `gestures`):
 
-| Left pad | Right pad | Result |
-|---|---|---|
-| 1 finger resting | moving | left-button drag (right pad's frames carry button 1) |
-| 2 fingers resting | moving | right-button drag |
-| circling clockwise | — | scroll down, speed follows the circling (like the Steam Deck); counter-clockwise scrolls up |
-| — | normal use | normal touchpad |
+| Left pad | Result |
+|---|---|
+| 1 finger resting, right pad moving | left-button drag |
+| 2 fingers resting, right pad moving | right-button drag |
+| quick tap | left click (sent ~250 ms after the tap, once it can't be a double tap) |
+| double tap | drag lock: left button latched down; the next tap releases it |
+| circling | vertical scroll, clockwise = down, speed follows the circling (smooth scroll) |
 
-Open:
-- **Drag lock:** how to latch and release a drag. Maybe a left tap while dragging latches it,
-  and the next left tap releases it.
-- **Rest vs circle:** the left pad never moves the cursor, so a still finger is simply "held"
-  right away. Circling has to move far enough (guess: ~1/4 turn) before it switches to scroll
-  and lets go of any held button.
-- **Circular scroll output:** in touchpad mode the host does scrolling itself, so the dongle has
-  to either fake a 2-finger swipe on a touchpad or send wheel events through ZMK's mouse report.
-  The wheel is simpler; check whether ZMK's report supports high-resolution scrolling.
-- **macOS:** none of this works until mouse mode works over the split link (see todo.md).
+How it works:
+- **Where:** the dongle (`src/ptp/ptp_gestures.c`) reads the left pad's frames. They never go to
+  the computer, and the computer sees one USB touchpad (the right pad).
+- **How it reaches the computer:** buttons and scroll go out through ZMK's mouse report, not the
+  touchpad. Operating systems merge buttons from all pointing devices, so a mouse button held
+  while the touchpad moves is a drag on Windows, Linux and macOS.
+- **Resting doesn't press yet.** A resting finger only "arms" the button. It is pressed once the
+  right pad is touched, so circling or a stray touch on the left pad never clicks.
+- **Circling:** angle around the pad centre (points near the centre are ignored). After 45 degrees
+  of turning it becomes scrolling and disarms the button. Then 1 turn = 12 detents, sent in
+  1/multiplier steps (ZMK smooth scrolling, `CONFIG_ZMK_POINTING_SMOOTH_SCROLLING`).
+- **Ignored touches:** contacts under 40 ms.
+
+Still open:
+- **Drag lock safety:** should a forgotten drag lock release itself after some idle time?
+- **macOS:** clicks, drag lock and scroll work there (mouse report). The right pad still needs
+  mouse mode over the split link to move the cursor at all (see todo.md).
 
 ## Screen (done 2026-11-01, prospector-zmk-module zephyr-4.1)
 Built as below, except the OS logo went to the bottom left and "wpm" sits on one line with a
