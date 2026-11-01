@@ -146,7 +146,10 @@ worked after a reset; RGB forwarding was not the cause.
   still held (BT_MAX_CONN=1). Now retries every 200 ms and also re-advertises after any failed
   connection. Dongle TX power also raised to +8 dBm (halves already were), which fixed the
   flaky battery readings.
-- Battery widget on the dongle is flaky (one or both sides missing): separate, later.
+- Battery widget: FIXED 2026-10-31 (module 1f342f0, confirmed on hardware): per-slot state
+  instead of ZMK_DISPLAY_WIDGET_LISTENER (dropped one of two near-simultaneous updates);
+  CONFIG_PROSPECTOR_BATTERY_SWAP=y on the dongle (slot 0 = right half). Old note:
+  battery widget on the dongle was flaky (one or both sides missing): separate, later.
 
 ## Open questions
 
@@ -168,7 +171,15 @@ worked after a reset; RGB forwarding was not the cause.
 - Drag (user's design, replaces traditional drag lock and the "both pads" scroll idea): a still
   finger resting on one pad holds the mouse button while the other pad moves the cursor;
   lifting the moving finger to reposition keeps the drag; lifting the resting finger drops.
-- Open: exact pad part number; OK to use the GPIO header (voids warranty); priority vs display.
+- User: pads are labelled PM0012 (chip identified at runtime via the IQS5xx product-number
+  register: IQS550/572/525). OK to use the header (warranty already expired). Has spare Seeed
+  XIAO nRF52840 modules; open to bigger LiPos in the halves.
+- Glove80 header (docs.moergo.com appendix-more-customizations): EXT1-5 = LH P0.22/21/24/20/25,
+  RH P0.21/24/20/25/22, EXT6 = P1.00. GPIO level = VEXT (~2.4 V, set by bootloader, <=3 mA);
+  VDDH 3-5 V (<=80 mA). Never drive GPIO when VEXT = 0. So a pad on the header needs an LDO from
+  VDDH plus an I2C/RDY level shifter (e.g. PCA9306) to VEXT.
+- Alternative: each pad on its own XIAO nRF52840 + LiPo as an extra split peripheral of the dongle
+  (3.3 V native, no shifter). Either way cross-pad gestures (anchor drag) run on the dongle.
 
 ## Wispr Flow key
 - `&kp LC(F19)`: ZMK drops implicit modifiers when another key is pressed, so Wispr sees Ctrl
