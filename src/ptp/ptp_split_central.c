@@ -16,6 +16,7 @@
 #include <zephyr/init.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/byteorder.h>
 
 #include <ptp.h>
 #include "ptp_split.h"
@@ -31,6 +32,7 @@ struct pad {
     struct k_work_delayable discover_work;
     struct k_work_delayable watchdog_work;
     const char *step;
+    struct bt_gatt_read_params read;
     struct bt_gatt_discover_params disc;
     struct bt_gatt_subscribe_params sub;
     uint16_t svc_end, frames_handle, mode_handle;
@@ -181,28 +183,25 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
         } else if (bt_uuid_cmp(chrc->uuid, &mode_uuid.uuid) == 0) {
             pad->mode_handle = chrc->value_handle;
         }
-        return BT_GATT_ITER_CONTINUE;
-    }
-
-    /* Characteristic discovery finished. */
-    if (!pad->frames_handle || !pad->mode_handle) {
-        LOG_ERR("pad %d: touchpad service incomplete", pad_index(pad));
-        release(pad);
+        if (!pad->frames_handle || !pad->mode_handle) {
+            return BT_GATT_ITER_CONTINUE;
+        }
+        /* Stop here: walking on to the end of the service ends in an error response, which
+         * the Zephyr 3.5 ATT client never completes (see PTP_SPLIT_PAD_APPEARANCE). */
+        LOG_INF("pad %d: touchpad service found (frames %u, mode %u)", pad_index(pad),
+                pad->frames_handle, pad->mode_handle);
+        pad->step = "subscribe";
+        subscribe(pad);
         return BT_GATT_ITER_STOP;
     }
-    LOG_INF("pad %d: touchpad service found (frames %u, mode %u)", pad_index(pad),
-            pad->frames_handle, pad->mode_handle);
-    pad->step = "subscribe";
-    subscribe(pad);
+
+    /* Discovery ran to the end without finding both characteristics. */
+    LOG_ERR("pad %d: touchpad service incomplete", pad_index(pad));
+    release(pad);
     return BT_GATT_ITER_STOP;
 }
 
-static void discover_work_cb(struct k_work *work) {
-    struct k_work_delayable *dwork = k_work_delayable_from_work(work);
-    struct pad *pad = CONTAINER_OF(dwork, struct pad, discover_work);
-    if (!pad->conn) {
-        return;
-    }
+static void discover_service(struct pad *pad) {
     pad->disc = (struct bt_gatt_discover_params){
         .uuid = &svc_uuid.uuid,
         .func = discover_cb,
@@ -212,7 +211,53 @@ static void discover_work_cb(struct k_work *work) {
     };
     pad->step = "service discovery";
     int err = bt_gatt_discover(pad->conn, &pad->disc);
-    LOG_INF("pad %d: service discovery started (%d)", pad_index(pad), err);
+    if (err) {
+        LOG_ERR("pad %d: service discovery failed to start (%d)", pad_index(pad), err);
+    }
+}
+
+/* Every peripheral has a GAP appearance, so this read always succeeds; only trackpads go on to
+ * service discovery (which would hang on a keyboard half: "not found" is an error response). */
+static uint8_t appearance_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_read_params *params,
+                             const void *data, uint16_t length) {
+    struct pad *pad = CONTAINER_OF(params, struct pad, read);
+    if (err || !data || length < 2) {
+        LOG_WRN("pad %d: appearance read failed (err %u, len %u), freeing slot", pad_index(pad),
+                err, length);
+        release(pad);
+        return BT_GATT_ITER_STOP;
+    }
+    uint16_t appearance = sys_get_le16(data);
+    if (appearance != CONFIG_PTP_SPLIT_PAD_APPEARANCE) {
+        LOG_INF("pad %d: appearance %u, not a trackpad, freeing slot", pad_index(pad), appearance);
+        release(pad);
+        return BT_GATT_ITER_STOP;
+    }
+    LOG_INF("pad %d: trackpad (appearance %u)", pad_index(pad), appearance);
+    discover_service(pad);
+    /* Stop: a by-UUID read would otherwise continue to the end of the table (error response). */
+    return BT_GATT_ITER_STOP;
+}
+
+static void discover_work_cb(struct k_work *work) {
+    struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+    struct pad *pad = CONTAINER_OF(dwork, struct pad, discover_work);
+    if (!pad->conn) {
+        return;
+    }
+    pad->read = (struct bt_gatt_read_params){
+        .func = appearance_cb,
+        .handle_count = 0,
+        .by_uuid =
+            {
+                .uuid = BT_UUID_GAP_APPEARANCE,
+                .start_handle = BT_ATT_FIRST_ATTRIBUTE_HANDLE,
+                .end_handle = BT_ATT_LAST_ATTRIBUTE_HANDLE,
+            },
+    };
+    pad->step = "appearance read";
+    int err = bt_gatt_read(pad->conn, &pad->read);
+    LOG_INF("pad %d: reading appearance (%d)", pad_index(pad), err);
     if (err) {
         k_work_schedule(dwork, K_MSEC(500));
         return;

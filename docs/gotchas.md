@@ -41,6 +41,13 @@ Details and history: `docs/rework-notes.md`.
   the touchpad as an absolute "keyd virtual pointer": the pad maps to the whole screen and
   multi-touch is lost. Any keyd config must not match the touchpad (match keyboards only), and
   `sudo keyd reload` after removing a config, or the running keyd keeps the old one.
+- **Zephyr 3.5 (zmk-fixes) GATT client: a request that gets an error response never completes.**
+  `att_error_rsp()` keeps `att_change_security()`'s result in a `uint8_t`, so `>= 0` is always
+  true and every error (e.g. "attribute not found", the normal end of a discovery) is taken as a
+  security retry and dropped. The request then blocks that connection's ATT queue until
+  disconnect. Workaround in `src/ptp/ptp_split_central.c`: tell pads from halves by GAP
+  appearance (always readable), and stop every discovery/read as soon as it has what it needs.
+  Upstream 4.1 has it right (`int ret; if (ret == 0 || ret == -EBUSY)`).
 
 ## Builds and tooling
 - Builds are CI only; download with `gh run download <id> -n firmware -D firmware`.

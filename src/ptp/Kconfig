@@ -27,6 +27,15 @@ config PTP_SPLIT_CENTRAL
 
 if PTP
 
+config PTP_SPLIT_PAD_APPEARANCE
+    int "GAP appearance that marks a split peripheral as a trackpad"
+    default 965
+    help
+      Trackpad peripherals set CONFIG_BT_DEVICE_APPEARANCE to this (965 = digitizer tablet;
+      keyboard halves keep 961). The central reads it to tell pads from halves without a
+      GATT request that can fail: the Zephyr 3.5 (zmk-fixes) ATT client never completes a
+      request that gets an error response.
+
 config PTP_USB_PADS
     int "Number of USB touchpad interfaces"
     depends on PTP_USB
