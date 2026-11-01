@@ -31,8 +31,9 @@ Cross-pad (combined on the dongle, the only place that sees both pads):
 Open:
 - **Drag lock:** how to latch and release a drag. Maybe a left tap while dragging latches it,
   and the next left tap releases it.
-- **Rest vs move:** how long a left finger has to stay still before it counts as "resting" and
-  not the start of cursor movement (guess: 100–150 ms and under ~1 mm of travel).
+- **Rest vs circle:** the left pad never moves the cursor, so a still finger is simply "held"
+  right away. Circling has to move far enough (guess: ~1/4 turn) before it switches to scroll
+  and lets go of any held button.
 - **Circular scroll output:** in touchpad mode the host does scrolling itself, so the dongle has
   to either fake a 2-finger swipe on a touchpad or send wheel events through ZMK's mouse report.
   The wheel is simpler; check whether ZMK's report supports high-resolution scrolling.
