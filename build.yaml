@@ -45,17 +45,19 @@ include:
   # Trackpad: TPS65 on a XIAO nRF52840 as a split peripheral (touchpad frames to the dongle)
   # tps65_xiao (standalone USB trackpad) is no longer built; tps65_pad reuses its overlay.
   # Trackpad split peripherals: same shield, side picked by CONFIG_PTP_SPLIT_PAD_SIDE_*.
-  - board: xiao_ble//zmk
-    shield: tps65_pad
-    cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_LEFT=y
-    artifact-name: tps65_pad_lh
-  # Right pad is on the old 4-wire harness (no RDY/NRST): tps65_4wire makes the driver poll.
+  # Left pad XIAO (094A41E990F39E63) is on the old 4-wire harness (no RDY/NRST):
+  # tps65_4wire makes the driver poll.
   - board: xiao_ble//zmk
     shield: tps65_pad tps65_4wire
+    cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_LEFT=y
+    artifact-name: tps65_pad_lh
+  # Right pad XIAO (AA9365CAC6EE74D0) has RDY on D2 and NRST on D3 (6 wires).
+  - board: xiao_ble//zmk
+    shield: tps65_pad
     cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_RIGHT=y
     artifact-name: tps65_pad_rh
   - board: xiao_ble//zmk
-    shield: tps65_pad tps65_4wire
+    shield: tps65_pad
     snippet: zmk-usb-logging
     cmake-args: -DCONFIG_PTP_SPLIT_PAD_SIDE_RIGHT=y
     artifact-name: logging-tps65_pad_rh

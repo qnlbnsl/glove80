@@ -20,7 +20,7 @@ itself (a few seconds). Self-update needs a running bootloader >= 0.4.0 (stock i
 The SoftDevice and the ZMK application are kept. Power loss during the update needs SWD to
 recover.
 
-Done (2026-11-01, verified 0.11.0, ZMK app intact): dongle (`DONGLEBOOT`). The two pad XIAOs were labelled the wrong way round and are being swapped (the one with the sensor is the right pad).
+Done (2026-11-01, verified 0.11.0, ZMK app intact): dongle (`DONGLEBOOT`), left pad XIAO 094A41E990F39E63 (`TPADLHBOOT`, 4-wire). Right pad XIAO AA9365CAC6EE74D0 still to move from `TPADLHBOOT` to `TPADRHBOOT`.
 
 ## Rebuilding
 ```
