@@ -98,5 +98,5 @@ in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry wo
   (LE conn update rejected) and "Failed to sleep split connection: -5". Next: test on the
   non-logging dongle; then stop ptp_split's fast_work from racing ZMK's updates; then consider a
   slightly longer interval for the halves with 4 links.
-- Left 4-wire breakout: wiring was wrong (fixed). The gestures branch's tps65_4wire still turns
-  on internal pull-ups and 100 kHz; drop them if the breakout has its own pull-ups.
+- Left 4-wire breakout: wiring was wrong (fixed). Same I2C setup as the right pad (no internal
+  pull-ups, 400 kHz); only RDY/NRST are missing.
