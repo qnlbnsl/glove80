@@ -23,10 +23,10 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       the OS logo instead of the layer name; dongle HID indicators on
 - [ ] Phase 3 (deferred by user): runtime OS switching from Magic, icon follows. Leaning
       layer-set swap, but the current GACS -> CAGS mod swap is hard to relearn; undecided
-- [~] Right half booted dark: LED supply restored "off" from flash (zmk 2119beb re-asserts it)
-- [ ] Left half "iffy" connecting after reboot: needs a log capture to diagnose
-- [~] Halves show Base LEDs at boot (zmk 42e4769: unread battery 0% was treated as empty)
-- [~] LED power saving: Base/macOS no fade, other layers fade after 3 s; idle off after 10 s
+- [x] Right half booted dark: LED supply restored "off" from flash (zmk 2119beb re-asserts it)
+- [ ] Left half "iffy" connecting after reboot (seen once, not since): capture a log if it recurs
+- [x] Halves show Base LEDs at boot (zmk 42e4769: unread battery 0% was treated as empty)
+- [x] LED power saving: Base/macOS no fade, other layers fade after 3 s; idle off after 10 s
 
 ## Trackpads: driver and mouse mode (XIAO + TPS65 USB rig)
 - [x] IQS5xx driver: polling without RDY, NACK retry, reset recovery, reset-cause log
