@@ -140,10 +140,12 @@ worked after a reset; RGB forwarding was not the cause.
   per-OS layers or a custom behavior.
 - LEDs keep Sunaku's home-row-mod colours (halves get the raw layer state); only the display
   hides helper layers.
-- Split reconnect is flaky: after a dongle reset (or half reboot) a half sometimes never
-  reconnects until it is power-cycled (seen on both halves, e.g. left half typed on during a
-  dongle reset). Not investigated yet; compare the fork's split central/peripheral code
-  ("valdur's mod", layer-sync additions) with upstream ZMK.
+- Split reconnect (FIXED 2026-10-31, qnlbnsl/zmk 2f818eb, confirmed on hardware): a half that
+  lost the dongle mid-typing never advertised again (dongle log: the half was never seen in
+  scans). Upstream peripheral.c restarts advertising once; it fails while the old connection is
+  still held (BT_MAX_CONN=1). Now retries every 200 ms and also re-advertises after any failed
+  connection. Dongle TX power also raised to +8 dBm (halves already were), which fixed the
+  flaky battery readings.
 - Battery widget on the dongle is flaky (one or both sides missing): separate, later.
 
 ## Open questions
