@@ -26,7 +26,7 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [~] Right half booted dark: LED supply restored "off" from flash (zmk 2119beb re-asserts it)
 - [ ] Left half "iffy" connecting after reboot: needs a log capture to diagnose
 - [~] Halves show Base LEDs at boot (zmk 42e4769: unread battery 0% was treated as empty)
-- [~] LED power saving: maps fade 1 s after Base, 3 s after other layers; idle off after 10 s
+- [~] LED power saving: Base/macOS no fade, other layers fade after 3 s; idle off after 10 s
 
 ## Trackpads: driver and mouse mode (XIAO + TPS65 USB rig)
 - [x] IQS5xx driver: polling without RDY, NACK retry, reset recovery, reset-cause log

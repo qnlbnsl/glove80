@@ -15,10 +15,10 @@ Details and history: `docs/rework-notes.md`.
   (hands-free mode) avoids it.
 
 ## LEDs
-- **Base is dark while typing, by design.** Each layer map has a `fade-delay` (Base 1 s, other
-  layers 3 s); after it the LEDs fade and their power supply switches off. Holding a layer
-  lights that layer again. Each half also powers its LEDs off after 10 s without a key press
-  on that half (`ZMK_IDLE_TIMEOUT=10000`, halves only).
+- **Layer colours fade after 3 s; Base/macOS stay lit.** Non-base layer maps have
+  `fade-delay = <3>`, then the LEDs fade and their supply switches off until the next layer
+  change. Base and macOS have no fade. Each half powers its LEDs off after 10 s without a key
+  press on that half (`ZMK_IDLE_TIMEOUT=10000`, halves only).
 - The LED supply (ext-power) saves every on/off to flash and restores it at boot, so a half
   that last faded out boots with the supply off. The RGB code re-asserts power after settings
   load (zmk 2119beb); without that, one half could boot dark.

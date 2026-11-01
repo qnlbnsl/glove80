@@ -250,8 +250,7 @@
           YLW ___ ___ ___ ___ ___     LAC COR ___     ___ COR LAC     ___ ___ ___ ___ ___ YLW
           ___ ___ ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ ___ ___
         >;
-        layer-id = <0>;
-        fade-delay = <1>; // seconds, then LEDs fade out and power off
+        layer-id = <0>; // no fade: stays lit while typing, off after idle
       };
 
       #ifdef LAYER_macOS
@@ -264,8 +263,7 @@
           YLW ___ ___ ___ ___ ___     LAC COR ___     ___ COR LAC     ___ ___ ___ ___ ___ YLW
           RED RED ___ ___ LAC         BSL BNL BCL     ___ LAC LAC         LAC ___ ___ RED RED
         >;
-        layer-id = <LAYER_macOS>;
-        fade-delay = <3>; // seconds, then LEDs fade out and power off
+        layer-id = <LAYER_macOS>; // no fade: stays lit while typing, off after idle
       };
       #endif
 
