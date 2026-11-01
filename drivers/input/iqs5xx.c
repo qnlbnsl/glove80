@@ -126,10 +126,41 @@ static int reg_write_u8(const struct device *dev, uint16_t reg, uint8_t val) {
     return reg_write(dev, reg, &val, 1);
 }
 
-static int reg_write_be16(const struct device *dev, uint16_t reg, uint16_t val) {
-    uint8_t buf[2];
-    sys_put_be16(val, buf);
-    return reg_write(dev, reg, buf, 2);
+/*
+ * Without RDY we cannot see the comms window: the controller NACKs its address outside it.
+ * Retry for up to ~2 report cycles.
+ */
+static int retry(const struct device *dev, int (*op)(const struct device *, uint16_t, uint8_t *,
+                                                    size_t),
+                 uint16_t reg, uint8_t *buf, size_t len) {
+    const struct iqs5xx_config *cfg = dev->config;
+    int tries = cfg->rdy.port ? 1 : 2 * cfg->report_rate_ms + 20;
+    int err;
+    for (int i = 0; i < tries; i++) {
+        err = op(dev, reg, buf, len);
+        if (err != -EIO) {
+            return err;
+        }
+        k_msleep(1);
+    }
+    return err;
+}
+
+static int reg_write_nc(const struct device *dev, uint16_t reg, uint8_t *val, size_t len) {
+    return reg_write(dev, reg, val, len);
+}
+
+#define RD(reg, buf, len) retry(dev, reg_read, reg, buf, len)
+#define WR(reg, buf, len) retry(dev, reg_write_nc, reg, buf, len)
+
+static int wr_u8(const struct device *dev, uint16_t reg, uint8_t v) {
+    return WR(reg, &v, 1);
+}
+
+static int wr_be16(const struct device *dev, uint16_t reg, uint16_t v) {
+    uint8_t b[2];
+    sys_put_be16(v, b);
+    return WR(reg, b, 2);
 }
 
 static int end_comms(const struct device *dev) { return reg_write_u8(dev, REG_END_COMMS, 0x01); }
@@ -260,24 +291,31 @@ static void process(const struct device *dev, const uint8_t *buf) {
     }
 }
 
-static void read_work_cb(struct k_work *work) {
-    struct iqs5xx_data *data = CONTAINER_OF(work, struct iqs5xx_data, read_work);
-    const struct device *dev = data->dev;
+static int read_report(const struct device *dev) {
+    struct iqs5xx_data *data = dev->data;
     uint8_t buf[DATA_LEN];
 
     int err = reg_read(dev, REG_DATA_START, buf, sizeof(buf));
-    end_comms(dev);
     if (err) {
-        LOG_WRN("report read failed (%d)", err);
-        return;
+        return err; /* outside the comms window (NACK) */
     }
+    end_comms(dev);
     if (buf[OFF_SYSTEM_INFO_0] & SI0_SHOW_RESET) {
         LOG_WRN("controller reset, reconfiguring");
         data->ready = false;
         k_work_schedule(&data->init_work, K_MSEC(10));
-        return;
+        return 0;
     }
     process(dev, buf);
+    return 0;
+}
+
+static void read_work_cb(struct k_work *work) {
+    struct iqs5xx_data *data = CONTAINER_OF(work, struct iqs5xx_data, read_work);
+    int err = read_report(data->dev);
+    if (err) {
+        LOG_WRN("report read failed (%d)", err);
+    }
 }
 
 static void poll_work_cb(struct k_work *work) {
@@ -288,8 +326,10 @@ static void poll_work_cb(struct k_work *work) {
     if (!data->ready) {
         return;
     }
-    read_work_cb(&data->read_work);
-    k_work_schedule(dwork, K_MSEC(cfg->report_rate_ms));
+    /* Read as soon as the next window opens: on NACK try again in 1 ms; after a report,
+     * the next window is about one report interval away. */
+    int err = read_report(data->dev);
+    k_work_schedule(dwork, K_MSEC(err ? 1 : MAX(cfg->report_rate_ms - 2, 1)));
 }
 
 static void rdy_isr(const struct device *port, struct gpio_callback *cb, uint32_t pins) {
@@ -317,41 +357,44 @@ static int configure(const struct device *dev) {
 
     wait_rdy(dev, 500);
 
-    err = reg_read(dev, REG_PRODUCT_NUMBER, val, 2);
+    err = RD(REG_PRODUCT_NUMBER, val, 2);
     if (err) {
         LOG_ERR("no response from controller (%d)", err);
         return err;
     }
     uint16_t product = sys_get_be16(val);
+    if (product != PRODUCT_IQS550 && product != PRODUCT_IQS572 && product != PRODUCT_IQS525) {
+        LOG_WRN("unexpected product number %u", product);
+    }
     LOG_INF("product number %u (%s)", product,
             product == PRODUCT_IQS550   ? "IQS550"
             : product == PRODUCT_IQS572 ? "IQS572"
             : product == PRODUCT_IQS525 ? "IQS525"
                                         : "unknown");
 
-    err = reg_write_u8(dev, REG_SYSTEM_CONTROL_0, SC0_ACK_RESET);
-    err |= reg_write_be16(dev, REG_REPORT_RATE_ACTIVE, cfg->report_rate_ms);
-    err |= reg_write_be16(dev, REG_REPORT_RATE_IDLE_TOUCH, cfg->report_rate_ms);
+    err = wr_u8(dev, REG_SYSTEM_CONTROL_0, SC0_ACK_RESET);
+    err |= wr_be16(dev, REG_REPORT_RATE_ACTIVE, cfg->report_rate_ms);
+    err |= wr_be16(dev, REG_REPORT_RATE_IDLE_TOUCH, cfg->report_rate_ms);
 
-    err |= reg_read(dev, REG_SYSTEM_CONFIG_0, val, 1);
-    err |= reg_write_u8(dev, REG_SYSTEM_CONFIG_0, val[0] | CFG0_REATI);
+    err |= RD(REG_SYSTEM_CONFIG_0, val, 1);
+    err |= wr_u8(dev, REG_SYSTEM_CONFIG_0, val[0] | CFG0_REATI);
 
     bool event_mode = cfg->event_mode && cfg->rdy.port; /* polling needs stream mode */
     uint8_t cfg1 = CFG1_GESTURE_EVENT | CFG1_TP_EVENT | (event_mode ? CFG1_EVENT_MODE : 0);
-    err |= reg_write_u8(dev, REG_SYSTEM_CONFIG_1, cfg1);
+    err |= wr_u8(dev, REG_SYSTEM_CONFIG_1, cfg1);
 
     /* Flips/swap toggle the module's factory orientation. */
-    err |= reg_read(dev, REG_XY_CONFIG_0, val, 1);
+    err |= RD(REG_XY_CONFIG_0, val, 1);
     uint8_t xy = val[0];
     xy ^= (cfg->flip_x ? XY_FLIP_X : 0) | (cfg->flip_y ? XY_FLIP_Y : 0) |
           (cfg->swap_xy ? XY_SWAP : 0);
     xy = cfg->palm_reject ? (xy | XY_PALM_REJECT) : (xy & ~XY_PALM_REJECT);
-    err |= reg_write_u8(dev, REG_XY_CONFIG_0, xy);
+    err |= wr_u8(dev, REG_XY_CONFIG_0, xy);
 
     /* Single-finger: tap (+ press-and-hold for drag). Multi: 2-finger tap, scroll, zoom. */
     val[0] = BIT(0) | (cfg->hold_to_drag ? BIT(1) : 0);
     val[1] = BIT(0) | BIT(1) | BIT(2);
-    err |= reg_write(dev, REG_SINGLE_FINGER_GESTURES, val, 2);
+    err |= WR(REG_SINGLE_FINGER_GESTURES, val, 2);
 
     end_comms(dev);
     if (err) {
