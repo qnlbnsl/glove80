@@ -27,6 +27,22 @@ config PTP_SPLIT_CENTRAL
 
 if PTP
 
+choice PTP_SPLIT_PAD_SIDE
+    prompt "Which side this trackpad is on"
+    depends on PTP_SPLIT_PERIPHERAL
+    default PTP_SPLIT_PAD_SIDE_LEFT
+    help
+      Told to the central, which gives the left pad the first USB touchpad and the right pad
+      the second, whatever order they connect in, and uses it for cross-pad gestures.
+
+config PTP_SPLIT_PAD_SIDE_LEFT
+    bool "Left"
+
+config PTP_SPLIT_PAD_SIDE_RIGHT
+    bool "Right"
+
+endchoice
+
 config PTP_SPLIT_JITTER_US
     int "Jitter buffer delay for split pads (us)"
     depends on PTP_SPLIT_CENTRAL

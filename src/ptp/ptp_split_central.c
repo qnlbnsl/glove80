@@ -4,7 +4,9 @@
  * frames and forwards them to that pad's USB touchpad interface. Each pad also learns whether
  * the host has its interface in touchpad mode, so it can fall back to mouse gestures.
  *
- * Pads are numbered in the order they connect (pad 0 -> HID_1, pad 1 -> HID_2).
+ * Each connection takes a slot in pads[]; its frames go to the USB touchpad for its side
+ * (left -> HID_1, right -> HID_2), read from the pad's side characteristic. Pads without one
+ * (older firmware) take the first free touchpad, i.e. connection order.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -26,6 +28,7 @@ LOG_MODULE_REGISTER(ptp_split, CONFIG_PTP_LOG_LEVEL);
 static struct bt_uuid_128 svc_uuid = BT_UUID_INIT_128(PTP_SPLIT_SERVICE_UUID);
 static struct bt_uuid_128 frames_uuid = BT_UUID_INIT_128(PTP_SPLIT_FRAMES_UUID);
 static struct bt_uuid_128 mode_uuid = BT_UUID_INIT_128(PTP_SPLIT_MODE_UUID);
+static struct bt_uuid_128 side_uuid = BT_UUID_INIT_128(PTP_SPLIT_SIDE_UUID);
 
 struct pad {
     struct bt_conn *conn;
@@ -41,7 +44,10 @@ struct pad {
     /* Jitter buffer timeline: pad time (us, extended) and its offset onto our clock. */
     uint16_t prev_scan;
     int64_t pad_us, offset_us, last_rx_us;
-    uint16_t svc_end, frames_handle, mode_handle;
+    uint16_t svc_end, frames_handle, mode_handle, side_handle;
+    uint8_t side; /* PTP_SPLIT_SIDE_* */
+    uint8_t usb;  /* USB touchpad interface (and frame queue) this pad's frames go to */
+    bool usb_assigned;
     bool subscribed;
 };
 
@@ -111,6 +117,27 @@ static void tx_work_cb(struct k_work *work) {
 
 static int pad_index(struct pad *pad) { return pad - pads; }
 
+/* Pick the USB touchpad for a pad whose side is now known: its side's interface unless another
+ * connected pad already has it, otherwise the first free one. */
+static void assign_usb(struct pad *pad) {
+    bool taken[ARRAY_SIZE(pads)] = {0};
+    for (int i = 0; i < ARRAY_SIZE(pads); i++) {
+        if (&pads[i] != pad && pads[i].conn && pads[i].usb_assigned) {
+            taken[pads[i].usb] = true;
+        }
+    }
+    int want = pad->side == PTP_SPLIT_SIDE_RIGHT ? 1 : 0;
+    if (pad->side == PTP_SPLIT_SIDE_UNKNOWN || want >= ARRAY_SIZE(pads) || taken[want]) {
+        for (want = 0; want < ARRAY_SIZE(pads) && taken[want]; want++) {
+        }
+    }
+    pad->usb = want < ARRAY_SIZE(pads) ? want : 0;
+    pad->usb_assigned = true;
+    static const char *const names[] = {"unknown", "left", "right"};
+    LOG_INF("pad %d: %s side -> USB touchpad %d", pad_index(pad),
+            names[MIN(pad->side, ARRAY_SIZE(names) - 1)], pad->usb);
+}
+
 static struct pad *pad_for_conn(struct bt_conn *conn) {
     for (int i = 0; i < ARRAY_SIZE(pads); i++) {
         if (pads[i].conn == conn) {
@@ -128,14 +155,16 @@ static void release(struct pad *pad) {
     }
     pad->conn = NULL;
     pad->subscribed = false;
-    pad->frames_handle = pad->mode_handle = 0;
+    pad->frames_handle = pad->mode_handle = pad->side_handle = 0;
+    pad->side = PTP_SPLIT_SIDE_UNKNOWN;
+    pad->usb_assigned = false;
 }
 
 static void send_mode(struct pad *pad) {
     if (!pad->conn || !pad->subscribed || !pad->mode_handle) {
         return;
     }
-    uint8_t mode = ptp_usb_pad_active(pad_index(pad)) ? 1 : 0;
+    uint8_t mode = ptp_usb_pad_active(pad->usb) ? 1 : 0;
     int err = bt_gatt_write_without_response(pad->conn, pad->mode_handle, &mode, 1, false);
     LOG_INF("pad %d: told peripheral %s mode (err %d)", pad_index(pad),
             mode ? "touchpad" : "mouse", err);
@@ -210,7 +239,7 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
     pad->last_rx_us = rx;
     item.due_us = due;
 
-    if (k_msgq_put(frame_qs[pad_index(pad)], &item, K_NO_WAIT) != 0) {
+    if (k_msgq_put(frame_qs[pad->usb], &item, K_NO_WAIT) != 0) {
         LOG_WRN("pad %d: frame queue full, dropping", pad_index(pad));
     }
     schedule_tx(due);
@@ -232,6 +261,7 @@ static void subscribed_cb(struct bt_conn *conn, uint8_t err,
 }
 
 static void subscribe(struct pad *pad) {
+    assign_usb(pad); /* before frames can arrive */
     pad->sub = (struct bt_gatt_subscribe_params){
         .notify = notify_cb,
         .subscribe = subscribed_cb,
@@ -244,6 +274,34 @@ static void subscribe(struct pad *pad) {
     int err = bt_gatt_subscribe(pad->conn, &pad->sub);
     if (err && err != -EALREADY) {
         LOG_ERR("pad %d: subscribe error %d", pad_index(pad), err);
+    }
+}
+
+static uint8_t side_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_read_params *params,
+                       const void *data, uint16_t length) {
+    struct pad *pad = CONTAINER_OF(params, struct pad, read);
+    if (!err && data && length >= 1 && ((const uint8_t *)data)[0] <= PTP_SPLIT_SIDE_RIGHT) {
+        pad->side = ((const uint8_t *)data)[0];
+    } else {
+        LOG_WRN("pad %d: side read failed (err %u, len %u)", pad_index(pad), err, length);
+    }
+    pad->step = "subscribe";
+    subscribe(pad);
+    return BT_GATT_ITER_STOP;
+}
+
+static void read_side(struct pad *pad) {
+    pad->read = (struct bt_gatt_read_params){
+        .func = side_cb,
+        .handle_count = 1,
+        .single = {.handle = pad->side_handle, .offset = 0},
+    };
+    pad->step = "side read";
+    int err = bt_gatt_read(pad->conn, &pad->read);
+    if (err) {
+        LOG_ERR("pad %d: side read failed to start (%d)", pad_index(pad), err);
+        pad->step = "subscribe";
+        subscribe(pad);
     }
 }
 
@@ -283,20 +341,28 @@ static uint8_t discover_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr
             pad->frames_handle = chrc->value_handle;
         } else if (bt_uuid_cmp(chrc->uuid, &mode_uuid.uuid) == 0) {
             pad->mode_handle = chrc->value_handle;
+        } else if (bt_uuid_cmp(chrc->uuid, &side_uuid.uuid) == 0) {
+            pad->side_handle = chrc->value_handle;
         }
-        if (!pad->frames_handle || !pad->mode_handle) {
+        if (!pad->frames_handle || !pad->mode_handle || !pad->side_handle) {
             return BT_GATT_ITER_CONTINUE;
         }
-        /* Stop here: walking on to the end of the service ends in an error response, which
-         * the Zephyr 3.5 ATT client never completes (see PTP_SPLIT_PAD_APPEARANCE). */
-        LOG_INF("pad %d: touchpad service found (frames %u, mode %u)", pad_index(pad),
+        /* Stop once everything is found: on Zephyr 3.5 (zmk-fixes) walking on to the end of
+         * the service ends in an error response that the ATT client never completes. */
+        LOG_INF("pad %d: touchpad service found (frames %u, mode %u, side %u)", pad_index(pad),
+                pad->frames_handle, pad->mode_handle, pad->side_handle);
+        read_side(pad);
+        return BT_GATT_ITER_STOP;
+    }
+
+    if (pad->frames_handle && pad->mode_handle) {
+        /* Older pad firmware without the side characteristic. */
+        LOG_INF("pad %d: touchpad service found (frames %u, mode %u), no side", pad_index(pad),
                 pad->frames_handle, pad->mode_handle);
         pad->step = "subscribe";
         subscribe(pad);
         return BT_GATT_ITER_STOP;
     }
-
-    /* Discovery ran to the end without finding both characteristics. */
     LOG_ERR("pad %d: touchpad service incomplete", pad_index(pad));
     release(pad);
     return BT_GATT_ITER_STOP;
