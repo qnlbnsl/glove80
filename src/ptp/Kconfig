@@ -25,6 +25,18 @@ config PTP_SPLIT_CENTRAL
     bool "Forward touchpad frames from split peripherals to USB"
     depends on PTP_USB && ZMK_SPLIT_BLE && ZMK_SPLIT_ROLE_CENTRAL
 
+config PTP_SPLIT_LEFT_HELPER
+    bool "Left trackpad is a helper for the right one (gestures, no cursor)"
+    depends on PTP_SPLIT_CENTRAL
+    default y
+    select ZMK_POINTING
+    imply ZMK_POINTING_SMOOTH_SCROLLING
+    help
+      The left pad's frames don't go to the host; they become mouse buttons and scrolling for
+      the right pad (resting finger = held button, tap = click, double tap = drag lock,
+      circling = scroll). The right pad then uses the first USB touchpad, so
+      PTP_USB_PADS can be 1. See docs/trackpads-and-screen.md.
+
 if PTP
 
 choice PTP_SPLIT_PAD_SIDE

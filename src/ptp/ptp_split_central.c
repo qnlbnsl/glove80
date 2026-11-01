@@ -8,6 +8,9 @@
  * (left -> HID_1, right -> HID_2), read from the pad's side characteristic. Pads without one
  * (older firmware) take the first free touchpad, i.e. connection order.
  *
+ * With CONFIG_PTP_SPLIT_LEFT_HELPER the left pad gets no USB touchpad: its frames go to
+ * ptp_gestures.c (buttons and scroll for the right pad), and the right pad is HID_1.
+ *
  * SPDX-License-Identifier: MIT
  */
 
@@ -22,6 +25,9 @@
 
 #include <ptp.h>
 #include "ptp_split.h"
+#if IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER)
+#include "ptp_gestures.h"
+#endif
 
 LOG_MODULE_REGISTER(ptp_split, CONFIG_PTP_LOG_LEVEL);
 
@@ -49,13 +55,16 @@ struct pad {
     uint8_t read_tries;
     uint8_t usb;  /* USB touchpad interface (and frame queue) this pad's frames go to */
     bool usb_assigned;
+    bool helper;  /* left pad in helper mode: frames go to the gestures, not to USB */
     bool subscribed;
     /* For the display (ptp_split_pad_status). */
     int64_t last_touch_ms;
     uint32_t interval_avg_us; /* exponential average, 1/8 weight per frame */
 };
 
-static struct pad pads[CONFIG_PTP_USB_PADS];
+/* Connection slots: up to two pads, whatever the number of USB touchpads. */
+#define MAX_PADS 2
+static struct pad pads[MAX_PADS];
 
 BUILD_ASSERT(PTP_SIDE_LEFT == PTP_SPLIT_SIDE_LEFT && PTP_SIDE_RIGHT == PTP_SPLIT_SIDE_RIGHT,
              "ptp.h and ptp_split.h side numbers must match");
@@ -81,6 +90,20 @@ static struct k_msgq *const frame_qs[] = {
     &frame_q1,
 #endif
 };
+
+#if IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER)
+/* Helper pad frames, from the BT thread to the gestures on the system work queue. */
+K_MSGQ_DEFINE(helper_q, sizeof(struct ptp_frame), 16, 4);
+
+static void helper_work_cb(struct k_work *work) {
+    struct ptp_frame frame;
+    while (k_msgq_get(&helper_q, &frame, K_NO_WAIT) == 0) {
+        ptp_gestures_left_frame(&frame);
+    }
+}
+
+static K_WORK_DEFINE(helper_work, helper_work_cb);
+#endif
 
 static struct k_spinlock due_lock;
 static int64_t scheduled_due_us = INT64_MAX;
@@ -114,6 +137,9 @@ static void tx_work_cb(struct k_work *work) {
                 break;
             }
             k_msgq_get(frame_qs[i], &item, K_NO_WAIT);
+#if IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER)
+            ptp_gestures_right_frame(&item.frame);
+#endif
             ptp_usb_pad_send(i, &item.frame);
         }
     }
@@ -127,22 +153,37 @@ static int pad_index(struct pad *pad) { return pad - pads; }
 /* Pick the USB touchpad for a pad whose side is now known: its side's interface unless another
  * connected pad already has it, otherwise the first free one. */
 static void assign_usb(struct pad *pad) {
-    bool taken[ARRAY_SIZE(pads)] = {0};
+    static const char *const names[] = {"unknown", "left", "right"};
+    const char *name = names[MIN(pad->side, ARRAY_SIZE(names) - 1)];
+
+    pad->helper = IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER) && pad->side == PTP_SPLIT_SIDE_LEFT;
+    if (pad->helper) {
+        pad->usb_assigned = false;
+        LOG_INF("pad %d: left side -> gestures (helper pad)", pad_index(pad));
+        return;
+    }
+
+    bool taken[CONFIG_PTP_USB_PADS] = {0};
     for (int i = 0; i < ARRAY_SIZE(pads); i++) {
         if (&pads[i] != pad && pads[i].conn && pads[i].usb_assigned) {
             taken[pads[i].usb] = true;
         }
     }
-    int want = pad->side == PTP_SPLIT_SIDE_RIGHT ? 1 : 0;
-    if (pad->side == PTP_SPLIT_SIDE_UNKNOWN || want >= ARRAY_SIZE(pads) || taken[want]) {
-        for (want = 0; want < ARRAY_SIZE(pads) && taken[want]; want++) {
+    int want = (pad->side == PTP_SPLIT_SIDE_RIGHT && !IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER))
+                   ? 1
+                   : 0;
+    if (pad->side == PTP_SPLIT_SIDE_UNKNOWN || want >= CONFIG_PTP_USB_PADS || taken[want]) {
+        for (want = 0; want < CONFIG_PTP_USB_PADS && taken[want]; want++) {
         }
     }
-    pad->usb = want < ARRAY_SIZE(pads) ? want : 0;
+    if (want >= CONFIG_PTP_USB_PADS) {
+        LOG_WRN("pad %d: %s side, no free USB touchpad", pad_index(pad), name);
+        pad->usb_assigned = false;
+        return;
+    }
+    pad->usb = want;
     pad->usb_assigned = true;
-    static const char *const names[] = {"unknown", "left", "right"};
-    LOG_INF("pad %d: %s side -> USB touchpad %d", pad_index(pad),
-            names[MIN(pad->side, ARRAY_SIZE(names) - 1)], pad->usb);
+    LOG_INF("pad %d: %s side -> USB touchpad %d", pad_index(pad), name, pad->usb);
 }
 
 static struct pad *pad_for_conn(struct bt_conn *conn) {
@@ -165,6 +206,12 @@ static void release(struct pad *pad) {
     pad->frames_handle = pad->mode_handle = pad->side_handle = 0;
     pad->side = PTP_SPLIT_SIDE_UNKNOWN;
     pad->usb_assigned = false;
+#if IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER)
+    if (pad->helper) {
+        ptp_gestures_left_gone();
+    }
+#endif
+    pad->helper = false;
     pad->read_tries = 0;
 }
 
@@ -172,7 +219,9 @@ static void send_mode(struct pad *pad) {
     if (!pad->conn || !pad->subscribed || !pad->mode_handle) {
         return;
     }
-    uint8_t mode = ptp_usb_pad_active(pad->usb) ? 1 : 0;
+    /* The helper pad's frames are always wanted (gestures); a pad without a USB touchpad
+     * keeps its own mouse-mode handling. */
+    uint8_t mode = pad->helper ? 1 : (pad->usb_assigned && ptp_usb_pad_active(pad->usb)) ? 1 : 0;
     int err = bt_gatt_write_without_response(pad->conn, pad->mode_handle, &mode, 1, false);
     LOG_INF("pad %d: told peripheral %s mode (err %d)", pad_index(pad),
             mode ? "touchpad" : "mouse", err);
@@ -235,6 +284,20 @@ static uint8_t notify_cb(struct bt_conn *conn, struct bt_gatt_subscribe_params *
                                        : scan_delta_us;
         }
         pad->last_touch_ms = now;
+    }
+#if IS_ENABLED(CONFIG_PTP_SPLIT_LEFT_HELPER)
+    if (pad->helper) {
+        pad->prev_scan = item.frame.scan_time;
+        pad->last_rx_us = rx;
+        if (k_msgq_put(&helper_q, &item.frame, K_NO_WAIT) != 0) {
+            LOG_WRN("pad %d: gesture queue full, dropping", pad_index(pad));
+        }
+        k_work_submit(&helper_work);
+        return BT_GATT_ITER_CONTINUE;
+    }
+#endif
+    if (!pad->usb_assigned) {
+        return BT_GATT_ITER_CONTINUE;
     }
     pad->pad_us += scan_delta_us;
     pad->prev_scan = item.frame.scan_time;
