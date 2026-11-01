@@ -185,3 +185,9 @@ worked after a reset; RGB forwarding was not the cause.
 - `&kp LC(F19)`: ZMK drops implicit modifiers when another key is pressed, so Wispr sees Ctrl
   released and cancels. Wispr requires a modifier in its hotkey (Fn only exists on macOS).
 - Decision: leave as is. Double-tap = Wispr hands-free mode for typing while dictating.
+- Option A detail (proposed): per half TPS65 (wire to its 6 solder pads; no FPC breakout needed)
+  + 3.3 V LDO with enable (e.g. TPS7A02 / MCP1700) fed from VDDH + 4-ch BSS138 level shifter
+  (LV = VEXT, HV = 3.3 V) for SDA/SCL/RDY/NRST. Pins LH: EXT1 P0.22 SDA, EXT2 P0.21 SCL,
+  EXT3 P0.24 RDY, EXT4 P0.20 LDO EN, EXT5 P0.25 NRST, EXT6 P1.00 spare (RH equivalents by EXT#).
+  Firmware: Zephyr input driver for IQS5xx on each half (per-pad gestures resolved locally),
+  compact results + touch state forwarded via ZMK_INPUT_SPLIT; dongle does cross-pad logic.
