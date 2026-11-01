@@ -111,6 +111,10 @@ struct iqs5xx_data {
     bool ptp_mode;
     uint8_t ptp_down;                        /* fingers reported as touching last frame */
     uint16_t ptp_x[MAX_FINGERS], ptp_y[MAX_FINGERS];
+    /* Frame interval stats while touching (logged every 500 intervals). */
+    int64_t ptp_last_us;
+    uint32_t ptp_gap_min, ptp_gap_max, ptp_gap_n;
+    uint64_t ptp_gap_sum;
 #endif
 
     /* Gesture state for the current touch (first finger down until all lifted). */
@@ -457,7 +461,23 @@ static void ptp_process(const struct device *dev, const uint8_t *buf) {
     }
     data->ptp_down = down;
     if (frame.count) {
-        frame.scan_time = (uint16_t)(k_ticks_to_us_floor64(k_uptime_ticks()) / 100);
+        int64_t now_us = k_ticks_to_us_floor64(k_uptime_ticks());
+        frame.scan_time = (uint16_t)(now_us / 100);
+        uint32_t gap = (uint32_t)(now_us - data->ptp_last_us);
+        if (data->ptp_last_us && gap < 100000) {
+            data->ptp_gap_min = data->ptp_gap_n ? MIN(data->ptp_gap_min, gap) : gap;
+            data->ptp_gap_max = MAX(data->ptp_gap_max, gap);
+            data->ptp_gap_sum += gap;
+            if (++data->ptp_gap_n == 500) {
+                uint32_t avg = data->ptp_gap_sum / data->ptp_gap_n;
+                LOG_INF("frame interval us: min %u avg %u max %u (%u Hz)", data->ptp_gap_min, avg,
+                        data->ptp_gap_max, 1000000 / MAX(avg, 1));
+                data->ptp_gap_n = 0;
+                data->ptp_gap_max = 0;
+                data->ptp_gap_sum = 0;
+            }
+        }
+        data->ptp_last_us = now_us;
         int err = ptp_send(&frame);
         if (err) {
             LOG_DBG("ptp_send %d", err);

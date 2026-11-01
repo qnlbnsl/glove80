@@ -28,5 +28,8 @@
         rdy-gpios = <&xiao_d 2 GPIO_ACTIVE_HIGH>;
         reset-gpios = <&xiao_d 3 GPIO_ACTIVE_LOW>;
         palm-reject;
+        /* Ask for a report every 7 ms; the controller's scan time sets the real rate.
+         * Precision touchpads should do >= 125 Hz (1 finger) / 100 Hz (several). */
+        report-rate-ms = <7>;
     };
 };
