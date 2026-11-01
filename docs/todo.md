@@ -45,7 +45,7 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       change): HID_1 with Windows PTP descriptor + feature reports; Linux hid-multitouch
       switches it on. Hardware-confirmed: cursor, gestures, 3-finger workspace swipes
 - [x] Driver hands one frame per scan to `ptp_send()` (transport-agnostic, for the split link)
-- [~] X/Y resolution axis fix (cursor speed per axis); confirm on the rig
+- [x] X/Y resolution axis fix (resolution registers are already in output axes)
 - [ ] Clicks in PTP reports (patch has them as TODO)
 - [ ] Runtime switch mouse mode <-> touchpad mode (Magic layer; later tied to the OS setting)
 - [ ] Test: Linux (libinput / Hyprland gestures), Windows (certification blob), macOS
