@@ -122,6 +122,25 @@ Previous base was Sunaku v42-rc5 (2025-08-08). Our changes carried over (3-way m
    gestures; stock ZMK only sends mouse move/scroll (no precision-touchpad HID), so this needs
    research. Fallback: keep using the Apple trackpad.
 
+## Display / status redesign (agreed 2026-10-31)
+
+Findings: the Prospector roller (mask-based fade drawing) hung the dongle's display thread at
+boot, intermittently. The display thread ran at the same priority (5) as BLE/split work, so the
+hang also starved layer sync to the halves: no LED layer changes, no logs, frozen battery/caps
+widgets. Bisect: old roller OK, new roller/no-forward broken, test-c (normal mode, all layers)
+worked after a reset; RGB forwarding was not the cause.
+
+- Phase 1 (done, module 0101574): roller replaced by a layer_name widget (big cross-fading
+  name of the highest active named layer + colour bar), display thread priority 10.
+- Phase 2: status icons on top: Ctrl/Alt/Super/Shift (CAGS) while held, caps word, OS icon
+  (driven by the macOS toggle for now).
+- Phase 3: runtime OS switching (Linux/macOS/Windows) from Magic, icon follows. Needs design:
+  Sunaku's shortcuts/unicode are compile-time (OPERATING_SYSTEM), so runtime switching means
+  per-OS layers or a custom behavior.
+- LEDs keep Sunaku's home-row-mod colours (halves get the raw layer state); only the display
+  hides helper layers.
+- Battery widget on the dongle is flaky (one or both sides missing): separate, later.
+
 ## Open questions
 
 - Commit `trainer/`?
