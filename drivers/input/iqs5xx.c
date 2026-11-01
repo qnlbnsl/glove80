@@ -585,11 +585,7 @@ static int configure(const struct device *dev) {
     data->x_res = sys_get_be16(val);
     err |= RD(REG_Y_RESOLUTION, val, 2);
     data->y_res = sys_get_be16(val);
-    if (xy & XY_SWAP) {
-        uint16_t t = data->x_res;
-        data->x_res = data->y_res;
-        data->y_res = t;
-    }
+    /* The resolution registers already describe the output axes (after any swap). */
     LOG_INF("resolution %u x %u (xy config 0x%02x)", data->x_res, data->y_res, xy);
 
     /* Single-finger: tap (+ press-and-hold for drag). Multi: 2-finger tap, scroll, zoom. */
