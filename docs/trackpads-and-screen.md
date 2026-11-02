@@ -81,7 +81,9 @@ Idea: MacBook-style clickpad. Load cells measure press force, a haptic actuator 
   sensors at the corners (+ NAU7802, DRV2605L); the plate rests on them, light preload, hard
   stops so a palm or slam can't exceed 8 N on one corner. Bar cells (TAL221 500 g, 47x12x6 mm)
   are too bulky for four under a TPS65; FSRs creep under a resting finger, so not for a click
-  threshold. Cheapest fallback: BF350 strain gauges on small DIY aluminium flexures.
+  threshold. Only ready-made breakout: MikroE Force 4 Click (MIKROE-4193, HSFPAR003A, analog,
+  ~$20-35, scarce): fine to bench-test one sensor, too big for under a corner. For the build, the
+  carrier PCB can be assembled by JLCPCB (HSFPAR003A is LCSC C209768). Cheapest fallback: BF350 strain gauges on small DIY aluminium flexures.
 - **Force:** 4 mini load cells at the corners (current mount; a single cell would need a hinge and
   feels uneven), summed in hardware into one NAU7802 (I2C 0x2A, up to 320 SPS). Board: Adafruit
   4538 (VIN, AVDD, GND, SCL, SDA, DRDY on pins; DRDY -> D0; June 2025+ rev also has input B) or
