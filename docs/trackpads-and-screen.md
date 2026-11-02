@@ -69,27 +69,26 @@ Original plan:
   collapse into one reading.
 
 ## Haptics and force click (scoped 2026-11-02, not building yet)
-Idea: MacBook-style clickpad. Load cells measure press force, a haptic actuator plays the click.
+Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator plays the click.
 - **Haptics:** one DRV2605L + one LRA per pad (one is enough if the pad sits on a stiff plate that
   floats). Zephyr 4.1 has the driver (`drivers/haptics/drv2605.c`, ROM effect library). On I2C
   (0x5A, no clash with the IQS550 at 0x74), 3V3. Glue the LRA under the plate; an X-axis
-  (side-to-side) LRA disturbs the load cells less than a coin LRA (else ignore force ~20 ms after
+  (side-to-side) LRA disturbs the force sensors less than a coin LRA (else ignore force ~20 ms after
   each buzz).
-- **Load cells:** Alps HSFPAR (e.g. HSFPAR003A): tiny SMT piezoresistive force sensor, 0-8 N,
-  1.5-3.6 V (runs straight off 3V3), 3.7 mV/N, ~$9-14 each. Honeywell FSS015 (15 N) is better
-  specced but ~$100-117 each, so no. Final form: one carrier PCB under the pad with the 4
-  sensors at the corners (+ NAU7802, DRV2605L); the plate rests on them, light preload, hard
-  stops so a palm or slam can't exceed 8 N on one corner. Bar cells (TAL221 500 g, 47x12x6 mm)
-  are too bulky for four under a TPS65; FSRs creep under a resting finger, so not for a click
-  threshold. Only ready-made breakout: MikroE Force 4 Click (MIKROE-4193, HSFPAR003A, analog,
-  ~$20-35, scarce): fine to bench-test one sensor, too big for under a corner. For the build, the
-  carrier PCB can be assembled by JLCPCB (HSFPAR003A is LCSC C209768). Cheapest fallback: BF350 strain gauges on small DIY aluminium flexures.
-- **Force:** 4 mini load cells at the corners (current mount; a single cell would need a hinge and
-  feels uneven), summed in hardware into one NAU7802 (I2C 0x2A, up to 320 SPS). Board: Adafruit
-  4538 (VIN, AVDD, GND, SCL, SDA, DRDY on pins; DRDY -> D0; June 2025+ rev also has input B) or
-  SparkFun Qwiic Scale (also has the interrupt pin); same price. No Zephyr NAU7802 driver; small own driver.
-  Per-corner readings (palm reject, press position) would need a 4-channel ADC (ADS131M04).
-  Stiff backing plate (~1.5 mm aluminium), cells preloaded, re-zero while no finger touches.
+- **Force sensor, chosen for scope (2026-11-02): round FSRs** (Interlink 400/402, sold by Adafruit
+  and SparkFun, a few dollars each). Only a threshold is needed, not accuracy. 4 FSRs in parallel
+  (conductances add, roughly proportional to total force) + one resistor as a divider -> one
+  analog pin (D0, A0); no NAU7802. Power the divider from a GPIO (D1) only while sampling. Each
+  FSR needs a small puck/nub matching its active area; 0.2-20 N range, so slams are fine.
+  Creep/drift is OK with a click threshold well above a resting finger plus hysteresis;
+  calibrate the threshold once per pad (part-to-part spread).
+- Alternatives considered: Alps HSFPAR003A (tiny SMT, 0-8 N, ~$9-14; breakout only MikroE Force
+  4 Click, scarce; carrier PCB via JLCPCB, LCSC C209768), Honeywell FSS015 (~$100+ each, no),
+  TAL221 bar cells (too bulky), BF350 strain gauges on DIY flexures (cheapest, fiddly). With
+  bridge sensors: summed into a NAU7802 (Adafruit 4538 or SparkFun Qwiic Scale, DRDY -> D0).
+- **Mechanics:** 4 sensors at the corners (current mount; a single sensor would need a hinge and
+  feels uneven). Stiff backing plate (~1.5 mm aluminium), light preload, re-zero while the
+  trackpad reports no finger.
 - **Firmware plan:** clicks decided on the pad (press ~150 g down + click buzz, release ~100 g up
   + lighter buzz; optional deep press), button bit in the PTP report (host clickpad behaviour),
   buzz played locally (no BLE delay). Left helper could use press-to-hold instead of rest-to-arm.
