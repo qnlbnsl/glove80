@@ -100,6 +100,13 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   plate with corner tabs past the pad outline, FSR under each tab, screw + spring or silicone
   washer on top pressing it down (adjustable, top surface stays clear). Alternative: a bezel lip
   over the pad edge with foam between lip and pad.
+  Fits the current printed housing (flat floor + edge lip, pad loose in the pocket): FSR pockets
+  and tail channels in the floor at the corners, a printed nub under each pad corner (pad must
+  touch nothing else; slack wiring), corner lips widened to take M2 heat-set inserts, small
+  printed corner clamps overlapping the pad ~3 mm with foam or a TPU pad underneath, screwed
+  down to set preload. The clamp must be soft (foam/TPU/spring): a stiff clamp takes up part
+  of every press instead of the FSR. Crush ribs on the pocket walls stop the side-to-side play.
+  No glue, fully removable.
 - **Firmware plan:** clicks decided on the pad (press ~150 g down + click buzz, release ~100 g up
   + lighter buzz; optional deep press), button bit in the PTP report (host clickpad behaviour),
   buzz played locally (no BLE delay). Left helper could use press-to-hold instead of rest-to-arm.
