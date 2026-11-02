@@ -76,8 +76,9 @@ Idea: MacBook-style clickpad. Load cells measure press force, a haptic actuator 
   (side-to-side) LRA disturbs the load cells less than a coin LRA (else ignore force ~20 ms after
   each buzz).
 - **Force:** 4 mini load cells at the corners (current mount; a single cell would need a hinge and
-  feels uneven), summed in hardware into one NAU7802 (I2C 0x2A, up to 320 SPS). Board: SparkFun
-  Qwiic Scale (breaks out the data-ready pin -> D0). No Zephyr NAU7802 driver; small own driver.
+  feels uneven), summed in hardware into one NAU7802 (I2C 0x2A, up to 320 SPS). Board: Adafruit
+  4538 (VIN, AVDD, GND, SCL, SDA, DRDY on pins; DRDY -> D0; June 2025+ rev also has input B) or
+  SparkFun Qwiic Scale (also has the interrupt pin); same price. No Zephyr NAU7802 driver; small own driver.
   Per-corner readings (palm reject, press position) would need a 4-channel ADC (ADS131M04).
   Stiff backing plate (~1.5 mm aluminium), cells preloaded, re-zero while no finger touches.
 - **Firmware plan:** clicks decided on the pad (press ~150 g down + click buzz, release ~100 g up
