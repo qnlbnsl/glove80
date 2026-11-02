@@ -75,12 +75,13 @@ Idea: MacBook-style clickpad. Load cells measure press force, a haptic actuator 
   (0x5A, no clash with the IQS550 at 0x74), 3V3. Glue the LRA under the plate; an X-axis
   (side-to-side) LRA disturbs the load cells less than a coin LRA (else ignore force ~20 ms after
   each buzz).
-- **Load cells:** Honeywell FSS-SMT, 15 N part (FSS015): tiny SMT piezoresistive bridge with a
-  steel ball plunger, ~360 mV full-scale (vs ~2 mV for a TAL221 bar cell at 3.3 V), 3.3 V OK.
-  Final form: one carrier PCB under the pad with the 4 sensors at the corners (+ NAU7802,
-  DRV2605L); the plate rests on the balls, light preload, hard stops for overload (check the
-  datasheet rating). Bar cells (TAL221 500 g, 47x12x6 mm) are too bulky for four under a TPS65;
-  FSRs creep under a resting finger, so not for a click threshold.
+- **Load cells:** Alps HSFPAR (e.g. HSFPAR003A): tiny SMT piezoresistive force sensor, 0-8 N,
+  1.5-3.6 V (runs straight off 3V3), 3.7 mV/N, ~$9-14 each. Honeywell FSS015 (15 N) is better
+  specced but ~$100-117 each, so no. Final form: one carrier PCB under the pad with the 4
+  sensors at the corners (+ NAU7802, DRV2605L); the plate rests on them, light preload, hard
+  stops so a palm or slam can't exceed 8 N on one corner. Bar cells (TAL221 500 g, 47x12x6 mm)
+  are too bulky for four under a TPS65; FSRs creep under a resting finger, so not for a click
+  threshold. Cheapest fallback: BF350 strain gauges on small DIY aluminium flexures.
 - **Force:** 4 mini load cells at the corners (current mount; a single cell would need a hinge and
   feels uneven), summed in hardware into one NAU7802 (I2C 0x2A, up to 320 SPS). Board: Adafruit
   4538 (VIN, AVDD, GND, SCL, SDA, DRDY on pins; DRDY -> D0; June 2025+ rev also has input B) or
