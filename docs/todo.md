@@ -90,13 +90,12 @@ their `zephyr-4.1` branches. Flashed and in daily use on all five devices since 
 - [x] Trackpad driver and PTP mode on 4.1 (builds; TWIM, no I2C_LOG_LEVEL_OFF) (FluxWav's patch targets 4.1 directly). 4.1 fixes
       the ATT error-response hang (see gotchas); keep the workaround, it is harmless
 - [x] Trackpads, display, LEDs (incl. brightness feedback, zmk d4d5c26), battery on 4.1
-- [ ] Watch: typing glitches (repeated/out-of-order keys) seen on the logging build; confirm
-      gone on the normal builds (see "Connection quality" below)
+- [x] Typing glitches were the logging build; gone on normal builds (2026-11-02)
 
 - Backlog: left trackpad as a normal trackpad on its own. For now it is helper-only (gestures
   for the right pad, see docs/trackpads-and-screen.md).
 
-- Connection quality (2026-11-01, gestures branch, logging dongle): occasional repeated key
+- Connection quality: RESOLVED 2026-11-02, gone on the normal (non-logging) builds. Was (2026-11-01, gestures branch, logging dongle): occasional repeated key
   ("rrrrr") then the halves' LEDs flash and it recovers. No disconnects in the log. It lines up
   with ZMK's sleep/wake param swaps on all 4 links (22.5 <-> 7.5 ms), `opcode 0x2013 status 0x02`
   (LE conn update rejected) and "Failed to sleep split connection: -5". Next: test on the
