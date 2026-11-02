@@ -85,7 +85,7 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   analog pin (D0, A0); no NAU7802. Power the divider from a GPIO (D1) only while sampling. Each
   FSR needs a small puck/nub matching its active area; 0.2-20 N range, so slams are fine.
   Creep/drift is OK with a click threshold well above a resting finger plus hysteresis;
-  calibrate the threshold once per pad (part-to-part spread). Preload each FSR (~50-100 g) so
+  calibrate the threshold once per pad (part-to-part spread). Preload each FSR (~30-50 g) so
   a centre press split 4 ways stays above the ~20 g turn-on knee. Work in conductance (1/R,
   roughly linear in force); threshold = baseline + delta, baseline tracked slowly (seconds)
   while the trackpad reports no finger, frozen while pressed. That absorbs creep under the
@@ -95,8 +95,11 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   TAL221 bar cells (too bulky), BF350 strain gauges on DIY flexures (cheapest, fiddly). With
   bridge sensors: summed into a NAU7802 (Adafruit 4538 or SparkFun Qwiic Scale, DRDY -> D0).
 - **Mechanics:** 4 sensors at the corners (current mount; a single sensor would need a hinge and
-  feels uneven). Stiff backing plate (~1.5 mm aluminium), light preload, re-zero while the
-  trackpad reports no finger.
+  feels uneven). Stiff backing plate (~1.5 mm aluminium), re-zero while the trackpad reports no
+  finger. Preload comes from a clamp, not weight (TPS65 + 1 mm PLA top is only ~15 g): backing
+  plate with corner tabs past the pad outline, FSR under each tab, screw + spring or silicone
+  washer on top pressing it down (adjustable, top surface stays clear). Alternative: a bezel lip
+  over the pad edge with foam between lip and pad.
 - **Firmware plan:** clicks decided on the pad (press ~150 g down + click buzz, release ~100 g up
   + lighter buzz; optional deep press), button bit in the PTP report (host clickpad behaviour),
   buzz played locally (no BLE delay). Left helper could use press-to-hold instead of rest-to-arm.
