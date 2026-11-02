@@ -66,8 +66,11 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       measured 75-88 Hz (controller scan limit ~10-11 ms, below the 125 Hz PTP spec)
 - [ ] Mouse-mode fallback over split (macOS): pad sends deltas/gestures when the dongle's
       host never sets touchpad mode
-- [ ] Dongle gesture engine across both pads: left = scroll, right = cursor; resting finger
-      on one pad holds the button while the other drags (two fingers resting = right drag)
+- [x] Dongle gesture engine (left pad = helper: rest-drag, tap click, double-tap drag lock,
+      circle scroll; see docs/trackpads-and-screen.md). All 10 checks passed 2026-11-01
+- [x] Fixed pad sides (L/R firmware, side characteristic); dongle screen redesign (pad tiles,
+      WPM graph)
+- [ ] Drag lock: release itself after some idle time?
 - [ ] Input thread stack 2 KB on the dongle/halves once gestures emit keys there
 - [ ] Optional: haptics (e.g. DRV2605L on the same I2C bus), touch-to-wake
 
@@ -76,8 +79,8 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
 - [ ] Trainer game (user's own project)
 
 ## Later: move to Zephyr 4.1 (after everything above works)
-Branches `zephyr-4.1` in glove80, qnlbnsl/zmk, qnlbnsl/prospector-zmk-module. All builds green
-in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry workflow files).
+Merged into glove80 main (2026-11-02); qnlbnsl/zmk and qnlbnsl/prospector-zmk-module stay on
+their `zephyr-4.1` branches. Flashed and in daily use on all five devices since 2026-11-01. Push those branches over SSH (they carry workflow files).
 - [x] Rebase the fork onto upstream ZMK main (Zephyr 4.1, `moergo/glove80` HWMv2 board):
       darknao per-key underglow layers (no 4.1 port exists yet), central->peripheral layer
       sync, `&rgb_ug` forward stub, Kconfig tweaks; drop the advertising-retry fix (upstream
@@ -86,11 +89,12 @@ in CI (2026-11-01); not yet flashed. Push those branches over SSH (they carry wo
       upstream's 4.1 / LVGL 9 version
 - [x] Trackpad driver and PTP mode on 4.1 (builds; TWIM, no I2C_LOG_LEVEL_OFF) (FluxWav's patch targets 4.1 directly). 4.1 fixes
       the ATT error-response hang (see gotchas); keep the workaround, it is harmless
-- [ ] Re-test everything on hardware: layers, LEDs, display, reconnect, battery, trackpads
+- [x] Trackpads, display, LEDs (incl. brightness feedback, zmk d4d5c26), battery on 4.1
+- [ ] Watch: typing glitches (repeated/out-of-order keys) seen on the logging build; confirm
+      gone on the normal builds (see "Connection quality" below)
 
 - Backlog: left trackpad as a normal trackpad on its own. For now it is helper-only (gestures
-  for the right pad, see docs/trackpads-and-screen.md). Until the gesture code exists, the
-  dongle still passes it through as USB touchpad 1.
+  for the right pad, see docs/trackpads-and-screen.md).
 
 - Connection quality (2026-11-01, gestures branch, logging dongle): occasional repeated key
   ("rrrrr") then the halves' LEDs flash and it recovers. No disconnects in the log. It lines up
