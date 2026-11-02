@@ -72,7 +72,7 @@ Legend: `[x]` done (hardware-confirmed), `[~]` built but not yet confirmed, `[ ]
       WPM graph)
 - [ ] Drag lock: release itself after some idle time?
 - [ ] Input thread stack 2 KB on the dongle/halves once gestures emit keys there
-- [ ] Optional: haptics (e.g. DRV2605L on the same I2C bus), touch-to-wake
+- [ ] Optional: haptics + force click (scoped, see docs/trackpads-and-screen.md), touch-to-wake
 
 ## Other
 - [x] `.gitignore` (firmware/) and `trainer/` committed
