@@ -75,8 +75,10 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   (0x5A, no clash with the IQS550 at 0x74), 3V3. Glue the LRA under the plate; an X-axis
   (side-to-side) LRA disturbs the force sensors less than a coin LRA (else ignore force ~20 ms after
   each buzz).
-- **Force sensor, chosen for scope (2026-11-02): round FSRs** (Interlink 400/402, sold by Adafruit
-  and SparkFun, a few dollars each). Only a threshold is needed, not accuracy. 4 FSRs in parallel
+- **Force sensor, chosen for scope (2026-11-02): round FSRs**: Interlink FSR 402 Short, solder tabs
+  (Interlink 34-00015, DigiKey 1027-1018-ND, ~$8.90; 18 mm round, 12.7 mm active, 0.2-20 N).
+  Smaller fallback: FSR 400 Short (34-00004, 7.6 mm round). 4 per pad, buy 10 for two pads.
+  Adafruit 166 is now an Alpha MF01A, not an Interlink part. Only a threshold is needed, not accuracy. 4 FSRs in parallel
   (conductances add, roughly proportional to total force) + one resistor as a divider -> one
   analog pin (D0, A0); no NAU7802. Power the divider from a GPIO (D1) only while sampling. Each
   FSR needs a small puck/nub matching its active area; 0.2-20 N range, so slams are fine.
