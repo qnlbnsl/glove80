@@ -85,7 +85,11 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   analog pin (D0, A0); no NAU7802. Power the divider from a GPIO (D1) only while sampling. Each
   FSR needs a small puck/nub matching its active area; 0.2-20 N range, so slams are fine.
   Creep/drift is OK with a click threshold well above a resting finger plus hysteresis;
-  calibrate the threshold once per pad (part-to-part spread).
+  calibrate the threshold once per pad (part-to-part spread). Preload each FSR (~50-100 g) so
+  a centre press split 4 ways stays above the ~20 g turn-on knee. Work in conductance (1/R,
+  roughly linear in force); threshold = baseline + delta, baseline tracked slowly (seconds)
+  while the trackpad reports no finger, frozen while pressed. That absorbs creep under the
+  preload (log-time, mostly first minutes), hand warmth (minutes) and ageing (months).
 - Alternatives considered: Alps HSFPAR003A (tiny SMT, 0-8 N, ~$9-14; breakout only MikroE Force
   4 Click, scarce; carrier PCB via JLCPCB, LCSC C209768), Honeywell FSS015 (~$100+ each, no),
   TAL221 bar cells (too bulky), BF350 strain gauges on DIY flexures (cheapest, fiddly). With
