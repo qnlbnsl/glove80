@@ -13,6 +13,8 @@ const OVERRIDES = {
   },
   // Vim arrows on H J K L; Copy (displaced from H) moves to ";".
   Cursor: { 40: "&kp LEFT", 41: "&kp DOWN", 42: "&kp UP", 43: "&kp RIGHT", 44: "&kp _COPY" },
+  // Media on the RH thumbs as in the pre-Sunaku-update keymap: T3 play/pause, T2 prev, T1 next, T6 mute.
+  Function: { 55: "&kp C_PP", 56: "&kp C_PREV", 57: "&kp C_NEXT", 72: "&kp C_MUTE" },
   // System's unique keys, moved onto Magic's empty right-hand slots.
   Magic: {
     28: "&kp K_APP", 29: "&kp PSCRN", 30: "&kp PAUSE_BREAK", 31: "&kp SLCK", 32: "&kp KP_NUM", 33: "&kp CAPS",

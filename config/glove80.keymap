@@ -10524,8 +10524,8 @@ macros {
             &none  &kp ESC  &kp INS  &kp LS(TAB)  &kp DEL  &none  &kp C_MEDIA_HOME  &kp C_PLAY  &kp C_PREV  &kp C_NEXT  &kp C_STOP  &kp C_EJECT
             &none  &kp RET  &kp SPACE  &kp TAB  &kp BSPC  &kp K_CALC  &kp K_CALC  &kp F7  &kp F8  &kp F9  &kp F10  &kp F13
             &sk LSHFT  &kp LEFT_PINKY_MOD  &kp LEFT_RINGY_MOD  &kp LEFT_MIDDY_MOD  &kp LEFT_INDEX_MOD  &kp K_WWW  &kp K_WWW  &kp F4  &kp F5  &kp F6  &kp F11  &kp F14
-            &none  &select_all  &select_line  &select_word  &kp _FIND  &kp _FILES  &tog LAYER_Function  &none  &none  &kp C_PREV  &kp C_PP  &kp C_MUTE  &kp _FILES  &kp F1  &kp F2  &kp F3  &kp F12  &kp F15
-            &none  &kp _UNDO  &kp _REDO  &kp _FIND_PREV  &kp _FIND_NEXT  &none  &none  &none  &kp C_NEXT  &kp C_VOL_DN  &kp C_VOL_UP  &kp C_BRI_MAX  &kp C_BRI_UP  &kp C_BRI_DN  &kp C_BRI_MIN  &kp C_BRI_AUTO
+            &none  &select_all  &select_line  &select_word  &kp _FIND  &kp _FILES  &tog LAYER_Function  &none  &none  &kp C_PP  &kp C_PREV  &kp C_NEXT  &kp _FILES  &kp F1  &kp F2  &kp F3  &kp F12  &kp F15
+            &none  &kp _UNDO  &kp _REDO  &kp _FIND_PREV  &kp _FIND_NEXT  &none  &none  &none  &kp C_MUTE  &kp C_VOL_DN  &kp C_VOL_UP  &kp C_BRI_MAX  &kp C_BRI_UP  &kp C_BRI_DN  &kp C_BRI_MIN  &kp C_BRI_AUTO
             >;
         };
 
