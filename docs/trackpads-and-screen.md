@@ -100,13 +100,17 @@ Idea: MacBook-style clickpad. Force sensors measure the press, a haptic actuator
   plate with corner tabs past the pad outline, FSR under each tab, screw + spring or silicone
   washer on top pressing it down (adjustable, top surface stays clear). Alternative: a bezel lip
   over the pad edge with foam between lip and pad.
-  Fits the current printed housing (flat floor + edge lip, pad loose in the pocket): FSR pockets
-  and tail channels in the floor at the corners, a printed nub under each pad corner (pad must
-  touch nothing else; slack wiring), corner lips widened to take M2 heat-set inserts, small
-  printed corner clamps overlapping the pad ~3 mm with foam or a TPU pad underneath, screwed
-  down to set preload. The clamp must be soft (foam/TPU/spring): a stiff clamp takes up part
-  of every press instead of the FSR. Crush ribs on the pocket walls stop the side-to-side play.
-  No glue, fully removable.
+  Must stay FLUSH with the housing top, so nothing may sit on top of the pad (corner clamps
+  rejected). Chosen: magnets. Pocket deepened by nub + FSR height; FSR pocket + tail groove in
+  the floor at each corner; a printed tray (or the pad's underside) with a nub over each FSR;
+  small neodymium magnets in the floor beside each FSR, steel washers (or magnets) in the tray
+  above them with a ~0.5-1 mm air gap (they must never touch). The pull is the preload (aim
+  ~30-50 g per corner, tune by gap/magnet size) and it barely changes over the tiny press
+  travel, so the FSR sees the whole press. Lift the pad out to remove. Crush ribs on the pocket
+  walls for side-to-side play; pad touches nothing but the nubs.
+  Alternative: window in the top skin, pad inserted from below on a tray with corner tabs under
+  the skin, foam between tabs and skin (soft side up), FSRs under the tabs on a screwed-on
+  bottom plate (screws set the preload).
 - **Firmware plan:** clicks decided on the pad (press ~150 g down + click buzz, release ~100 g up
   + lighter buzz; optional deep press), button bit in the PTP report (host clickpad behaviour),
   buzz played locally (no BLE delay). Left helper could use press-to-hold instead of rest-to-arm.
